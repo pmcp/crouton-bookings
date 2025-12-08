@@ -68,11 +68,26 @@ export function useBookingCart() {
   // Submitting state
   const isSubmitting = ref(false)
 
-  // Form state (not persisted - reset after adding to cart)
+  // Form state - use useState for shared state across components
+  // Note: useState returns a Ref, so we wrap in reactive to maintain existing API
+  const formStateRef = useState<{
+    locationId: string | null
+    date: Date | null
+    slotId: string | null
+  }>('bookingFormState', () => ({
+    locationId: null,
+    date: null,
+    slotId: null,
+  }))
+
+  // Create a reactive wrapper to maintain the existing API (formState.locationId instead of formState.value.locationId)
   const formState = reactive({
-    locationId: null as string | null,
-    date: null as Date | null,
-    slotId: null as string | null,
+    get locationId() { return formStateRef.value.locationId },
+    set locationId(v: string | null) { formStateRef.value.locationId = v },
+    get date() { return formStateRef.value.date },
+    set date(v: Date | null) { formStateRef.value.date = v },
+    get slotId() { return formStateRef.value.slotId },
+    set slotId(v: string | null) { formStateRef.value.slotId = v },
   })
 
   // Availability data from API
