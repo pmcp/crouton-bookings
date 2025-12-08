@@ -15,6 +15,9 @@
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
+    "@friendlyinternet/nuxt-crouton": "^1.5.3",
+    "@friendlyinternet/nuxt-crouton-connector": "^0.3.0",
+    "@friendlyinternet/nuxt-crouton-maps": "^0.3.0",
     "@iconify-json/lucide": "^1.2.45",
     "@nuxt/eslint": "^1.4.1",
     "@nuxt/ui": "3.1.3",
