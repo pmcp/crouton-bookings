@@ -25,15 +25,19 @@
           />
         </UFormField>
         <UFormField label="Date" name="date" class="not-last:pb-4">
-          <CroutonCalendar v-model:date="state.date" />
+          <BookingsCalendarWithAvailability
+            v-model="state.date"
+            :location-id="state.location"
+            :location-slots="locationSlots"
+            @available-slots-changed="availableSlots = $event"
+          />
         </UFormField>
         <UFormField label="Slot" name="slot" class="not-last:pb-4">
-          <CroutonFormDependentFieldLoader
+          <BookingsSlotSelectWithAvailability
             v-model="state.slot"
-            :dependent-value="state.location"
-            dependent-collection="bookingsLocations"
-            dependent-field="slots"
-            dependent-label="Location"
+            :location-id="state.location"
+            :available-slots="availableSlots"
+            :selected-date="state.date"
           />
         </UFormField>
         <UFormField label="Age Group" name="group" class="not-last:pb-4">
@@ -74,14 +78,40 @@
 
 <script setup lang="ts">
 import type { BookingsBookingFormProps, BookingsBookingFormData } from '../../types'
+import type { SlotOption } from '../composables/useBookingAvailability'
 
 const props = defineProps<BookingsBookingFormProps>()
 const { defaultValue, schema, collection } = useBookingsBookings()
+const { currentTeam } = useTeam()
 
-// Form layout configuration
-const tabs = ref(false)
+// Available slots from calendar (updates when date is selected)
+const availableSlots = ref<SlotOption[]>([])
 
+// Fetch location data to get slots configuration
+const { data: locationData } = useFetch(() =>
+  state.value.location
+    ? `/api/teams/${currentTeam.value?.id}/bookings-locations?ids=${state.value.location}`
+    : null,
+  {
+    watch: [() => state.value.location],
+    immediate: false
+  }
+)
 
+// Extract slots from location data
+const locationSlots = computed<SlotOption[]>(() => {
+  if (!locationData.value || !Array.isArray(locationData.value) || locationData.value.length === 0) {
+    return []
+  }
+  const location = locationData.value[0]
+  if (!location?.slots || !Array.isArray(location.slots)) {
+    return []
+  }
+  return location.slots.map((slot: any) => ({
+    id: slot.id || slot.value || String(slot),
+    label: slot.label || slot.title || String(slot)
+  }))
+})
 
 // Use new mutation composable for data operations
 const { create, update, deleteItems } = useCollectionMutation(collection)
@@ -102,6 +132,18 @@ if (props.action === 'update' && props.activeItem?.id) {
 }
 
 const state = ref<BookingsBookingFormData & { id?: string | null }>(initialValues)
+
+// Reset slot when date changes
+watch(() => state.value.date, () => {
+  state.value.slot = null
+})
+
+// Reset date and slot when location changes
+watch(() => state.value.location, () => {
+  state.value.date = null
+  state.value.slot = null
+  availableSlots.value = []
+})
 
 const handleSubmit = async () => {
   try {

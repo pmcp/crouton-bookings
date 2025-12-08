@@ -1,5 +1,5 @@
 // Generated with array reference post-processing support (v2024-10-12)
-import { eq, and, desc, inArray } from 'drizzle-orm'
+import { eq, and, desc, inArray, gte, lte } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/sqlite-core'
 import * as tables from './schema'
 import type { BookingsBooking, NewBookingsBooking } from '../../types'
@@ -163,4 +163,33 @@ export async function deleteBookingsBooking(
   }
 
   return { success: true }
+}
+
+export async function getBookingsByLocationAndDateRange(
+  teamId: string,
+  locationId: string,
+  startDate: Date,
+  endDate: Date
+) {
+  const db = useDB()
+
+  const bookings = await db
+    .select({
+      id: tables.bookingsBookings.id,
+      date: tables.bookingsBookings.date,
+      slot: tables.bookingsBookings.slot,
+      status: tables.bookingsBookings.status
+    })
+    .from(tables.bookingsBookings)
+    .where(
+      and(
+        eq(tables.bookingsBookings.teamId, teamId),
+        eq(tables.bookingsBookings.location, locationId),
+        gte(tables.bookingsBookings.date, startDate),
+        lte(tables.bookingsBookings.date, endDate)
+      )
+    )
+    .orderBy(tables.bookingsBookings.date)
+
+  return bookings
 }
