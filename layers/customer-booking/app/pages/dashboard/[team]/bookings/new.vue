@@ -5,7 +5,5 @@ definePageMeta({
 </script>
 
 <template>
-  <div class="h-[calc(100vh-3rem)]">
-    <BookingSidebarPanel size="xl" />
-  </div>
+  <BookingSidebarPanel size="xl" />
 </template>

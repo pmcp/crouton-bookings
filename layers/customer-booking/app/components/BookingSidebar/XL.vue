@@ -44,9 +44,9 @@ function toggleCart() {
 </script>
 
 <template>
-  <div class="h-full overflow-y-auto">
+  <div class="flex flex-col min-h-screen">
     <!-- Map Hero Section with floating overlays -->
-    <div class="relative h-[50vh] min-h-[400px] bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+    <div class="relative flex-shrink-0 h-[50vh] min-h-[400px] bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
       <!-- Full-width map -->
       <ClientOnly>
         <BookingSidebarLocationMap :location="selectedLocation" />
@@ -175,12 +175,12 @@ function toggleCart() {
     </div>
 
     <!-- Content Section (below map) -->
-    <div class="bg-white dark:bg-neutral-950">
+    <div class="flex-1 bg-white dark:bg-neutral-950 overflow-y-auto">
       <BookingSidebarLocationContent :location="selectedLocation" />
     </div>
 
     <!-- Mobile: Booking form below content -->
-    <div class="lg:hidden border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+    <div class="lg:hidden flex-shrink-0 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
       <UTabs
         v-model="activeTab"
         :items="tabItems"
