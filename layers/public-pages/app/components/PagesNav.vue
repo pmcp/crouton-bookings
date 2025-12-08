@@ -2,6 +2,7 @@
 interface Props {
   teamSlug: string
   variant?: 'horizontal' | 'vertical'
+  basePath?: 'p' | 'app'
 }
 
 interface MenuPage {
@@ -13,6 +14,7 @@ interface MenuPage {
 
 const props = withDefaults(defineProps<Props>(), {
   variant: 'horizontal',
+  basePath: 'p',
 })
 
 // Fetch menu pages (public endpoint)
@@ -29,6 +31,14 @@ const menuPages = computed(() => {
     return orderA - orderB
   })
 })
+
+// Generate link based on basePath
+const getPageLink = (slug: string) => {
+  if (props.basePath === 'app') {
+    return `/app/${props.teamSlug}/pages/${slug}`
+  }
+  return `/p/${props.teamSlug}/${slug}`
+}
 </script>
 
 <template>
@@ -36,7 +46,7 @@ const menuPages = computed(() => {
     <NuxtLink
       v-for="page in menuPages"
       :key="page.id"
-      :to="`/p/${teamSlug}/${page.slug}`"
+      :to="getPageLink(page.slug)"
       class="text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors"
       active-class="text-primary-600 dark:text-primary-400 font-medium"
     >
