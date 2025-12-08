@@ -17,7 +17,6 @@ const tabItems = computed<TabsItem[]>(() => {
   return props.locations.map(loc => ({
     label: loc.title,
     value: loc.id,
-    icon: 'i-lucide-map-pin',
   }))
 })
 
@@ -35,8 +34,8 @@ const activeLocation = computed({
     variant="pill"
     color="neutral"
     :ui="{
-      list: 'flex-wrap gap-1',
-      trigger: 'whitespace-nowrap',
+      list: 'gap-0.5 p-0',
+      trigger: 'px-4 py-1.5 text-sm font-medium whitespace-nowrap rounded-full data-[state=active]:bg-neutral-900 data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-neutral-900 transition-colors',
     }"
   />
 </template>

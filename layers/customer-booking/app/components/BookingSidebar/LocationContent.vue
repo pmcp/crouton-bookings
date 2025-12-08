@@ -23,37 +23,50 @@ const hasContent = computed(() => {
 
 <template>
   <ClientOnly>
-    <div v-if="location" class="space-y-4">
-      <!-- Address -->
-      <div v-if="fullAddress" class="flex items-start gap-2 text-sm text-muted">
-        <UIcon name="i-lucide-map-pin" class="w-4 h-4 mt-0.5 shrink-0" />
-        <span>{{ fullAddress }}</span>
-      </div>
+    <div v-if="location" class="max-w-5xl mx-auto px-6 py-8">
+      <div class="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-8 lg:gap-12">
+        <!-- Left: Title & Address -->
+        <div class="space-y-3">
+          <h2 class="text-2xl font-bold text-neutral-900 dark:text-white uppercase tracking-wide">
+            {{ location.title }}
+          </h2>
+          <div v-if="fullAddress" class="flex items-start gap-2 text-sm text-neutral-500 dark:text-neutral-400">
+            <span>{{ fullAddress }}</span>
+          </div>
+        </div>
 
-      <!-- Rich text content -->
-      <div
-        v-if="hasContent"
-        class="prose prose-sm dark:prose-invert max-w-none"
-        v-html="location.content"
-      />
-
-      <!-- No content placeholder -->
-      <div v-else class="text-sm text-muted italic">
-        No additional information available.
+        <!-- Right: Description -->
+        <div>
+          <div
+            v-if="hasContent"
+            class="prose prose-neutral dark:prose-invert prose-sm max-w-none"
+            v-html="location.content"
+          />
+          <p v-else class="text-sm text-neutral-400 dark:text-neutral-500 italic">
+            No additional information available.
+          </p>
+        </div>
       </div>
+    </div>
+
+    <!-- No location selected -->
+    <div v-else class="px-6 py-8 text-center text-neutral-400">
+      <p>Select a location to view details</p>
     </div>
 
     <!-- SSR fallback: skeleton -->
     <template #fallback>
-      <div class="space-y-4 animate-pulse">
-        <div class="flex items-start gap-2">
-          <div class="w-4 h-4 bg-neutral-200 dark:bg-neutral-800 rounded shrink-0" />
-          <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-3/4" />
-        </div>
-        <div class="space-y-2">
-          <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-full" />
-          <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-5/6" />
-          <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-4/6" />
+      <div class="max-w-5xl mx-auto px-6 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-8 lg:gap-12 animate-pulse">
+          <div class="space-y-3">
+            <div class="h-8 bg-neutral-200 dark:bg-neutral-800 rounded w-3/4" />
+            <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-full" />
+          </div>
+          <div class="space-y-3">
+            <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-full" />
+            <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-5/6" />
+            <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-4/6" />
+          </div>
         </div>
       </div>
     </template>

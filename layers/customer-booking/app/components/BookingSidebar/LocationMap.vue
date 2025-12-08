@@ -33,13 +33,15 @@ const markerColor = useMarkerColor()
 </script>
 
 <template>
-  <div class="relative rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-800">
+  <div class="absolute inset-0 z-0">
     <!-- Map with coordinates -->
     <CroutonMapsMap
       v-if="hasCoordinates"
       :center="coordinates!"
       :zoom="14"
-      height="300px"
+      height="max(400px, 50vh)"
+      width="100%"
+      class="!rounded-none"
       :fly-to-on-center-change="true"
     >
       <template #default="{ map }">
@@ -54,7 +56,7 @@ const markerColor = useMarkerColor()
     <!-- No coordinates placeholder -->
     <div
       v-else
-      class="h-[300px] flex items-center justify-center bg-neutral-100 dark:bg-neutral-900"
+      class="h-full flex items-center justify-center bg-neutral-200 dark:bg-neutral-800"
     >
       <div class="text-center text-muted">
         <UIcon name="i-lucide-map" class="w-12 h-12 mb-2 opacity-50" />
@@ -63,3 +65,9 @@ const markerColor = useMarkerColor()
     </div>
   </div>
 </template>
+
+<style scoped>
+:deep(.crouton-map-wrapper) {
+  border-radius: 0 !important;
+}
+</style>
