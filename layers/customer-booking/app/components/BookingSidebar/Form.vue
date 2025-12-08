@@ -231,13 +231,19 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
         }"
       >
         <template #label="{ item }">
-          <span class="inline-flex items-center gap-1.5">
+          <span
+            class="inline-flex items-center justify-center gap-1.5 w-full"
+            :class="item.disabled ? 'opacity-50' : ''"
+          >
             <span
               v-if="item.value && item.value !== 'all-day'"
               class="w-2 h-2 rounded-full shrink-0"
-              :style="{ backgroundColor: getSlotColorById(String(item.value)) }"
+              :style="{ backgroundColor: item.disabled ? '#6b7280' : getSlotColorById(String(item.value)) }"
             />
-            <span>{{ item.label }}</span>
+            <span :class="item.disabled ? 'line-through text-muted' : ''">{{ item.label }}</span>
+            <UBadge v-if="item.disabled" size="xs" color="neutral" variant="subtle" class="ml-1">
+              Booked
+            </UBadge>
           </span>
         </template>
       </URadioGroup>
@@ -261,6 +267,8 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
     <UButton
       block
       :disabled="!canAddToCart"
+      :color="canAddToCart ? 'primary' : 'neutral'"
+      :variant="canAddToCart ? 'solid' : 'outline'"
       icon="i-lucide-plus"
       @click="addToCart"
     >
