@@ -1,9 +1,10 @@
 <script setup lang="ts">
 definePageMeta({
   middleware: 'auth',
+  layout: false,
 })
 </script>
 
 <template>
-  <BookingSidebarPanel size="xl" />
+  <BookingSidebarXL />
 </template>

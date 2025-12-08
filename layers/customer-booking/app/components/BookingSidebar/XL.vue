@@ -44,9 +44,9 @@ function toggleCart() {
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen">
+  <div class="h-screen flex flex-col bg-white dark:bg-neutral-950">
     <!-- Map Hero Section with floating overlays -->
-    <div class="relative flex-shrink-0 h-[50vh] min-h-[400px] bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+    <div class="relative flex-shrink-0 h-[50vh] min-h-[350px] bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
       <!-- Full-width map -->
       <ClientOnly>
         <BookingSidebarLocationMap :location="selectedLocation" />
@@ -58,7 +58,7 @@ function toggleCart() {
       </ClientOnly>
 
       <!-- Floating Location Nav (centered top) -->
-      <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 max-w-[calc(100%-420px)]">
+      <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 max-w-[calc(100%-32px)] md:max-w-[calc(100%-420px)]">
         <div v-if="locationsStatus === 'pending'" class="bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm rounded-full shadow-lg px-4 py-2">
           <div class="flex items-center gap-2">
             <UIcon name="i-lucide-loader-2" class="w-4 h-4 animate-spin" />
@@ -77,7 +77,7 @@ function toggleCart() {
       </div>
 
       <!-- Floating Booking Sidebar (right) - Desktop only -->
-      <div class="absolute top-4 right-4 bottom-4 w-[380px] z-20 hidden lg:block">
+      <div class="absolute top-4 right-4 bottom-4 w-[380px] z-20 hidden md:block">
         <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl h-full flex flex-col overflow-hidden relative">
           <!-- Tabs: Book / My Bookings -->
           <UTabs
@@ -174,75 +174,78 @@ function toggleCart() {
       </div>
     </div>
 
-    <!-- Content Section (below map) -->
-    <div class="flex-1 bg-white dark:bg-neutral-950 overflow-y-auto">
-      <BookingSidebarLocationContent :location="selectedLocation" />
-    </div>
+    <!-- Scrollable content area -->
+    <div class="flex-1 overflow-y-auto">
+      <!-- Content Section (below map) -->
+      <div class="bg-white dark:bg-neutral-950">
+        <BookingSidebarLocationContent :location="selectedLocation" />
+      </div>
 
-    <!-- Mobile: Booking form below content -->
-    <div class="lg:hidden flex-shrink-0 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
-      <UTabs
-        v-model="activeTab"
-        :items="tabItems"
-        :ui="{
-          list: 'border-b border-neutral-200 dark:border-neutral-800',
-        }"
-      >
-        <template #book>
-          <ClientOnly>
-            <BookingSidebarForm :hide-location-select="true" />
-            <template #fallback>
-              <div class="p-4 space-y-4 animate-pulse">
-                <div class="h-8 bg-neutral-200 dark:bg-neutral-700 rounded" />
-                <div class="h-64 bg-neutral-200 dark:bg-neutral-700 rounded" />
-              </div>
-            </template>
-          </ClientOnly>
-        </template>
-
-        <template #my-bookings>
-          <BookingSidebarMyBookings />
-        </template>
-      </UTabs>
-
-      <!-- Mobile Cart -->
-      <div class="border-t border-neutral-200 dark:border-neutral-800 p-2">
-        <UButton
-          block
-          variant="soft"
-          color="neutral"
-          class="justify-between"
-          @click="toggleCart"
+      <!-- Mobile: Booking form below content -->
+      <div class="md:hidden border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+        <UTabs
+          v-model="activeTab"
+          :items="tabItems"
+          :ui="{
+            list: 'border-b border-neutral-200 dark:border-neutral-800',
+          }"
         >
-          <span class="flex items-center gap-2">
-            <UIcon name="i-lucide-shopping-cart" class="w-4 h-4" />
-            <span>Cart</span>
-          </span>
-          <span class="flex items-center gap-2">
+          <template #book>
             <ClientOnly>
-              <UBadge v-if="cartCount > 0" color="primary" size="xs">
-                {{ cartCount }}
-              </UBadge>
+              <BookingSidebarForm :hide-location-select="true" />
+              <template #fallback>
+                <div class="p-4 space-y-4 animate-pulse">
+                  <div class="h-8 bg-neutral-200 dark:bg-neutral-700 rounded" />
+                  <div class="h-64 bg-neutral-200 dark:bg-neutral-700 rounded" />
+                </div>
+              </template>
             </ClientOnly>
-            <UIcon
-              :name="isCartOpen ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
-              class="w-4 h-4 transition-transform"
-            />
-          </span>
-        </UButton>
+          </template>
 
-        <Transition
-          enter-active-class="transition-all duration-300 ease-out"
-          enter-from-class="max-h-0 opacity-0"
-          enter-to-class="max-h-96 opacity-100"
-          leave-active-class="transition-all duration-200 ease-in"
-          leave-from-class="max-h-96 opacity-100"
-          leave-to-class="max-h-0 opacity-0"
-        >
-          <div v-if="isCartOpen" class="overflow-hidden">
-            <BookingSidebarCart />
-          </div>
-        </Transition>
+          <template #my-bookings>
+            <BookingSidebarMyBookings />
+          </template>
+        </UTabs>
+
+        <!-- Mobile Cart -->
+        <div class="border-t border-neutral-200 dark:border-neutral-800 p-2">
+          <UButton
+            block
+            variant="soft"
+            color="neutral"
+            class="justify-between"
+            @click="toggleCart"
+          >
+            <span class="flex items-center gap-2">
+              <UIcon name="i-lucide-shopping-cart" class="w-4 h-4" />
+              <span>Cart</span>
+            </span>
+            <span class="flex items-center gap-2">
+              <ClientOnly>
+                <UBadge v-if="cartCount > 0" color="primary" size="xs">
+                  {{ cartCount }}
+                </UBadge>
+              </ClientOnly>
+              <UIcon
+                :name="isCartOpen ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+                class="w-4 h-4 transition-transform"
+              />
+            </span>
+          </UButton>
+
+          <Transition
+            enter-active-class="transition-all duration-300 ease-out"
+            enter-from-class="max-h-0 opacity-0"
+            enter-to-class="max-h-96 opacity-100"
+            leave-active-class="transition-all duration-200 ease-in"
+            leave-from-class="max-h-96 opacity-100"
+            leave-to-class="max-h-0 opacity-0"
+          >
+            <div v-if="isCartOpen" class="overflow-hidden">
+              <BookingSidebarCart />
+            </div>
+          </Transition>
+        </div>
       </div>
     </div>
   </div>
