@@ -5,8 +5,10 @@ export default defineNuxtConfig({
   extends: [
     '@friendlyinternet/nuxt-crouton',
     '@friendlyinternet/nuxt-crouton-connector',
+    '@friendlyinternet/nuxt-crouton-editor',
     '@friendlyinternet/nuxt-crouton-maps',
     './layers/bookings',
+    './layers/customer-booking',
   ],
   modules: [
     '@nuxthub/core',
