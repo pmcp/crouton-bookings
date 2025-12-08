@@ -17,6 +17,7 @@ const breakpoints = useBreakpoints(breakpointsTailwind)
 const isMobile = breakpoints.smaller('lg')
 
 // Tab items for Book/My Bookings
+// Note: Using static label to avoid SSR hydration mismatch (upcomingBookingsCount uses async data)
 const tabItems = computed<TabsItem[]>(() => [
   {
     label: 'Book',
@@ -25,9 +26,7 @@ const tabItems = computed<TabsItem[]>(() => [
     slot: 'book',
   },
   {
-    label: upcomingBookingsCount.value > 0
-      ? `My Bookings (${upcomingBookingsCount.value})`
-      : 'My Bookings',
+    label: 'My Bookings',
     icon: 'i-lucide-calendar-check',
     value: 'my-bookings',
     slot: 'my-bookings',
@@ -124,9 +123,11 @@ function toggleCart() {
               <span>Cart</span>
             </span>
             <span class="flex items-center gap-2">
-              <UBadge v-if="cartCount > 0" color="primary" size="xs">
-                {{ cartCount }}
-              </UBadge>
+              <ClientOnly>
+                <UBadge v-if="cartCount > 0" color="primary" size="xs">
+                  {{ cartCount }}
+                </UBadge>
+              </ClientOnly>
               <UIcon
                 :name="isCartOpen ? 'i-lucide-chevron-down' : 'i-lucide-chevron-up'"
                 class="w-4 h-4 transition-transform"
@@ -152,9 +153,11 @@ function toggleCart() {
               <h3 class="font-medium text-sm flex items-center gap-2">
                 <UIcon name="i-lucide-shopping-cart" class="w-4 h-4" />
                 Cart
-                <UBadge v-if="cartCount > 0" color="primary" size="xs">
-                  {{ cartCount }}
-                </UBadge>
+                <ClientOnly>
+                  <UBadge v-if="cartCount > 0" color="primary" size="xs">
+                    {{ cartCount }}
+                  </UBadge>
+                </ClientOnly>
               </h3>
               <UButton
                 variant="ghost"
