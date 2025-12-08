@@ -3,6 +3,7 @@ const {
   cart,
   cartCount,
   isSubmitting,
+  isCartOpen,
   removeFromCart,
   clearCart,
   submitAll,
@@ -24,8 +25,9 @@ async function handleSubmit() {
   await submitAll()
 }
 
-// Go to booking tab
+// Go to booking tab (and close drawer)
 function goToBooking() {
+  isCartOpen.value = false
   activeTab.value = 'book'
 }
 </script>

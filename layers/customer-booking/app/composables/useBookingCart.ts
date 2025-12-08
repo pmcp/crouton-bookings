@@ -10,6 +10,23 @@ export interface CartItem {
   slotLabel: string
 }
 
+interface AvailabilityData {
+  [dateISO: string]: {
+    bookedSlots: string[]
+  }
+}
+
+const ALL_DAY_SLOT: SlotItem = {
+  id: 'all-day',
+  label: 'All Day',
+}
+
+interface BookingData {
+  id: string
+  date: string | Date
+  status: string
+}
+
 export function useBookingCart() {
   const route = useRoute()
   const toast = useToast()
@@ -20,11 +37,33 @@ export function useBookingCart() {
   // Cart persisted in localStorage
   const cart = useLocalStorage<CartItem[]>('booking-cart', [])
 
+  // Fetch customer bookings for the "My Bookings" count
+  const { data: myBookings } = useFetch<BookingData[]>(
+    () => `/api/teams/${teamId.value}/customer-bookings`,
+    {
+      key: 'booking-cart-my-bookings',
+    },
+  )
+
+  // Count of upcoming bookings (future dates only)
+  const upcomingBookingsCount = computed(() => {
+    if (!myBookings.value) return 0
+    const now = new Date()
+    now.setHours(0, 0, 0, 0)
+    return myBookings.value.filter((b) => {
+      const bookingDate = new Date(b.date)
+      return bookingDate >= now
+    }).length
+  })
+
   // Sidebar open state (for mobile)
   const isOpen = useState('bookingSidebar', () => false)
 
-  // Active tab: 'book' or 'cart'
+  // Active tab: 'book' or 'my-bookings'
   const activeTab = useState('bookingSidebarTab', () => 'book')
+
+  // Cart drawer open state (bottom drawer)
+  const isCartOpen = useState('bookingCartDrawer', () => false)
 
   // Submitting state
   const isSubmitting = ref(false)
@@ -35,6 +74,10 @@ export function useBookingCart() {
     date: null as Date | null,
     slotId: null as string | null,
   })
+
+  // Availability data from API
+  const availabilityData = ref<AvailabilityData>({})
+  const availabilityLoading = ref(false)
 
   // Fetch allowed locations
   const { data: locations, status: locationsStatus } = useFetch<LocationData[]>(
@@ -50,8 +93,8 @@ export function useBookingCart() {
     return locations.value.find(l => l.id === formState.locationId) || null
   })
 
-  // Parse slots from selected location
-  const availableSlots = computed<SlotItem[]>(() => {
+  // Parse raw slots from selected location (without availability filtering)
+  const rawSlots = computed<SlotItem[]>(() => {
     if (!selectedLocation.value?.slots) return []
 
     const slots = selectedLocation.value.slots
@@ -68,6 +111,152 @@ export function useBookingCart() {
     return Array.isArray(slots) ? slots : []
   })
 
+  // Normalize date to YYYY-MM-DD string
+  function normalizeToDateKey(date: Date): string {
+    return date.toISOString().substring(0, 10)
+  }
+
+  // Check if two dates are the same day
+  function isSameDay(date1: Date, date2: Date): boolean {
+    return normalizeToDateKey(date1) === normalizeToDateKey(date2)
+  }
+
+  // Fetch availability for a date range
+  async function fetchAvailability(startDate: Date, endDate: Date) {
+    if (!formState.locationId || !teamId.value) return
+
+    availabilityLoading.value = true
+    try {
+      const data = await $fetch<AvailabilityData>(
+        `/api/teams/${teamId.value}/bookings-bookings/availability`,
+        {
+          query: {
+            locationId: formState.locationId,
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+          },
+        },
+      )
+      availabilityData.value = data
+    }
+    catch (error) {
+      console.error('Failed to fetch availability:', error)
+      availabilityData.value = {}
+    }
+    finally {
+      availabilityLoading.value = false
+    }
+  }
+
+  // Get booked slots from API for a specific date
+  function getApiBookedSlotsForDate(date: Date): string[] {
+    const dateKey = normalizeToDateKey(date)
+    return availabilityData.value[dateKey]?.bookedSlots || []
+  }
+
+  // Get booked slots from cart for a specific date and location
+  function getCartBookedSlotsForDate(date: Date): string[] {
+    if (!formState.locationId) return []
+
+    return cart.value
+      .filter(item =>
+        item.locationId === formState.locationId
+        && isSameDay(new Date(item.date), date),
+      )
+      .map(item => item.slotId)
+  }
+
+  // All slots including "All Day" prepended
+  const allSlots = computed<SlotItem[]>(() => {
+    if (!selectedLocation.value) return []
+    return [ALL_DAY_SLOT, ...rawSlots.value]
+  })
+
+  // Get booked slot IDs for the selected date (from API + cart)
+  const bookedSlotIds = computed<string[]>(() => {
+    if (!formState.date) return []
+
+    const apiBooked = getApiBookedSlotsForDate(formState.date)
+    const cartBooked = getCartBookedSlotsForDate(formState.date)
+    return [...new Set([...apiBooked, ...cartBooked])]
+  })
+
+  // Check if a slot is disabled
+  function isSlotDisabled(slotId: string): boolean {
+    if (!formState.date) return true
+
+    // If "all-day" is booked, all slots are disabled
+    if (bookedSlotIds.value.includes('all-day')) {
+      return true
+    }
+
+    // If this slot is booked, it's disabled
+    if (bookedSlotIds.value.includes(slotId)) {
+      return true
+    }
+
+    // If any slot is booked, "all-day" is disabled
+    if (slotId === 'all-day' && bookedSlotIds.value.length > 0) {
+      return true
+    }
+
+    return false
+  }
+
+  // Compute available slots (for backward compatibility - non-disabled slots)
+  const availableSlots = computed<SlotItem[]>(() => {
+    if (!formState.date || !selectedLocation.value) return []
+    return allSlots.value.filter(slot => !isSlotDisabled(slot.id))
+  })
+
+  // === Calendar availability helpers ===
+
+  // Get all booked slots for a date (API + cart combined)
+  function getBookedSlotsForDate(date: Date): string[] {
+    const apiBooked = getApiBookedSlotsForDate(date)
+    const cartBooked = getCartBookedSlotsForDate(date)
+    return [...new Set([...apiBooked, ...cartBooked])]
+  }
+
+  // Check if a date has any bookings
+  function hasBookingsOnDate(date: Date): boolean {
+    return getBookedSlotsForDate(date).length > 0
+  }
+
+  // Check if a date is fully booked
+  function isDateFullyBooked(date: Date): boolean {
+    const bookedSlots = getBookedSlotsForDate(date)
+
+    // If "all-day" is booked, the date is fully booked
+    if (bookedSlots.includes('all-day')) {
+      return true
+    }
+
+    // If all individual slots are booked, it's fully booked
+    const individualSlots = rawSlots.value.map(s => s.id)
+    if (individualSlots.length === 0) return false
+
+    return individualSlots.every(slotId => bookedSlots.includes(slotId))
+  }
+
+  // Get booked slot labels for tooltip display
+  function getBookedSlotLabelsForDate(date: Date): string[] {
+    const bookedIds = getBookedSlotsForDate(date)
+    return bookedIds.map(id => getSlotLabel(id))
+  }
+
+  // Fetch availability when location changes
+  watch(() => formState.locationId, () => {
+    availabilityData.value = {}
+    if (formState.locationId) {
+      // Fetch 3 months of availability
+      const now = new Date()
+      const startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+      const endDate = new Date(now.getFullYear(), now.getMonth() + 3, 0)
+      fetchAvailability(startDate, endDate)
+    }
+  }, { immediate: true })
+
   // Can add to cart
   const canAddToCart = computed(() =>
     !!formState.locationId && !!formState.date && !!formState.slotId,
@@ -83,7 +272,8 @@ export function useBookingCart() {
 
   // Get slot label by ID
   function getSlotLabel(slotId: string): string {
-    const slot = availableSlots.value.find(s => s.id === slotId)
+    if (slotId === 'all-day') return ALL_DAY_SLOT.label!
+    const slot = rawSlots.value.find(s => s.id === slotId)
     return slot?.label || slot?.value || slotId
   }
 
@@ -113,8 +303,8 @@ export function useBookingCart() {
       color: 'success',
     })
 
-    // Switch to cart tab to show the added item
-    activeTab.value = 'cart'
+    // Open cart drawer to show the added item
+    isCartOpen.value = true
   }
 
   // Remove item from cart
@@ -160,8 +350,9 @@ export function useBookingCart() {
         color: 'success',
       })
 
-      // Switch back to book tab
-      activeTab.value = 'book'
+      // Close cart drawer and switch to my bookings tab
+      isCartOpen.value = false
+      activeTab.value = 'my-bookings'
 
       return result
     }
@@ -190,19 +381,29 @@ export function useBookingCart() {
     // State
     cart,
     isOpen,
+    isCartOpen,
     activeTab,
     formState,
     isSubmitting,
+    availabilityLoading,
 
     // Locations
     locations,
     locationsStatus,
     selectedLocation,
+    allSlots,
     availableSlots,
+    isSlotDisabled,
+
+    // Calendar availability helpers
+    hasBookingsOnDate,
+    isDateFullyBooked,
+    getBookedSlotLabelsForDate,
 
     // Computed
     canAddToCart,
     cartCount,
+    upcomingBookingsCount,
     teamId,
 
     // Actions
