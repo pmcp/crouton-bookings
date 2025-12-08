@@ -22,7 +22,7 @@
           <UInput v-model="state.title" class="w-full" size="xl" />
         </UFormField>
         <UFormField label="Slug" name="slug" class="not-last:pb-4">
-          <UInput v-model="state.slug" class="w-full" size="xl" />
+          <UInput v-model="state.slug" class="w-full" size="xl" @blur="onSlugBlur" />
         </UFormField>
       </div>
 
@@ -103,6 +103,17 @@ import type { BookingsPageFormProps, BookingsPageFormData } from '../../types'
 const props = defineProps<BookingsPageFormProps>()
 const { defaultValue, schema, collection } = useBookingsPages()
 
+// Slugify helper - converts text to URL-safe slug
+const slugify = (text: string): string => {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove non-word chars (except spaces and hyphens)
+    .replace(/\s+/g, '-')     // Replace spaces with hyphens
+    .replace(/-+/g, '-')      // Replace multiple hyphens with single
+    .replace(/^-+|-+$/g, '')  // Trim hyphens from start/end
+}
+
 // Form layout configuration
 const navigationItems = [
   { label: 'Basic', value: 'basic' },
@@ -166,6 +177,23 @@ if (props.action === 'update' && props.activeItem?.id) {
 }
 
 const state = ref<BookingsPageFormData & { id?: string | null }>(initialValues)
+
+// Auto-generate slug from title when creating new pages
+const slugManuallyEdited = ref(false)
+watch(() => state.value.title, (newTitle) => {
+  // Only auto-generate if creating and slug hasn't been manually edited
+  if (props.action === 'create' && !slugManuallyEdited.value && newTitle) {
+    state.value.slug = slugify(newTitle)
+  }
+})
+
+// Sanitize slug on blur (when user finishes editing)
+const onSlugBlur = () => {
+  if (state.value.slug) {
+    state.value.slug = slugify(state.value.slug)
+    slugManuallyEdited.value = true
+  }
+}
 
 const handleSubmit = async () => {
   try {
