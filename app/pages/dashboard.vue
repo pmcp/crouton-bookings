@@ -5,6 +5,8 @@
       <SuperAdminImpersonationBanner v-if="user?._impersonated" :user="user" />
       <NuxtPage />
     </div>
+    <!-- Booking Sidebar - only for customer routes -->
+    <BookingSidebarPanel v-if="showBookingSidebar" />
   </main>
 </template>
 
@@ -15,7 +17,15 @@ definePageMeta({
 
 const { user } = useUserSession()
 const route = useRoute()
+
 const isOnboardRoute = computed(() =>
   route.path.startsWith('/dashboard/onboard'),
 )
+
+// Show booking sidebar only on customer-facing routes (bookings section)
+const showBookingSidebar = computed(() => {
+  const path = route.path
+  // Show on bookings routes but not on admin routes
+  return path.includes('/bookings') && !path.includes('/admin')
+})
 </script>
