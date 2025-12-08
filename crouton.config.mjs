@@ -5,14 +5,15 @@ export default {
     { name: 'locations', fieldsFile: './schemas/location-schema.json' },
     { name: 'emailTemplates', fieldsFile: './schemas/email-template-schema.json' },
     { name: 'pages', fieldsFile: './schemas/page-schema.json' },
-    { name: 'assets', fieldsFile: './schemas/asset-schema.json' }
+    { name: 'assets', fieldsFile: './schemas/asset-schema.json' },
+    { name: 'settings', fieldsFile: './schemas/settings-schema.json' }
   ],
 
   // Organize into layers
   targets: [
     {
       layer: 'bookings',
-      collections: ['bookings', 'locations', 'emailTemplates', 'pages', 'assets']
+      collections: ['bookings', 'locations', 'emailTemplates', 'pages', 'assets', 'settings']
     }
   ],
 

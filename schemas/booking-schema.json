@@ -34,9 +34,13 @@
   "group": {
     "type": "string",
     "meta": {
-      "label": "Group",
+      "label": "Age Group",
       "area": "main",
-      "group": "bookingDetails"
+      "group": "bookingDetails",
+      "optionsCollection": "bookingsSettings",
+      "optionsField": "groups",
+      "displayAs": "optionsSelect",
+      "creatable": true
     }
   },
   "status": {
@@ -46,7 +50,11 @@
       "default": "confirmed",
       "label": "Status",
       "area": "sidebar",
-      "group": "settings"
+      "group": "settings",
+      "optionsCollection": "bookingsSettings",
+      "optionsField": "statuses",
+      "displayAs": "optionsSelect",
+      "creatable": true
     }
   }
 }
