@@ -16,8 +16,43 @@ const {
   addToCart,
   hasBookingsOnDate,
   isDateFullyBooked,
-  getBookedSlotLabelsForDate,
+  getBookedSlotsForDate,
 } = useBookingCart()
+
+// Fallback colors for slots without a color set (assigned by index)
+const FALLBACK_COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#14b8a6', '#a855f7', '#ef4444']
+const DEFAULT_SLOT_COLOR = '#9ca3af'
+
+// Get fallback color by slot index
+function getFallbackColor(slotId: string): string {
+  // Find index in allSlots (skip 'all-day' at index 0)
+  const index = allSlots.value.findIndex(s => s.id === slotId)
+  if (index <= 0) return DEFAULT_SLOT_COLOR
+  return FALLBACK_COLORS[(index - 1) % FALLBACK_COLORS.length]
+}
+
+// Get the color for a slot (from slot data or fallback)
+function getSlotColorById(slotId: string): string {
+  const slot = allSlots.value.find(s => s.id === slotId)
+  // Use slot color if set, otherwise use fallback based on index
+  return slot?.color || getFallbackColor(slotId)
+}
+
+// Get booked slots with their colors for a date
+function getBookedSlotsWithColors(date: Date): Array<{ id: string, label: string, color: string }> {
+  const bookedIds = getBookedSlotsForDate(date)
+  // Filter out 'all-day' - if all-day is booked, date is fully booked anyway
+  return bookedIds
+    .filter(id => id !== 'all-day')
+    .map((id) => {
+      const slot = allSlots.value.find(s => s.id === id)
+      return {
+        id,
+        label: slot?.label || id,
+        color: slot?.color || getFallbackColor(id),
+      }
+    })
+}
 
 // Transform locations to select items
 const locationOptions = computed<SelectItem[]>(() => {
@@ -67,24 +102,25 @@ function isDateDisabled(dateValue: DateValue): boolean {
   return isDateFullyBooked(dateValueToDate(dateValue))
 }
 
-// Get chip color based on booking status
-function getChipColor(dateValue: DateValue): 'warning' | 'error' | undefined {
+// Get booked slots for a DateValue (used in template)
+function getBookedSlotsForDateValue(dateValue: DateValue) {
   const date = dateValueToDate(dateValue)
-  if (!hasBookingsOnDate(date)) return undefined
-  if (isDateFullyBooked(date)) return 'error'
-  return 'warning'
+  // Don't show indicators if fully booked (date will be disabled)
+  if (isDateFullyBooked(date)) return []
+  return getBookedSlotsWithColors(date)
 }
 
 // Get tooltip text for booked dates
 function getTooltipText(dateValue: DateValue): string {
-  const labels = getBookedSlotLabelsForDate(dateValueToDate(dateValue))
-  if (labels.length === 0) return ''
-  return `Booked: ${labels.join(', ')}`
+  const slots = getBookedSlotsForDateValue(dateValue)
+  if (slots.length === 0) return ''
+  return `Booked: ${slots.map(s => s.label).join(', ')}`
 }
 
-// Check if date has bookings (for template)
-function dateHasBookings(dateValue: DateValue): boolean {
-  return hasBookingsOnDate(dateValueToDate(dateValue))
+// Check if date has partial bookings (some slots taken, but not all)
+function dateHasPartialBookings(dateValue: DateValue): boolean {
+  const date = dateValueToDate(dateValue)
+  return hasBookingsOnDate(date) && !isDateFullyBooked(date)
 }
 </script>
 
@@ -123,36 +159,23 @@ function dateHasBookings(dateValue: DateValue): boolean {
         <UCalendar
           v-model="calendarValue"
           :is-date-disabled="isDateDisabled"
+          :ui="{ gridRow: 'grid grid-cols-7 mb-1' }"
         >
           <template #day="{ day }">
-            <UTooltip
-              v-if="dateHasBookings(day)"
-              :text="getTooltipText(day)"
-              :delay-duration="200"
-            >
-              <UChip
-                :color="getChipColor(day)"
-                size="2xs"
-                :show="dateHasBookings(day)"
-              >
-                {{ day.day }}
-              </UChip>
-            </UTooltip>
-            <span v-else>{{ day.day }}</span>
+            <div class="flex flex-col items-center">
+              <span>{{ day.day }}</span>
+              <div v-if="getBookedSlotsForDateValue(day).length > 0" class="flex gap-px mt-px">
+                <span
+                  v-for="slot in getBookedSlotsForDateValue(day)"
+                  :key="slot.id"
+                  class="w-1 h-1 rounded-full"
+                  :style="{ backgroundColor: slot.color }"
+                />
+              </div>
+            </div>
           </template>
         </UCalendar>
 
-        <!-- Legend -->
-        <div class="flex items-center gap-4 mt-3 text-xs text-gray-500 dark:text-gray-400">
-          <div class="flex items-center gap-1">
-            <UChip color="warning" size="xs" standalone inset />
-            <span>Partial</span>
-          </div>
-          <div class="flex items-center gap-1">
-            <UChip color="error" size="xs" standalone inset />
-            <span>Full</span>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -170,7 +193,7 @@ function dateHasBookings(dateValue: DateValue): boolean {
         </p>
       </div>
 
-      <!-- Slots RadioGroup -->
+      <!-- Slots RadioGroup with colored indicators -->
       <URadioGroup
         v-else
         v-model="formState.slotId"
@@ -183,7 +206,18 @@ function dateHasBookings(dateValue: DateValue): boolean {
           item: 'w-full justify-center',
           wrapper: 'text-center',
         }"
-      />
+      >
+        <template #label="{ item }">
+          <span class="inline-flex items-center gap-1.5">
+            <span
+              v-if="item.value && item.value !== 'all-day'"
+              class="w-2 h-2 rounded-full shrink-0"
+              :style="{ backgroundColor: getSlotColorById(String(item.value)) }"
+            />
+            <span>{{ item.label }}</span>
+          </span>
+        </template>
+      </URadioGroup>
     </div>
 
     <!-- Selected Summary -->

@@ -2,6 +2,7 @@ export interface SlotItem {
   id: string
   label?: string
   value?: string
+  color?: string
 }
 
 export interface LocationData {

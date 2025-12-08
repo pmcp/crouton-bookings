@@ -399,6 +399,7 @@ export function useBookingCart() {
     hasBookingsOnDate,
     isDateFullyBooked,
     getBookedSlotLabelsForDate,
+    getBookedSlotsForDate,
 
     // Computed
     canAddToCart,
