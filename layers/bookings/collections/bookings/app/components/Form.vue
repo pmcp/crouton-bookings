@@ -36,8 +36,13 @@
             dependent-label="Location"
           />
         </UFormField>
-        <UFormField label="Group" name="group" class="not-last:pb-4">
-          <UInput v-model="state.group" class="w-full" size="xl" />
+        <UFormField label="Age Group" name="group" class="not-last:pb-4">
+          <CroutonFormOptionsSelect
+            v-model="state.group"
+            options-collection="bookingsSettings"
+            options-field="groups"
+            label="Age Group"
+          />
         </UFormField>
       </div>
       </template>
@@ -45,7 +50,12 @@
       <template #sidebar>
       <div class="flex flex-col gap-4 p-1">
         <UFormField label="Status" name="status" class="not-last:pb-4">
-          <UInput v-model="state.status" class="w-full" size="xl" />
+          <CroutonFormOptionsSelect
+            v-model="state.status"
+            options-collection="bookingsSettings"
+            options-field="statuses"
+            label="Status"
+          />
         </UFormField>
       </div>
       </template>
