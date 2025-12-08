@@ -17,6 +17,7 @@ export default defineNuxtConfig({
     './collections/locations',
     './collections/emailtemplates',
     './collections/pages',
-    './collections/assets'
+    './collections/assets',
+    './collections/settings'
   ]
 })

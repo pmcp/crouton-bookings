@@ -13,3 +13,4 @@ export { bookingsLocations } from '../../../layers/bookings/collections/location
 export { bookingsEmailtemplates } from '../../../layers/bookings/collections/emailtemplates/server/database/schema'
 export { bookingsPages } from '../../../layers/bookings/collections/pages/server/database/schema'
 export { bookingsAssets } from '../../../layers/bookings/collections/assets/server/database/schema'
+export { bookingsSettings } from '../../../layers/bookings/collections/settings/server/database/schema'

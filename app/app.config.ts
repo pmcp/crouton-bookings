@@ -4,8 +4,10 @@ import { bookingsLocationsConfig } from '../layers/bookings/collections/location
 import { bookingsEmailTemplatesConfig } from '../layers/bookings/collections/emailtemplates/app/composables/useBookingsEmailTemplates'
 import { bookingsPagesConfig } from '../layers/bookings/collections/pages/app/composables/useBookingsPages'
 import { bookingsAssetsConfig } from '../layers/bookings/collections/assets/app/composables/useBookingsAssets'
+import { bookingsSettingsConfig } from '../layers/bookings/collections/settings/app/composables/useBookingsSettings'
 export default defineAppConfig({
   croutonCollections: {
+    bookingsSettings: bookingsSettingsConfig,
     bookingsAssets: bookingsAssetsConfig,
     bookingsPages: bookingsPagesConfig,
     bookingsEmailTemplates: bookingsEmailTemplatesConfig,
