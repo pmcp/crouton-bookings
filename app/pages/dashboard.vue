@@ -23,9 +23,10 @@ const isOnboardRoute = computed(() =>
 )
 
 // Show booking sidebar only on customer-facing routes (bookings section)
+// Exclude /new route as it uses the XL full-page version
 const showBookingSidebar = computed(() => {
   const path = route.path
-  // Show on bookings routes but not on admin routes
-  return path.includes('/bookings') && !path.includes('/admin')
+  // Show on bookings routes but not on admin routes or the /new page (which uses XL mode)
+  return path.includes('/bookings') && !path.includes('/admin') && !path.endsWith('/new')
 })
 </script>

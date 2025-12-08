@@ -1,7 +1,15 @@
 <script setup lang="ts">
-import type { SelectItem, RadioGroupItem } from '@nuxt/ui'
+import type { RadioGroupItem } from '@nuxt/ui'
 import type { DateValue } from '@internationalized/date'
 import { fromDate, toCalendarDate, getLocalTimeZone } from '@internationalized/date'
+
+interface Props {
+  hideLocationSelect?: boolean
+}
+
+withDefaults(defineProps<Props>(), {
+  hideLocationSelect: false,
+})
 
 const {
   formState,
@@ -54,13 +62,21 @@ function getBookedSlotsWithColors(date: Date): Array<{ id: string, label: string
     })
 }
 
-// Transform locations to select items
-const locationOptions = computed<SelectItem[]>(() => {
+// Extended location option interface for enhanced dropdown
+interface LocationOption {
+  label: string
+  value: string
+  address: string
+}
+
+// Transform locations to select items with address
+const locationOptions = computed<LocationOption[]>(() => {
   if (!locations.value) return []
 
   return locations.value.map(loc => ({
     label: loc.title,
     value: loc.id,
+    address: [loc.street, loc.city, loc.zip].filter(Boolean).join(', '),
   }))
 })
 
@@ -126,8 +142,8 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
 
 <template>
   <div class="p-4 space-y-4">
-    <!-- Location Selection -->
-    <div>
+    <!-- Location Selection - hidden in XL mode -->
+    <div v-if="!hideLocationSelect">
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
         Location
       </label>
@@ -139,7 +155,14 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
         icon="i-lucide-map-pin"
         class="w-full"
         value-key="value"
-      />
+      >
+        <template #item-label="{ item }">
+          <div class="flex flex-col py-0.5">
+            <span class="font-medium">{{ item.label }}</span>
+            <span v-if="item.address" class="text-xs text-muted">{{ item.address }}</span>
+          </div>
+        </template>
+      </USelect>
     </div>
 
     <!-- Calendar with availability indicators -->
@@ -200,9 +223,9 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
         :items="slotItems"
         variant="card"
         indicator="hidden"
-        orientation="horizontal"
+        orientation="vertical"
         :ui="{
-          fieldset: 'grid grid-cols-2 gap-2',
+          fieldset: 'grid grid-cols-1 gap-2',
           item: 'w-full justify-center',
           wrapper: 'text-center',
         }"

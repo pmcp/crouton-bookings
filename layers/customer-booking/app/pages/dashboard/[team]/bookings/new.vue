@@ -5,7 +5,7 @@ definePageMeta({
 </script>
 
 <template>
-  <AppContainer title="Book">
-    <CustomerBookingWizard />
-  </AppContainer>
+  <div class="h-[calc(100vh-3rem)]">
+    <BookingSidebarPanel size="xl" />
+  </div>
 </template>
