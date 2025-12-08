@@ -28,7 +28,7 @@
 
       <div v-show="!tabs || activeSection === 'content'" class="flex flex-col gap-4 p-1">
         <UFormField label="Content" name="content" class="not-last:pb-4">
-          <UTextarea v-model="state.content" class="w-full" size="xl" />
+          <CroutonEditorSimple v-model="state.content" />
         </UFormField>
         <UFormField label="Excerpt" name="excerpt" class="not-last:pb-4">
           <CroutonEditorSimple v-model="state.excerpt" />

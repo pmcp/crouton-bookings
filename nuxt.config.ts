@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     '@friendlyinternet/nuxt-crouton-maps',
     './layers/bookings',
     './layers/customer-booking',
+    './layers/public-pages',
   ],
   modules: [
     '@nuxthub/core',
