@@ -1,0 +1,78 @@
+{
+  "title": {
+    "type": "string",
+    "meta": {
+      "required": true,
+      "translatable": true,
+      "label": "Title",
+      "maxLength": 200,
+      "area": "main",
+      "group": "basic"
+    }
+  },
+  "street": {
+    "type": "string",
+    "meta": {
+      "translatable": true,
+      "label": "Street",
+      "area": "main",
+      "group": "address"
+    }
+  },
+  "zip": {
+    "type": "string",
+    "meta": {
+      "label": "ZIP Code",
+      "area": "main",
+      "group": "address"
+    }
+  },
+  "city": {
+    "type": "string",
+    "meta": {
+      "translatable": true,
+      "label": "City",
+      "area": "main",
+      "group": "address"
+    }
+  },
+  "location": {
+    "type": "text",
+    "meta": {
+      "label": "Coordinates (GeoJSON)",
+      "area": "sidebar",
+      "group": "map"
+    }
+  },
+  "content": {
+    "type": "text",
+    "meta": {
+      "translatable": true,
+      "label": "Content",
+      "area": "main",
+      "group": "content",
+      "component": "EditorSimple"
+    }
+  },
+  "allowedMemberIds": {
+    "type": "array",
+    "refTarget": "teamMembers",
+    "refScope": "adapter",
+    "meta": {
+      "label": "Allowed Members",
+      "area": "sidebar",
+      "group": "access"
+    }
+  },
+  "slots": {
+    "type": "repeater",
+    "meta": {
+      "label": "Available Time Slots",
+      "repeaterComponent": "Slot",
+      "addLabel": "Add Time Slot",
+      "sortable": true,
+      "area": "main",
+      "group": "scheduling"
+    }
+  }
+}

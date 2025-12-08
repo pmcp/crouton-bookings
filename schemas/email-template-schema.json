@@ -1,0 +1,69 @@
+{
+  "name": {
+    "type": "string",
+    "meta": {
+      "required": true,
+      "translatable": true,
+      "label": "Template Name",
+      "maxLength": 200,
+      "area": "main",
+      "group": "content"
+    }
+  },
+  "subject": {
+    "type": "string",
+    "meta": {
+      "required": true,
+      "translatable": true,
+      "label": "Email Subject",
+      "area": "main",
+      "group": "content"
+    }
+  },
+  "body": {
+    "type": "text",
+    "meta": {
+      "required": true,
+      "translatable": true,
+      "label": "Email Body (supports %NAME%, %BOOKING%, %LOCATION%)",
+      "area": "main",
+      "group": "content"
+    }
+  },
+  "fromEmail": {
+    "type": "string",
+    "meta": {
+      "required": true,
+      "label": "From Email Address",
+      "area": "sidebar",
+      "group": "configuration"
+    }
+  },
+  "triggerType": {
+    "type": "string",
+    "meta": {
+      "required": true,
+      "label": "Trigger Type",
+      "area": "sidebar",
+      "group": "configuration"
+    }
+  },
+  "daysOffset": {
+    "type": "number",
+    "meta": {
+      "default": 0,
+      "label": "Days Offset",
+      "area": "sidebar",
+      "group": "configuration"
+    }
+  },
+  "locationId": {
+    "type": "string",
+    "refTarget": "locations",
+    "meta": {
+      "label": "Location (optional)",
+      "area": "sidebar",
+      "group": "configuration"
+    }
+  }
+}

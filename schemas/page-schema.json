@@ -1,0 +1,114 @@
+{
+  "title": {
+    "type": "string",
+    "meta": {
+      "required": true,
+      "translatable": true,
+      "label": "Title",
+      "maxLength": 200,
+      "area": "main",
+      "group": "basic"
+    }
+  },
+  "slug": {
+    "type": "string",
+    "meta": {
+      "required": true,
+      "translatable": true,
+      "label": "Slug (URL)",
+      "area": "main",
+      "group": "basic"
+    }
+  },
+  "content": {
+    "type": "text",
+    "meta": {
+      "translatable": true,
+      "label": "Content",
+      "area": "main",
+      "group": "content"
+    }
+  },
+  "excerpt": {
+    "type": "text",
+    "meta": {
+      "translatable": true,
+      "label": "Excerpt",
+      "area": "main",
+      "group": "content",
+      "component": "EditorSimple"
+    }
+  },
+  "metaDescription": {
+    "type": "text",
+    "meta": {
+      "translatable": true,
+      "label": "Meta Description (SEO)",
+      "area": "sidebar",
+      "group": "seo"
+    }
+  },
+  "metaTitle": {
+    "type": "string",
+    "meta": {
+      "translatable": true,
+      "label": "Meta Title (SEO)",
+      "area": "sidebar",
+      "group": "seo"
+    }
+  },
+  "featuredImageId": {
+    "type": "string",
+    "refTarget": "assets",
+    "meta": {
+      "label": "Featured Image",
+      "area": "sidebar",
+      "group": "media"
+    }
+  },
+  "status": {
+    "type": "string",
+    "meta": {
+      "required": true,
+      "default": "draft",
+      "label": "Status",
+      "area": "sidebar",
+      "group": "settings"
+    }
+  },
+  "publishedAt": {
+    "type": "date",
+    "meta": {
+      "label": "Published At",
+      "area": "sidebar",
+      "group": "settings"
+    }
+  },
+  "showInMenu": {
+    "type": "boolean",
+    "meta": {
+      "default": true,
+      "label": "Show in Menu",
+      "area": "sidebar",
+      "group": "menu"
+    }
+  },
+  "order": {
+    "type": "number",
+    "meta": {
+      "default": 0,
+      "label": "Menu Order",
+      "area": "sidebar",
+      "group": "menu"
+    }
+  },
+  "template": {
+    "type": "string",
+    "meta": {
+      "default": "default",
+      "label": "Page Template",
+      "area": "sidebar",
+      "group": "settings"
+    }
+  }
+}

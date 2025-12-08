@@ -1,0 +1,46 @@
+{
+  "filename": {
+    "type": "string",
+    "meta": {
+      "required": true,
+      "label": "Filename",
+      "area": "main"
+    }
+  },
+  "pathname": {
+    "type": "string",
+    "meta": {
+      "required": true,
+      "label": "File Path",
+      "area": "main"
+    }
+  },
+  "contentType": {
+    "type": "string",
+    "meta": {
+      "label": "MIME Type",
+      "area": "sidebar"
+    }
+  },
+  "size": {
+    "type": "number",
+    "meta": {
+      "label": "File Size (bytes)",
+      "area": "sidebar"
+    }
+  },
+  "alt": {
+    "type": "string",
+    "meta": {
+      "label": "Alt Text",
+      "area": "main"
+    }
+  },
+  "uploadedAt": {
+    "type": "date",
+    "meta": {
+      "label": "Uploaded At",
+      "area": "meta"
+    }
+  }
+}
