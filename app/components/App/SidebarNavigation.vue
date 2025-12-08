@@ -10,6 +10,13 @@
         <AppSidebarLink v-bind="link" />
       </li>
       <USeparator class="my-4" />
+      <li class="px-2 py-1">
+        <span class="text-xs font-medium text-gray-400 uppercase tracking-wider">Bookings</span>
+      </li>
+      <li v-for="link in bookingsLinks" :key="link.to">
+        <AppSidebarLink v-bind="link" />
+      </li>
+      <USeparator class="my-4" />
       <li v-for="link in teamSettingsLinks" :key="link.to">
         <AppSidebarLink v-bind="link" />
       </li>
@@ -41,6 +48,19 @@ const teamNavLinks = computed(() => [
     label: 'Posts',
     icon: 'i-lucide-file-text',
     to: `/dashboard/${props.teamSlug}/posts`,
+  },
+])
+
+const bookingsLinks = computed(() => [
+  {
+    label: 'Book Now',
+    icon: 'i-lucide-calendar-plus',
+    to: `/dashboard/${props.teamSlug}/bookings/new`,
+  },
+  {
+    label: 'My Bookings',
+    icon: 'i-lucide-calendar-check',
+    to: `/dashboard/${props.teamSlug}/bookings`,
   },
 ])
 
