@@ -22,6 +22,12 @@ export const bookingsPages = sqliteTable('bookings_pages', {
 
   teamId: text('teamId').notNull(),
   owner: text('owner').notNull(),
+
+  // Hierarchy fields for tree structure
+  parentId: text('parentId'),
+  path: text('path').notNull().$default(() => '/'),
+  depth: integer('depth').notNull().$default(() => 0),
+  order: integer('order').notNull().$default(() => 0),
   title: text('title').notNull(),
   slug: text('slug').notNull(),
   content: text('content'),
@@ -32,7 +38,6 @@ export const bookingsPages = sqliteTable('bookings_pages', {
   status: text('status').notNull(),
   publishedAt: integer('publishedAt', { mode: 'timestamp' }).$default(() => new Date()),
   showInMenu: integer('showInMenu', { mode: 'boolean' }).$default(() => false),
-  order: integer('order'),
   template: text('template'),
 
   createdAt: integer('createdAt', { mode: 'timestamp' }).notNull().$default(() => new Date()),

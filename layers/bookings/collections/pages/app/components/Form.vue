@@ -22,13 +22,13 @@
           <UInput v-model="state.title" class="w-full" size="xl" />
         </UFormField>
         <UFormField label="Slug" name="slug" class="not-last:pb-4">
-          <UInput v-model="state.slug" class="w-full" size="xl" @blur="onSlugBlur" />
+          <UInput v-model="state.slug" class="w-full" size="xl" />
         </UFormField>
       </div>
 
       <div v-show="!tabs || activeSection === 'content'" class="flex flex-col gap-4 p-1">
         <UFormField label="Content" name="content" class="not-last:pb-4">
-          <CroutonEditorSimple v-model="state.content" />
+          <UTextarea v-model="state.content" class="w-full" size="xl" />
         </UFormField>
         <UFormField label="Excerpt" name="excerpt" class="not-last:pb-4">
           <CroutonEditorSimple v-model="state.excerpt" />
@@ -37,6 +37,17 @@
       </template>
 
       <template #sidebar>
+      <div class="flex flex-col gap-4 p-1">
+
+        <UFormField label="Parent" name="parentId" class="not-last:pb-4">
+          <CroutonFormParentSelect
+            v-model="state.parentId"
+            collection="bookingsPages"
+            :current-id="state.id"
+            label="Parent"
+          />
+        </UFormField>
+      </div>
       <div class="flex flex-col gap-4 p-1">
         <UFormField label="MetaDescription" name="metaDescription" class="not-last:pb-4">
           <UTextarea v-model="state.metaDescription" class="w-full" size="xl" />
@@ -71,9 +82,6 @@
         <UFormField label="ShowInMenu" name="showInMenu" class="not-last:pb-4">
           <UCheckbox v-model="state.showInMenu" />
         </UFormField>
-        <UFormField label="Order" name="order" class="not-last:pb-4">
-          <UInputNumber v-model="state.order" class="w-full" />
-        </UFormField>
       </div>
       </template>
 
@@ -99,20 +107,10 @@
 
 <script setup lang="ts">
 import type { BookingsPageFormProps, BookingsPageFormData } from '../../types'
+import useBookingsPages from '../composables/useBookingsPages'
 
 const props = defineProps<BookingsPageFormProps>()
 const { defaultValue, schema, collection } = useBookingsPages()
-
-// Slugify helper - converts text to URL-safe slug
-const slugify = (text: string): string => {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, '') // Remove non-word chars (except spaces and hyphens)
-    .replace(/\s+/g, '-')     // Replace spaces with hyphens
-    .replace(/-+/g, '-')      // Replace multiple hyphens with single
-    .replace(/^-+|-+$/g, '')  // Trim hyphens from start/end
-}
 
 // Form layout configuration
 const navigationItems = [
@@ -165,9 +163,16 @@ const { create, update, deleteItems } = useCollectionMutation(collection)
 const { close } = useCrouton()
 
 // Initialize form state with proper values (no watch needed!)
+// Hierarchy defaults for new items (parentId, path, depth, order)
+const hierarchyDefaults = {
+  parentId: null,
+  path: '/',
+  depth: 0,
+  order: 0
+}
 const initialValues = props.action === 'update' && props.activeItem?.id
   ? { ...defaultValue, ...props.activeItem }
-  : { ...defaultValue }
+  : { ...defaultValue, ...hierarchyDefaults }
 
 // Convert date strings to Date objects for date fields during editing
 if (props.action === 'update' && props.activeItem?.id) {
@@ -177,23 +182,6 @@ if (props.action === 'update' && props.activeItem?.id) {
 }
 
 const state = ref<BookingsPageFormData & { id?: string | null }>(initialValues)
-
-// Auto-generate slug from title when creating new pages
-const slugManuallyEdited = ref(false)
-watch(() => state.value.title, (newTitle) => {
-  // Only auto-generate if creating and slug hasn't been manually edited
-  if (props.action === 'create' && !slugManuallyEdited.value && newTitle) {
-    state.value.slug = slugify(newTitle)
-  }
-})
-
-// Sanitize slug on blur (when user finishes editing)
-const onSlugBlur = () => {
-  if (state.value.slug) {
-    state.value.slug = slugify(state.value.slug)
-    slugManuallyEdited.value = true
-  }
-}
 
 const handleSubmit = async () => {
   try {

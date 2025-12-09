@@ -30,6 +30,8 @@
 </template>
 
 <script setup lang="ts">
+import useBookingsPages from '../composables/useBookingsPages'
+
 const props = withDefaults(defineProps<{
   layout?: any
 }>(), {

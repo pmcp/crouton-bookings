@@ -1,5 +1,5 @@
 // Generated with array reference post-processing support (v2024-10-12)
-import { eq, and, desc, inArray } from 'drizzle-orm'
+import { eq, and, desc, inArray, sql } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/sqlite-core'
 import * as tables from './schema'
 import type { BookingsPage, NewBookingsPage } from '../../types'
@@ -13,6 +13,7 @@ export async function getAllBookingsPages(teamId: string) {
   const createdByUsers = alias(users, 'createdByUsers')
   const updatedByUsers = alias(users, 'updatedByUsers')
 
+  // @ts-expect-error Complex select with joins requires type assertion
   const pages = await db
     .select({
       ...tables.bookingsPages,
@@ -54,6 +55,7 @@ export async function getBookingsPagesByIds(teamId: string, pageIds: string[]) {
   const createdByUsers = alias(users, 'createdByUsers')
   const updatedByUsers = alias(users, 'updatedByUsers')
 
+  // @ts-expect-error Complex select with joins requires type assertion
   const pages = await db
     .select({
       ...tables.bookingsPages,
@@ -163,4 +165,159 @@ export async function deleteBookingsPage(
   }
 
   return { success: true }
+}
+
+// Tree hierarchy queries (auto-generated when hierarchy: true)
+
+export async function getTreeDataBookingsPages(teamId: string) {
+  const db = useDB()
+
+  const pages = await db
+    .select()
+    .from(tables.bookingsPages)
+    .where(eq(tables.bookingsPages.teamId, teamId))
+    .orderBy(tables.bookingsPages.path, tables.bookingsPages.order)
+
+  return pages
+}
+
+export async function updatePositionBookingsPage(
+  teamId: string,
+  id: string,
+  newParentId: string | null,
+  newOrder: number
+) {
+  const db = useDB()
+
+  // Get the current item to find its path
+  const [current] = await db
+    .select()
+    .from(tables.bookingsPages)
+    .where(
+      and(
+        eq(tables.bookingsPages.id, id),
+        eq(tables.bookingsPages.teamId, teamId)
+      )
+    )
+
+  if (!current) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'BookingsPage not found'
+    })
+  }
+
+  // Calculate new path and depth
+  let newPath: string
+  let newDepth: number
+
+  if (newParentId) {
+    const [parent] = await db
+      .select()
+      .from(tables.bookingsPages)
+      .where(
+        and(
+          eq(tables.bookingsPages.id, newParentId),
+          eq(tables.bookingsPages.teamId, teamId)
+        )
+      )
+
+    if (!parent) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Parent BookingsPage not found'
+      })
+    }
+
+    // Prevent moving item to its own descendant
+    if (parent.path.startsWith(current.path)) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Cannot move item to its own descendant'
+      })
+    }
+
+    newPath = `${parent.path}${id}/`
+    newDepth = parent.depth + 1
+  } else {
+    newPath = `/${id}/`
+    newDepth = 0
+  }
+
+  const oldPath = current.path
+
+  // Update the item itself
+  const [updated] = await db
+    .update(tables.bookingsPages)
+    .set({
+      parentId: newParentId,
+      path: newPath,
+      depth: newDepth,
+      order: newOrder
+    })
+    .where(
+      and(
+        eq(tables.bookingsPages.id, id),
+        eq(tables.bookingsPages.teamId, teamId)
+      )
+    )
+    .returning()
+
+  // Update all descendants' paths if the path changed
+  if (oldPath !== newPath) {
+    // Get all descendants
+    const descendants = await db
+      .select()
+      .from(tables.bookingsPages)
+      .where(
+        and(
+          eq(tables.bookingsPages.teamId, teamId),
+          sql`${tables.bookingsPages.path} LIKE ${oldPath + '%'} AND ${tables.bookingsPages.id} != ${id}`
+        )
+      )
+
+    // Update each descendant's path and depth
+    for (const descendant of descendants) {
+      const descendantNewPath = descendant.path.replace(oldPath, newPath)
+      const depthDiff = newDepth - current.depth
+
+      await db
+        .update(tables.bookingsPages)
+        .set({
+          path: descendantNewPath,
+          depth: descendant.depth + depthDiff
+        })
+        .where(eq(tables.bookingsPages.id, descendant.id))
+    }
+  }
+
+  return updated
+}
+
+export async function reorderSiblingsBookingsPages(
+  teamId: string,
+  updates: { id: string; order: number }[]
+) {
+  const db = useDB()
+
+  const results = []
+
+  for (const update of updates) {
+    const [updated] = await db
+      .update(tables.bookingsPages)
+      .set({ order: update.order })
+      .where(
+        and(
+          eq(tables.bookingsPages.id, update.id),
+          eq(tables.bookingsPages.teamId, teamId)
+        )
+      )
+      .returning()
+
+    if (updated) {
+      results.push(updated)
+    }
+  }
+
+  return results
 }

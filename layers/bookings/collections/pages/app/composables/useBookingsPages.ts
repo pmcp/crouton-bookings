@@ -51,6 +51,13 @@ export const bookingsPagesConfig = {
     template: ''
   },
   columns: bookingsPagesColumns,
+  hierarchy: {
+    enabled: true,
+    parentField: 'parentId',
+    pathField: 'path',
+    depthField: 'depth',
+    orderField: 'order'
+  },
 }
 
 export const useBookingsPages = () => bookingsPagesConfig
