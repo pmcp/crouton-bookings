@@ -46,6 +46,12 @@ export default defineNuxtConfig({
     experimental: {
       tasks: true,
     },
+    // Handle locally linked packages that ship TypeScript source files
+    externals: {
+      inline: [
+        '@friendlyinternet/nuxt-crouton',
+      ],
+    },
   },
   hub: {
     database: true,
