@@ -4,6 +4,10 @@ export default defineEventHandler(async (event) => {
   const { teamSlug, pageSlug } = getRouterParams(event)
   const db = useDB()
 
+  if (!teamSlug || !pageSlug) {
+    throw createError({ statusCode: 400, statusMessage: 'Team slug and page slug are required' })
+  }
+
   // Find team by slug (public lookup, no auth required)
   const team = await db
     .select({ id: tables.teams.id })

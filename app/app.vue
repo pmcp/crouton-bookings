@@ -2,7 +2,9 @@
   <NuxtRouteAnnouncer />
   <NuxtLoadingIndicator color="#000000" />
   <UApp :toaster="{ position: 'top-center' }">
-    <NuxtPage />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
     <CroutonForm />
   </UApp>
 </template>
