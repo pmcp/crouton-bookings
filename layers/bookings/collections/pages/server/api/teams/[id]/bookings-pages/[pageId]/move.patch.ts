@@ -52,5 +52,13 @@ export default defineEventHandler(async (event) => {
   // parentId can be null (move to root) or a valid ID
   const parentId = body.parentId ?? null
 
-  return await updatePositionBookingsPage(team.id, pageId, parentId, body.order)
+  try {
+    return await updatePositionBookingsPage(team.id, pageId, parentId, body.order)
+  } catch (error: any) {
+    console.error('[move.patch] Error:', error)
+    throw createError({
+      statusCode: error.statusCode || 500,
+      statusMessage: error.statusMessage || error.message || 'Failed to move item'
+    })
+  }
 })

@@ -1,5 +1,5 @@
 // Generated with array reference post-processing support (v2024-10-12)
-import { eq, and, desc, inArray, sql } from 'drizzle-orm'
+import { eq, and, desc, inArray, sql, like, ne } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/sqlite-core'
 import * as tables from './schema'
 import type { BookingsPage, NewBookingsPage } from '../../types'
@@ -43,7 +43,7 @@ export async function getAllBookingsPages(teamId: string) {
     .leftJoin(createdByUsers, eq(tables.bookingsPages.createdBy, createdByUsers.id))
     .leftJoin(updatedByUsers, eq(tables.bookingsPages.updatedBy, updatedByUsers.id))
     .where(eq(tables.bookingsPages.teamId, teamId))
-    .orderBy(desc(tables.bookingsPages.createdAt))
+    .orderBy(tables.bookingsPages.order)
 
   return pages
 }
@@ -246,6 +246,20 @@ export async function updatePositionBookingsPage(
 
   const oldPath = current.path
 
+  console.log('[updatePosition] BEFORE - Current item:', {
+    id,
+    oldPath,
+    oldParentId: current.parentId,
+    oldDepth: current.depth,
+    oldOrder: current.order
+  })
+  console.log('[updatePosition] MOVING TO:', {
+    newPath,
+    newParentId,
+    newDepth,
+    newOrder
+  })
+
   // Update the item itself
   const [updated] = await db
     .update(tables.bookingsPages)
@@ -263,18 +277,63 @@ export async function updatePositionBookingsPage(
     )
     .returning()
 
+  console.log('[updatePosition] Updated result:', updated)
+
+  // Update sibling orders to make room for the moved item
+  // Get all siblings (same parentId) and shift their orders
+  const siblings = await db
+    .select()
+    .from(tables.bookingsPages)
+    .where(
+      and(
+        eq(tables.bookingsPages.teamId, teamId),
+        newParentId
+          ? eq(tables.bookingsPages.parentId, newParentId)
+          : sql`${tables.bookingsPages.parentId} IS NULL`
+      )
+    )
+    .orderBy(tables.bookingsPages.order)
+
+  // Reorder siblings: moved item gets newOrder, others shift around it
+  const siblingUpdates: { id: string; order: number }[] = []
+  let orderCounter = 0
+
+  for (const sibling of siblings) {
+    if (sibling.id === id) continue // Skip the moved item, already set
+
+    // If we've reached newOrder, skip it (moved item takes this slot)
+    if (orderCounter === newOrder) {
+      orderCounter++
+    }
+
+    if (sibling.order !== orderCounter) {
+      siblingUpdates.push({ id: sibling.id, order: orderCounter })
+    }
+    orderCounter++
+  }
+
+  // Apply sibling order updates
+  for (const update of siblingUpdates) {
+    await db
+      .update(tables.bookingsPages)
+      .set({ order: update.order })
+      .where(eq(tables.bookingsPages.id, update.id))
+  }
+
+  console.log('[updatePosition] Sibling order updates:', siblingUpdates)
+
   // Update all descendants' paths if the path changed
   if (oldPath !== newPath) {
-    // Get all descendants
-    const descendants = await db
+    // Get all descendants - items whose path starts with the old path
+    // Query all items and filter in JS to avoid LIKE escaping issues
+    const allItems = await db
       .select()
       .from(tables.bookingsPages)
-      .where(
-        and(
-          eq(tables.bookingsPages.teamId, teamId),
-          sql`${tables.bookingsPages.path} LIKE ${oldPath + '%'} AND ${tables.bookingsPages.id} != ${id}`
-        )
-      )
+      .where(eq(tables.bookingsPages.teamId, teamId))
+
+    const descendants = allItems.filter(
+      item => item.path.startsWith(oldPath) && item.id !== id
+    )
 
     // Update each descendant's path and depth
     for (const descendant of descendants) {
