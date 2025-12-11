@@ -253,7 +253,7 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
         block
         size="lg"
         :color="canAddToCart ? 'primary' : 'neutral'"
-        :variant="canAddToCart ? 'solid' : 'ghost'"
+        :variant="canAddToCart ? 'solid' : 'soft'"
         icon="i-lucide-plus"
         class="mt-4"
         :disabled="!canAddToCart"
