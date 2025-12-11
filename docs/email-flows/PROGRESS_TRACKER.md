@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| Tasks Completed | 5 / 10 |
+| Tasks Completed | 6 / 10 |
 | Current Phase | Phase 2: Email Service |
 | Status | In Progress |
 
@@ -180,7 +180,7 @@ collections: ['bookings', 'locations', 'emailTemplates', 'emailLogs', 'pages', '
 
 ## Phase 2: Email Service (3 tasks)
 
-**Progress**: 2/3 tasks (67%)
+**Progress**: 3/3 tasks (100%)
 
 ### Task 2.1: Create Booking Email Service
 - [x] ✅ Create `server/services/booking-emails.ts`
@@ -224,8 +224,8 @@ Follow existing pattern from `emails/member-invite.vue`
 ---
 
 ### Task 2.3: Add CRON_SECRET to Environment
-- [ ] Update `env.ts` to include CRON_SECRET
-- [ ] Add to `.env.example`
+- [x] ✅ Update `env.ts` to include CRON_SECRET
+- [x] ✅ Add to `.env` (no .env.example exists)
 
 ```typescript
 CRON_SECRET: z.string().min(32).optional(),
@@ -339,3 +339,4 @@ export default defineTask({
 - Notes: Updated email-template-schema.json with richtext body, trigger options, recipientType, isActive, and hoursOffset fields. Created email-log-schema.json for tracking sent emails with booking/template references, recipient, status, and error fields. Task 1.3: Added emailLogs collection to crouton.config.mjs, ran crouton generate to scaffold the collection (CRUD endpoints, composables, schema, etc.), migrations already applied.
 - Task 2.1: Created `server/services/booking-emails.ts` with functions for getting active templates, rendering variables, sending emails, and logging email sends. Implemented: `getActiveTemplatesForTrigger()`, `renderTemplate()`, `sendBookingEmail()`, `logEmailSend()`, `wasEmailAlreadySent()`. Note: DB schema is missing `isActive`, `recipientType` fields - service defaults to treating all templates as active and recipientType='customer'.
 - Task 2.2: Created `emails/booking-notification.vue` Vue email component using @vue-email/components. Accepts subject, bodyHtml (pre-rendered), teamName, teamLogo, and previewText props. Follows existing pattern from member-invite.vue with centered layout.
+- Task 2.3: Added CRON_SECRET to env.ts with zod validation (min 32 chars, optional). Added example to .env with documentation section. Phase 2 complete.

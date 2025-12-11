@@ -38,5 +38,6 @@ export const env = createEnv({
         /^\+[1-9]\d{1,14}$/,
         'Phone number must be in E.164 format (e.g. +12125551234)',
       ),
+    CRON_SECRET: z.string().min(32).optional(),
   },
 })
