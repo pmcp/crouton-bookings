@@ -43,6 +43,11 @@ const settings = computed(() => [
     to: `/dashboard/${currentTeam.value.slug}/settings/members`,
   },
   {
+    label: 'Domains',
+    icon: 'i-lucide-globe',
+    to: `/dashboard/${currentTeam.value.slug}/settings/domains`,
+  },
+  {
     label: 'Billing',
     icon: 'i-lucide-credit-card',
     to: `/dashboard/${currentTeam.value.slug}/settings/billing`,

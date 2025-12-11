@@ -76,6 +76,11 @@ const teamSettingsLinks = computed(() => [
     to: `/dashboard/${props.teamSlug}/settings/members`,
   },
   {
+    label: 'Domains',
+    icon: 'i-lucide-globe',
+    to: `/dashboard/${props.teamSlug}/settings/domains`,
+  },
+  {
     label: 'Email Templates',
     icon: 'i-lucide-mail',
     to: `/dashboard/${props.teamSlug}/settings/email-templates`,
