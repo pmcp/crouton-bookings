@@ -31,5 +31,8 @@ provide('openBookingSidebar', openBookingSidebar)
       <!-- Booking sidebar (right side, logged in only) -->
       <BookingSidebarSM v-if="loggedIn" />
     </div>
+
+    <!-- Floating booking button (visible on mobile when logged in) -->
+    <BookingFloatingButton v-if="loggedIn" />
   </div>
 </template>
