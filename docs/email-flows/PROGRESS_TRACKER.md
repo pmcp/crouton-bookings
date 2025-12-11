@@ -6,8 +6,8 @@
 
 | Metric | Value |
 |--------|-------|
-| Tasks Completed | 6 / 10 |
-| Current Phase | Phase 2: Email Service |
+| Tasks Completed | 7 / 10 |
+| Current Phase | Phase 3: Event Hooks |
 | Status | In Progress |
 
 ---
@@ -235,10 +235,10 @@ CRON_SECRET: z.string().min(32).optional(),
 
 ## Phase 3: Event Hooks (2 tasks)
 
-**Progress**: 0/2 tasks (0%)
+**Progress**: 1/2 tasks (50%)
 
 ### Task 3.1: Hook Booking Creation
-- [ ] Modify `layers/bookings/collections/bookings/server/api/teams/[id]/bookings-bookings/index.post.ts`
+- [x] ✅ Modify `layers/bookings/collections/bookings/server/api/teams/[id]/bookings-bookings/index.post.ts`
 
 **Add after successful booking creation:**
 ```typescript
@@ -340,3 +340,4 @@ export default defineTask({
 - Task 2.1: Created `server/services/booking-emails.ts` with functions for getting active templates, rendering variables, sending emails, and logging email sends. Implemented: `getActiveTemplatesForTrigger()`, `renderTemplate()`, `sendBookingEmail()`, `logEmailSend()`, `wasEmailAlreadySent()`. Note: DB schema is missing `isActive`, `recipientType` fields - service defaults to treating all templates as active and recipientType='customer'.
 - Task 2.2: Created `emails/booking-notification.vue` Vue email component using @vue-email/components. Accepts subject, bodyHtml (pre-rendered), teamName, teamLogo, and previewText props. Follows existing pattern from member-invite.vue with centered layout.
 - Task 2.3: Added CRON_SECRET to env.ts with zod validation (min 32 chars, optional). Added example to .env with documentation section. Phase 2 complete.
+- Task 3.1: Hooked booking creation to send confirmation emails. Modified `index.post.ts` to import `sendBookingEmail`, fetch full booking with relations after creation, and trigger `booking_confirmed` emails non-blocking. Also fixed a type cast issue in booking-emails.ts.

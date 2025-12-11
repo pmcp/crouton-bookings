@@ -65,7 +65,7 @@ export async function getActiveTemplatesForTrigger(
   // - Templates with a specific locationId only apply to that location
   return templates.filter(template =>
     !template.locationId || template.locationId === locationId
-  )
+  ) as BookingsEmailTemplate[]
 }
 
 /**
