@@ -83,17 +83,19 @@ const openBookingSidebar = inject<() => void>('openBookingSidebar', () => {})
         <PagesNav :team-slug="teamSlug" />
       </div>
 
-      <!-- Right: Book Now (logged in) or Login (logged out) -->
-      <div class="w-auto">
-        <UButton
-          v-if="loggedIn"
-          color="primary"
-          size="sm"
-          @click="openBookingSidebar"
-        >
-          <UIcon name="i-lucide-calendar-plus" class="w-4 h-4" />
-          Book Now
-        </UButton>
+      <!-- Right: Book Now + UserMenu (logged in) or Login (logged out) -->
+      <div class="flex items-center gap-2">
+        <template v-if="loggedIn">
+          <UButton
+            color="primary"
+            size="sm"
+            @click="openBookingSidebar"
+          >
+            <UIcon name="i-lucide-calendar-plus" class="w-4 h-4" />
+            Book Now
+          </UButton>
+          <PublicUserMenu />
+        </template>
         <UButton
           v-else
           to="/login"
