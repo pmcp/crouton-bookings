@@ -27,7 +27,23 @@ const {
   myBookingsStatus: status,
   refreshMyBookings: refresh,
   activeTab,
+  cancelBooking,
 } = useBookingCart()
+
+// Track which booking is being cancelled
+const cancellingId = ref<string | null>(null)
+
+// Cancel booking with confirmation
+async function handleCancel(booking: Booking) {
+  // Simple confirm dialog
+  if (!confirm(`Cancel booking at ${booking.locationData?.title || 'Unknown'} on ${formatDate(booking.date)}?`)) {
+    return
+  }
+
+  cancellingId.value = booking.id
+  await cancelBooking(booking.id)
+  cancellingId.value = null
+}
 
 const hasBookings = computed(() => bookings.value && bookings.value.length > 0)
 
@@ -107,7 +123,7 @@ function goToBooking() {
 </script>
 
 <template>
-  <div class="p-4 flex flex-col h-full">
+  <div class="p-4 flex flex-col h-full min-h-0 overflow-hidden">
     <!-- Loading -->
     <div v-if="status === 'pending'" class="flex-1 flex flex-col items-center justify-center py-8">
       <UIcon name="i-lucide-loader-2" class="w-6 h-6 text-gray-400 animate-spin mb-2" />
@@ -151,11 +167,11 @@ function goToBooking() {
       </div>
 
       <!-- Items List -->
-      <div class="flex-1 overflow-y-auto space-y-2">
+      <div class="flex-1 min-h-0 overflow-y-auto space-y-2">
         <div
           v-for="booking in upcomingBookings"
           :key="booking.id"
-          class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+          class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg group"
         >
           <div class="flex items-start gap-3">
             <div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -166,9 +182,22 @@ function goToBooking() {
                 <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                   {{ booking.locationData?.title || 'Unknown' }}
                 </p>
-                <UBadge :color="getStatusColor(booking.status)" variant="subtle" size="xs">
-                  {{ booking.status }}
-                </UBadge>
+                <div class="flex items-center gap-1">
+                  <UBadge :color="getStatusColor(booking.status)" variant="subtle" size="xs">
+                    {{ booking.status }}
+                  </UBadge>
+                  <!-- Cancel button (only for non-cancelled bookings) -->
+                  <UButton
+                    v-if="booking.status !== 'cancelled'"
+                    variant="ghost"
+                    color="error"
+                    size="xs"
+                    icon="i-lucide-x"
+                    class="opacity-0 group-hover:opacity-100 transition-opacity"
+                    :loading="cancellingId === booking.id"
+                    @click="handleCancel(booking)"
+                  />
+                </div>
               </div>
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                 {{ formatDate(booking.date) }} at {{ getSlotLabel(booking) }}

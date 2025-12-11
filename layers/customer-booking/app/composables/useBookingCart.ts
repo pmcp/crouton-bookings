@@ -69,6 +69,9 @@ export function useBookingCart() {
   // Submitting state
   const isSubmitting = ref(false)
 
+  // Cart pulse animation trigger (increments when item added)
+  const cartPulse = useState('bookingCartPulse', () => 0)
+
   // Form state - use useState for shared state across components
   // Note: useState returns a Ref, so we wrap in reactive to maintain existing API
   const formStateRef = useState<{
@@ -319,8 +322,8 @@ export function useBookingCart() {
       color: 'success',
     })
 
-    // Open cart drawer to show the added item
-    isCartOpen.value = true
+    // Trigger pulse animation on cart button (don't auto-open)
+    cartPulse.value++
   }
 
   // Remove item from cart
@@ -360,6 +363,9 @@ export function useBookingCart() {
       // Clear cart on success
       clearCart()
 
+      // Refresh my bookings list to show newly created bookings
+      await refreshMyBookings()
+
       toast.add({
         title: 'Bookings confirmed!',
         description: `Successfully created ${result.count} booking${result.count === 1 ? '' : 's'}`,
@@ -393,6 +399,38 @@ export function useBookingCart() {
     formState.slotId = null
   }
 
+  // Cancel a booking (set status to 'cancelled')
+  async function cancelBooking(bookingId: string) {
+    try {
+      await $fetch(`/api/teams/${teamId.value}/bookings-bookings/${bookingId}`, {
+        method: 'PATCH',
+        body: {
+          status: 'cancelled',
+        },
+      })
+
+      // Refresh the bookings list
+      await refreshMyBookings()
+
+      toast.add({
+        title: 'Booking cancelled',
+        description: 'Your booking has been cancelled successfully',
+        color: 'success',
+      })
+
+      return true
+    }
+    catch (error: any) {
+      console.error('Failed to cancel booking:', error)
+      toast.add({
+        title: 'Cancellation failed',
+        description: error.data?.message || 'Failed to cancel booking. Please try again.',
+        color: 'error',
+      })
+      return false
+    }
+  }
+
   return {
     // State
     cart,
@@ -402,6 +440,7 @@ export function useBookingCart() {
     formState,
     isSubmitting,
     availabilityLoading,
+    cartPulse,
 
     // Locations
     locations,
@@ -434,5 +473,6 @@ export function useBookingCart() {
     clearCart,
     submitAll,
     resetForm,
+    cancelBooking,
   }
 }

@@ -13,7 +13,19 @@ const {
   selectedLocation,
   formState,
   allSlots,
+  cartPulse,
 } = useBookingCart()
+
+// Track pulse animation for cart button
+const isPulsing = ref(false)
+
+// Watch for cart additions and trigger pulse
+watch(cartPulse, () => {
+  isPulsing.value = true
+  setTimeout(() => {
+    isPulsing.value = false
+  }, 600)
+})
 
 // Format date for display in sticky footer
 const selectedDateFormatted = computed(() => {
@@ -76,7 +88,7 @@ function toggleCart() {
   <div
     v-else-if="!isMobile"
     :style="{ width: '420px', minWidth: '420px' }"
-    class="flex-shrink-0 border-l border-neutral-200 bg-white flex flex-col dark:border-neutral-800 dark:bg-neutral-950 relative overflow-hidden"
+    class="flex-shrink-0 h-full border-l border-neutral-200 bg-white flex flex-col dark:border-neutral-800 dark:bg-neutral-950 relative overflow-hidden"
   >
     <!-- Main content area -->
     <UTabs
@@ -134,7 +146,13 @@ function toggleCart() {
           <span>Cart</span>
         </span>
         <span class="flex items-center gap-2">
-          <UBadge v-if="cartCount > 0" color="primary" size="xs">
+          <UBadge
+            v-if="cartCount > 0"
+            color="primary"
+            size="xs"
+            class="transition-transform"
+            :class="{ 'animate-pulse scale-110': isPulsing }"
+          >
             {{ cartCount }}
           </UBadge>
           <UIcon
@@ -250,7 +268,13 @@ function toggleCart() {
               <span>Cart</span>
             </span>
             <span class="flex items-center gap-2">
-              <UBadge v-if="cartCount > 0" color="primary" size="xs">
+              <UBadge
+                v-if="cartCount > 0"
+                color="primary"
+                size="xs"
+                class="transition-transform"
+                :class="{ 'animate-pulse scale-110': isPulsing }"
+              >
                 {{ cartCount }}
               </UBadge>
               <UIcon
