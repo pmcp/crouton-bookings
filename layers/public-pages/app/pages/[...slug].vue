@@ -108,7 +108,6 @@ const hasToc = computed(() => tocLinks.value.length > 0)
         <PagesSidebar
           :team-slug="teamSlug"
           :current-page-id="page.id"
-          base-path="custom-domain"
         />
 
         <!-- Table of Contents (if page has headings) -->
