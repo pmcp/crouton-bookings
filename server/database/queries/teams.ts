@@ -56,6 +56,15 @@ export const getTeam = async (teamId: string) => {
   return team
 }
 
+export const getTeamBySlug = async (slug: string) => {
+  const team = await useDB()
+    .select()
+    .from(tables.teams)
+    .where(eq(tables.teams.slug, slug))
+    .get()
+  return team
+}
+
 export const createTeam = async (payload: InsertTeam) => {
   try {
     const team = await useDB()
