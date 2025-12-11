@@ -21,12 +21,12 @@ provide('openBookingSidebar', openBookingSidebar)
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-white dark:bg-neutral-950">
+  <div class="h-screen flex flex-col bg-white dark:bg-neutral-950 overflow-hidden">
     <!-- Header (full width, stays on top) -->
     <PagesHeader :team-slug="teamSlug" />
 
     <!-- Content area: horizontal flex for main + sidebar -->
-    <div class="flex-1 flex overflow-hidden">
+    <div class="flex-1 flex min-h-0">
       <!-- Main content (scrollable) -->
       <main class="flex-1 min-w-0 overflow-y-auto">
         <slot />
