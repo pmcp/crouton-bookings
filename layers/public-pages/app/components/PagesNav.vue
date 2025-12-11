@@ -4,7 +4,6 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 interface Props {
   teamSlug: string
   orientation?: 'horizontal' | 'vertical'
-  basePath?: 'p' | 'app' | 'custom-domain' | 'main-domain'
 }
 
 interface MenuPage {
@@ -19,7 +18,6 @@ interface MenuPage {
 
 const props = withDefaults(defineProps<Props>(), {
   orientation: 'horizontal',
-  basePath: 'p',
 })
 
 // Fetch menu pages (public endpoint)
@@ -27,23 +25,14 @@ const { data: pages } = await useFetch<MenuPage[]>(
   () => `/api/public/pages/${props.teamSlug}/menu`
 )
 
-// For custom domain, use the team context to build URLs
+// Use team context to build URLs (handles both custom and main domain)
 const teamContext = useTeamContext()
 
-// Generate link based on basePath
+// Generate link using teamContext.buildUrl()
+// - Custom domain: returns /{slug}
+// - Main domain: returns /{teamSlug}/{slug}
 const getPageLink = (slug: string) => {
-  if (props.basePath === 'custom-domain') {
-    // Custom domain: use path directly (e.g., /services/pricing)
-    return teamContext.buildUrl(`/${slug}`)
-  }
-  if (props.basePath === 'main-domain') {
-    // Main domain clean URLs: /{teamSlug}/{slug}
-    return `/${props.teamSlug}/${slug}`
-  }
-  if (props.basePath === 'app') {
-    return `/app/${props.teamSlug}/pages/${slug}`
-  }
-  return `/p/${props.teamSlug}/${slug}`
+  return teamContext.buildUrl(`/${slug}`)
 }
 
 // Build 2-level nav: root pages + direct children only

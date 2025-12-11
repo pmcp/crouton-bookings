@@ -91,7 +91,7 @@ const openBookingSidebar = inject<() => void>('openBookingSidebar', () => {})
 
       <!-- Navigation (center) -->
       <div class="flex-1 flex justify-center">
-        <PagesNav :team-slug="teamSlug" :base-path="basePath" />
+        <PagesNav :team-slug="teamSlug" />
       </div>
 
       <!-- Right: Book Now (logged in) or Login (logged out) -->
