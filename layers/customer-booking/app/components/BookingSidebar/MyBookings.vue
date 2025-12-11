@@ -227,10 +227,10 @@ function goToBooking() {
           >
             <div
               v-if="confirmingId === booking.id"
-              class="border-t border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 px-3 py-2"
+              class="px-3 pb-3"
             >
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-xs text-gray-600 dark:text-gray-400">Cancel this booking?</span>
+              <div class="flex items-center justify-between gap-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg px-3 py-2">
+                <span class="text-xs text-gray-500 dark:text-gray-400">Cancel this booking?</span>
                 <div class="flex items-center gap-2">
                   <UButton
                     variant="ghost"
