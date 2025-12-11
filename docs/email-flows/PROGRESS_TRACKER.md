@@ -274,7 +274,7 @@ await sendBookingEmail(booking, 'booking_confirmed')
 ---
 
 ### Task 4.2: Create Cron API Endpoint
-- [ ] Create `server/api/cron/process-emails.get.ts`
+- 🔄 Create `server/api/cron/process-emails.get.ts`
 
 ```typescript
 export default defineEventHandler(async (event) => {
