@@ -33,85 +33,88 @@ function goToBooking() {
 </script>
 
 <template>
-  <!-- Empty State -->
-  <div v-if="cartCount === 0" class="flex flex-col items-center justify-center text-center p-4 h-full">
-    <UIcon name="i-lucide-shopping-cart" class="w-12 h-12 text-gray-300 dark:text-gray-600 mb-3" />
-    <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
-      Your cart is empty
-    </h3>
-    <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">
-      Add bookings to your cart to book multiple slots at once
-    </p>
-    <UButton
-      variant="soft"
-      size="sm"
-      icon="i-lucide-plus"
-      @click="goToBooking"
-    >
-      Add Booking
-    </UButton>
-  </div>
-
-  <!-- Cart Items -->
-  <div v-else class="flex flex-col h-full overflow-hidden">
-    <!-- Header row -->
-    <div class="flex items-center justify-between px-4 pt-3 pb-2 shrink-0">
-      <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100">
-        {{ cartCount }} {{ cartCount === 1 ? 'booking' : 'bookings' }}
+  <div class="p-4">
+    <!-- Empty State -->
+    <div v-if="cartCount === 0" class="flex flex-col items-center justify-center text-center py-8">
+      <UIcon name="i-lucide-shopping-cart" class="w-12 h-12 text-neutral-300 dark:text-neutral-600 mb-3" />
+      <h3 class="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-1">
+        Your cart is empty
       </h3>
-      <UButton
-        variant="ghost"
-        color="neutral"
-        size="xs"
-        icon="i-lucide-trash-2"
-        @click="clearCart"
-      >
-        Clear all
-      </UButton>
-    </div>
-
-    <!-- Items List (scrollable) -->
-    <div class="flex-1 overflow-y-auto px-4 space-y-2 min-h-0">
-      <div
-        v-for="item in cart"
-        :key="item.id"
-        class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-start gap-3"
-      >
-        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-          <UIcon name="i-lucide-calendar" class="w-4 h-4 text-primary" />
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-            {{ item.locationTitle }} - {{ item.slotLabel }}
-          </p>
-          <p class="text-xs text-gray-500 dark:text-gray-400">
-            {{ formatDate(item.date) }}
-          </p>
-        </div>
-        <button
-          type="button"
-          class="flex-shrink-0 p-1 text-gray-400 hover:text-red-500 transition-colors"
-          @click="removeFromCart(item.id)"
-        >
-          <UIcon name="i-lucide-x" class="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-
-    <!-- Submit Button (fixed footer) -->
-    <div class="p-4 border-t border-gray-200 dark:border-gray-700 shrink-0">
-      <UButton
-        block
-        :loading="isSubmitting"
-        :disabled="isSubmitting"
-        icon="i-lucide-check"
-        @click="handleSubmit"
-      >
-        {{ isSubmitting ? 'Booking...' : `Book ${cartCount} ${cartCount === 1 ? 'Slot' : 'Slots'}` }}
-      </UButton>
-      <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
-        All bookings will be submitted together
+      <p class="text-xs text-neutral-500 dark:text-neutral-400 mb-4">
+        Add bookings to your cart to book multiple slots at once
       </p>
+      <UButton
+        variant="soft"
+        size="sm"
+        icon="i-lucide-plus"
+        @click="goToBooking"
+      >
+        Add Booking
+      </UButton>
     </div>
+
+    <!-- Cart Items -->
+    <template v-else>
+      <!-- Header row -->
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+          {{ cartCount }} {{ cartCount === 1 ? 'booking' : 'bookings' }}
+        </h3>
+        <UButton
+          variant="ghost"
+          color="neutral"
+          size="xs"
+          icon="i-lucide-trash-2"
+          @click="clearCart"
+        >
+          Clear all
+        </UButton>
+      </div>
+
+      <!-- Items List -->
+      <div class="space-y-2 mb-4">
+        <div
+          v-for="item in cart"
+          :key="item.id"
+          class="p-3 bg-neutral-50 dark:bg-neutral-800 rounded-lg flex items-start gap-3"
+        >
+          <div class="shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+            <UIcon name="i-lucide-calendar" class="w-4 h-4 text-primary" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
+              {{ item.locationTitle }} - {{ item.slotLabel }}
+            </p>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400">
+              {{ formatDate(item.date) }}
+            </p>
+          </div>
+          <UButton
+            variant="ghost"
+            color="neutral"
+            size="xs"
+            icon="i-lucide-x"
+            class="shrink-0"
+            @click="removeFromCart(item.id)"
+          />
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="pt-4 border-t border-neutral-200 dark:border-neutral-700">
+        <UButton
+          block
+          :loading="isSubmitting"
+          :disabled="isSubmitting"
+          icon="i-lucide-check"
+          @click="handleSubmit"
+        >
+          {{ isSubmitting ? 'Booking...' : `Book ${cartCount} ${cartCount === 1 ? 'Slot' : 'Slots'}` }}
+        </UButton>
+        <p class="text-xs text-neutral-500 dark:text-neutral-400 text-center mt-2">
+          All bookings will be submitted together
+        </p>
+      </div>
+    </template>
   </div>
 </template>

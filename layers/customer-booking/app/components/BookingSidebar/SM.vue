@@ -176,8 +176,8 @@ function toggleCart() {
           />
         </div>
 
-        <!-- Cart content (handles its own scrolling) -->
-        <div class="flex-1 min-h-0 overflow-hidden">
+        <!-- Cart content (scrollable area) -->
+        <div class="flex-1 min-h-0 overflow-y-auto">
           <BookingSidebarCart />
         </div>
       </div>
@@ -292,8 +292,8 @@ function toggleCart() {
               />
             </div>
 
-            <!-- Cart content (handles its own scrolling) -->
-            <div class="flex-1 min-h-0 overflow-hidden">
+            <!-- Cart content (scrollable area) -->
+            <div class="flex-1 min-h-0 overflow-y-auto">
               <BookingSidebarCart />
             </div>
           </div>
