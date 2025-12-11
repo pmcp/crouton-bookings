@@ -4,7 +4,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 interface Props {
   teamSlug: string
   currentPageId: string
-  basePath?: 'p' | 'app' | 'custom-domain'
+  basePath?: 'p' | 'app' | 'custom-domain' | 'main-domain'
 }
 
 interface MenuPage {
@@ -34,6 +34,10 @@ const getPageLink = (slug: string) => {
   if (props.basePath === 'custom-domain') {
     // Custom domain: use path directly (e.g., /services/pricing)
     return teamContext.buildUrl(`/${slug}`)
+  }
+  if (props.basePath === 'main-domain') {
+    // Main domain clean URLs: /{teamSlug}/{slug}
+    return `/${props.teamSlug}/${slug}`
   }
   if (props.basePath === 'app') {
     return `/app/${props.teamSlug}/pages/${slug}`

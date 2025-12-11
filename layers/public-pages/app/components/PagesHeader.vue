@@ -1,7 +1,7 @@
 <script setup lang="ts">
 interface Props {
   teamSlug: string
-  basePath?: 'p' | 'app' | 'custom-domain'
+  basePath?: 'p' | 'app' | 'custom-domain' | 'main-domain'
 }
 
 interface MenuPage {
@@ -33,6 +33,10 @@ const getPageLink = (slug: string) => {
   if (props.basePath === 'custom-domain') {
     return teamContext.buildUrl(`/${slug}`)
   }
+  if (props.basePath === 'main-domain') {
+    // Main domain clean URLs: /{teamSlug}/{slug}
+    return `/${props.teamSlug}/${slug}`
+  }
   if (props.basePath === 'app') {
     return `/app/${props.teamSlug}/pages/${slug}`
   }
@@ -60,6 +64,9 @@ const homeLink = computed(() => {
   // Fallback to index if no pages
   if (props.basePath === 'custom-domain') {
     return '/'
+  }
+  if (props.basePath === 'main-domain') {
+    return `/${props.teamSlug}`
   }
   if (props.basePath === 'app') {
     return `/app/${props.teamSlug}/pages`
