@@ -55,8 +55,8 @@ const homeLink = computed(() => {
     : `/p/${props.teamSlug}/${firstPage.slug}`
 })
 
-// Bookings link for logged-in users
-const bookingsLink = computed(() => `/app/${props.teamSlug}/bookings`)
+// Function to open booking sidebar (injected from layout)
+const openBookingSidebar = inject<() => void>('openBookingSidebar', () => {})
 </script>
 
 <template>
@@ -75,15 +75,27 @@ const bookingsLink = computed(() => `/app/${props.teamSlug}/bookings`)
         <PagesNav :team-slug="teamSlug" :base-path="basePath" />
       </div>
 
-      <!-- Bookings link for logged-in users (right) -->
+      <!-- Right: Book Now (logged in) or Login (logged out) -->
       <div class="w-auto">
-        <NuxtLink
+        <UButton
           v-if="loggedIn"
-          :to="bookingsLink"
-          class="text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors"
+          color="primary"
+          size="sm"
+          @click="openBookingSidebar"
         >
-          My Bookings
-        </NuxtLink>
+          <UIcon name="i-lucide-calendar-plus" class="w-4 h-4" />
+          Book Now
+        </UButton>
+        <UButton
+          v-else
+          to="/login"
+          variant="outline"
+          color="neutral"
+          size="sm"
+        >
+          <UIcon name="i-lucide-log-in" class="w-4 h-4" />
+          Login
+        </UButton>
       </div>
     </div>
   </header>

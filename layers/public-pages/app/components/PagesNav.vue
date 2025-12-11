@@ -3,7 +3,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 
 interface Props {
   teamSlug: string
-  variant?: 'horizontal' | 'vertical'
+  orientation?: 'horizontal' | 'vertical'
   basePath?: 'p' | 'app'
 }
 
@@ -18,7 +18,7 @@ interface MenuPage {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  variant: 'horizontal',
+  orientation: 'horizontal',
   basePath: 'p',
 })
 
@@ -88,7 +88,7 @@ const navItems = computed<NavigationMenuItem[]>(() => {
   <UNavigationMenu
     v-if="navItems.length > 0"
     :items="navItems"
-    :orientation="variant"
+    :orientation="orientation"
     color="neutral"
     variant="link"
   />

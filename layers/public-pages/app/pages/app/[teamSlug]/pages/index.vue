@@ -58,32 +58,33 @@ useSeoMeta({
 </script>
 
 <template>
-  <!-- Page content -->
-  <article class="max-w-4xl mx-auto px-4 py-12">
-    <!-- Loading state -->
-    <div v-if="status === 'pending'" class="animate-pulse space-y-4">
-      <div class="h-10 bg-neutral-200 dark:bg-neutral-800 rounded w-3/4" />
-      <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-full" />
-      <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-5/6" />
-    </div>
+  <UPage>
+    <UPageBody>
+      <!-- Loading state -->
+      <div v-if="status === 'pending'" class="animate-pulse space-y-4">
+        <div class="h-10 bg-neutral-200 dark:bg-neutral-800 rounded w-3/4" />
+        <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-full" />
+        <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-5/6" />
+      </div>
 
-    <!-- No pages yet -->
-    <div v-else-if="!homePage" class="text-center py-12">
-      <h1 class="text-3xl font-bold mb-4 text-neutral-900 dark:text-white">Welcome</h1>
-      <p class="text-neutral-500 dark:text-neutral-400">
-        No pages have been published yet.
-      </p>
-    </div>
+      <!-- No pages yet -->
+      <div v-else-if="!homePage" class="text-center py-12">
+        <h1 class="text-3xl font-bold mb-4 text-neutral-900 dark:text-white">Welcome</h1>
+        <p class="text-neutral-500 dark:text-neutral-400">
+          No pages have been published yet.
+        </p>
+      </div>
 
-    <!-- Homepage content -->
-    <div v-else>
-      <h1 class="text-4xl font-bold mb-6 text-neutral-900 dark:text-white">
-        {{ homePage.title }}
-      </h1>
-      <div
-        class="prose prose-neutral dark:prose-invert max-w-none"
-        v-html="homePage.content"
-      />
-    </div>
-  </article>
+      <!-- Homepage content -->
+      <template v-else>
+        <h1 class="text-4xl font-bold mb-6 text-neutral-900 dark:text-white">
+          {{ homePage.title }}
+        </h1>
+        <div
+          class="prose prose-neutral dark:prose-invert max-w-none"
+          v-html="homePage.content"
+        />
+      </template>
+    </UPageBody>
+  </UPage>
 </template>
