@@ -4,7 +4,7 @@ import type { BreadcrumbItem } from '@nuxt/ui'
 interface Props {
   teamSlug: string
   currentPageId: string
-  basePath?: 'p' | 'app'
+  basePath?: 'p' | 'app' | 'custom-domain'
 }
 
 interface MenuPage {
@@ -25,8 +25,15 @@ const { data: pages } = await useFetch<MenuPage[]>(
   () => `/api/public/pages/${props.teamSlug}/menu`
 )
 
+// For custom domain, use the team context to build URLs
+const teamContext = useTeamContext()
+
 // Generate link based on basePath
 const getPageLink = (slug: string) => {
+  if (props.basePath === 'custom-domain') {
+    // Custom domain: use path directly (e.g., /services/pricing)
+    return teamContext.buildUrl(`/${slug}`)
+  }
   if (props.basePath === 'app') {
     return `/app/${props.teamSlug}/pages/${slug}`
   }

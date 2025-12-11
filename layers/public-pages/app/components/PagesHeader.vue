@@ -1,7 +1,7 @@
 <script setup lang="ts">
 interface Props {
   teamSlug: string
-  basePath?: 'p' | 'app'
+  basePath?: 'p' | 'app' | 'custom-domain'
 }
 
 interface MenuPage {
@@ -20,22 +20,29 @@ const props = withDefaults(defineProps<Props>(), {
 // Check if user is logged in
 const { loggedIn } = useUserSession()
 
+// For custom domain, use the team context to build URLs
+const teamContext = useTeamContext()
+
 // Fetch menu pages to get the first root page
 const { data: pages } = await useFetch<MenuPage[]>(
   () => `/api/public/pages/${props.teamSlug}/menu`
 )
 
+// Generate link based on basePath
+const getPageLink = (slug: string) => {
+  if (props.basePath === 'custom-domain') {
+    return teamContext.buildUrl(`/${slug}`)
+  }
+  if (props.basePath === 'app') {
+    return `/app/${props.teamSlug}/pages/${slug}`
+  }
+  return `/p/${props.teamSlug}/${slug}`
+}
+
 // Get the first root page (by order) for the Home link
 const homeLink = computed(() => {
-  if (!pages.value || pages.value.length === 0) {
-    // Fallback to index if no pages
-    return props.basePath === 'app'
-      ? `/app/${props.teamSlug}/pages`
-      : `/p/${props.teamSlug}`
-  }
-
   // Find root pages (no parent) and sort by order
-  const rootPages = pages.value
+  const rootPages = (pages.value || [])
     .filter(p => !p.parentId)
     .sort((a, b) => {
       const orderA = a.order ?? Number.MAX_SAFE_INTEGER
@@ -44,15 +51,20 @@ const homeLink = computed(() => {
     })
 
   const firstPage = rootPages[0]
-  if (!firstPage) {
-    return props.basePath === 'app'
-      ? `/app/${props.teamSlug}/pages`
-      : `/p/${props.teamSlug}`
+
+  // If we have a first page, link to it
+  if (firstPage) {
+    return getPageLink(firstPage.slug)
   }
 
-  return props.basePath === 'app'
-    ? `/app/${props.teamSlug}/pages/${firstPage.slug}`
-    : `/p/${props.teamSlug}/${firstPage.slug}`
+  // Fallback to index if no pages
+  if (props.basePath === 'custom-domain') {
+    return '/'
+  }
+  if (props.basePath === 'app') {
+    return `/app/${props.teamSlug}/pages`
+  }
+  return `/p/${props.teamSlug}`
 })
 
 // Function to open booking sidebar (injected from layout)
