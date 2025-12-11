@@ -37,16 +37,6 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     return await navigateTo('/auth/login')
   }
 
-  // Members (non-admins) cannot access dashboard - redirect to public pages
-  const { isAdmin } = useUserRole()
-  if (!isAdmin.value && to.path.startsWith('/dashboard')) {
-    toast.add({
-      title: 'Dashboard access requires admin privileges',
-      color: 'warning',
-    })
-    return navigateTo('/')
-  }
-
   // Check for invite token, this means the user was not logged in or did not have an account when they clicked the verification link,
   // but now has successfully logged in or created an account and can verify the invite
   const inviteToken = useCookie('invite-token')
@@ -80,6 +70,17 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     if ((paramSlug || teamSlug.value) && !teams.value.length) {
       return await handleTeamRedirect()
     }
+  }
+
+  // Members (non-admins) cannot access dashboard - redirect to public pages
+  // This check must happen AFTER teams are loaded so isTeamOwner can be determined
+  const { isAdmin } = useUserRole()
+  if (!isAdmin.value && to.path.startsWith('/dashboard')) {
+    toast.add({
+      title: 'Dashboard access requires admin privileges',
+      color: 'warning',
+    })
+    return navigateTo('/')
   }
 
   // Redirect to onboarding or first available team
