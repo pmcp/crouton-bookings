@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| Tasks Completed | 8 / 10 |
+| Tasks Completed | 9 / 10 |
 | Current Phase | Phase 4: Scheduled Emails |
 | Status | In Progress |
 
@@ -259,10 +259,10 @@ await sendBookingEmail(booking, 'booking_confirmed')
 
 ## Phase 4: Scheduled Emails (2 tasks)
 
-**Progress**: 0/2 tasks (0%)
+**Progress**: 1/2 tasks (50%)
 
 ### Task 4.1: Create Scheduled Email Task
-- [ ] Create `server/tasks/process-scheduled-emails.ts`
+- [x] ✅ Create `server/tasks/process-scheduled-emails.ts`
 
 **Logic:**
 1. Get all teams with active reminder/follow-up templates
@@ -342,3 +342,4 @@ export default defineTask({
 - Task 2.3: Added CRON_SECRET to env.ts with zod validation (min 32 chars, optional). Added example to .env with documentation section. Phase 2 complete.
 - Task 3.1: Hooked booking creation to send confirmation emails. Modified `index.post.ts` to import `sendBookingEmail`, fetch full booking with relations after creation, and trigger `booking_confirmed` emails non-blocking. Also fixed a type cast issue in booking-emails.ts.
 - Task 3.2: Hooked booking cancellation to send cancellation emails. Modified `[bookingId].patch.ts` to detect status change to 'cancelled' and trigger `booking_cancelled` emails. Modified `[bookingId].delete.ts` to fetch booking data BEFORE deletion, then send cancellation email after successful deletion. Both use non-blocking email sends. Phase 3 complete.
+- Task 4.1: Created `server/tasks/process-scheduled-emails.ts` - Nitro task that processes reminder_before and follow_up_after emails. Logic: queries templates by trigger type, calculates time windows based on daysOffset (using as hours), finds bookings in window with confirmed status, checks for duplicates via wasEmailAlreadySent(), then sends via sendBookingEmail(). Returns detailed results with sent/skipped/failed counts.
