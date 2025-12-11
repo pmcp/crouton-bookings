@@ -18,6 +18,7 @@ export default defineNuxtConfig({
     './collections/emailtemplates',
     './collections/pages',
     './collections/assets',
-    './collections/settings'
+    './collections/settings',
+    './collections/emaillogs'
   ]
 })

@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| Tasks Completed | 2 / 10 |
+| Tasks Completed | 3 / 10 |
 | Current Phase | Phase 1: Schema & Config |
 | Status | In Progress |
 
@@ -27,7 +27,7 @@ Build a booking email system where team admins can create email templates that a
 
 ## Phase 1: Schema & Config (3 tasks)
 
-**Progress**: 2/3 tasks (67%)
+**Progress**: 3/3 tasks (100%)
 
 ### Task 1.1: Update Email Template Schema
 - [x] ✅ Update `schemas/email-template-schema.json`
@@ -162,9 +162,9 @@ Build a booking email system where team admins can create email templates that a
 ---
 
 ### Task 1.3: Update Crouton Config
-- [ ] Update `crouton.config.mjs` to include emailLogs collection
-- [ ] Run `pnpm crouton generate`
-- [ ] Run migrations
+- [x] ✅ Update `crouton.config.mjs` to include emailLogs collection
+- [x] ✅ Run `pnpm crouton generate`
+- [x] ✅ Run migrations
 
 **Add to collections array:**
 ```javascript
@@ -335,5 +335,5 @@ export default defineTask({
 ## Daily Log
 
 ### 2025-12-11 - Claude Opus 4.5
-- Tasks completed: Plan created, Task 1.1, Task 1.2
-- Notes: Updated email-template-schema.json with richtext body, trigger options, recipientType, isActive, and hoursOffset fields. Created email-log-schema.json for tracking sent emails with booking/template references, recipient, status, and error fields.
+- Tasks completed: Plan created, Task 1.1, Task 1.2, Task 1.3
+- Notes: Updated email-template-schema.json with richtext body, trigger options, recipientType, isActive, and hoursOffset fields. Created email-log-schema.json for tracking sent emails with booking/template references, recipient, status, and error fields. Task 1.3: Added emailLogs collection to crouton.config.mjs, ran crouton generate to scaffold the collection (CRUD endpoints, composables, schema, etc.), migrations already applied.

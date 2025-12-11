@@ -4,6 +4,7 @@ export default {
     { name: 'bookings', fieldsFile: './schemas/booking-schema.json' },
     { name: 'locations', fieldsFile: './schemas/location-schema.json' },
     { name: 'emailTemplates', fieldsFile: './schemas/email-template-schema.json' },
+    { name: 'emailLogs', fieldsFile: './schemas/email-log-schema.json' },
     { name: 'pages', fieldsFile: './schemas/page-schema.json', hierarchy: true },
     { name: 'assets', fieldsFile: './schemas/asset-schema.json' },
     { name: 'settings', fieldsFile: './schemas/settings-schema.json' }
@@ -13,7 +14,7 @@ export default {
   targets: [
     {
       layer: 'bookings',
-      collections: ['bookings', 'locations', 'emailTemplates', 'pages', 'assets', 'settings']
+      collections: ['bookings', 'locations', 'emailTemplates', 'emailLogs', 'pages', 'assets', 'settings']
     }
   ],
 

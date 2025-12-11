@@ -36,6 +36,12 @@ const selectedSlotLabel = computed(() => {
 const breakpoints = useBreakpoints(breakpointsTailwind)
 const isMobile = breakpoints.smaller('lg')
 
+// Track if component is mounted (for hydration safety)
+const isMounted = ref(false)
+onMounted(() => {
+  isMounted.value = true
+})
+
 const tabItems = computed<TabsItem[]>(() => [
   {
     label: 'Book',
@@ -57,9 +63,18 @@ function toggleCart() {
 </script>
 
 <template>
+  <!-- Wait for client-side mount to avoid hydration mismatch with breakpoints -->
+  <template v-if="!isMounted">
+    <!-- SSR placeholder - render desktop version by default -->
+    <div
+      :style="{ width: '420px', minWidth: '420px' }"
+      class="flex-shrink-0 border-l border-neutral-200 bg-white flex flex-col dark:border-neutral-800 dark:bg-neutral-950 relative overflow-hidden"
+    />
+  </template>
+
   <!-- Desktop: Fixed sidebar -->
   <div
-    v-if="!isMobile"
+    v-else-if="!isMobile"
     :style="{ width: '420px', minWidth: '420px' }"
     class="flex-shrink-0 border-l border-neutral-200 bg-white flex flex-col dark:border-neutral-800 dark:bg-neutral-950 relative overflow-hidden"
   >

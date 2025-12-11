@@ -5,8 +5,10 @@ import { bookingsEmailTemplatesConfig } from '../layers/bookings/collections/ema
 import { bookingsPagesConfig } from '../layers/bookings/collections/pages/app/composables/useBookingsPages'
 import { bookingsAssetsConfig } from '../layers/bookings/collections/assets/app/composables/useBookingsAssets'
 import { bookingsSettingsConfig } from '../layers/bookings/collections/settings/app/composables/useBookingsSettings'
+import { bookingsEmailLogsConfig } from '../layers/bookings/collections/emaillogs/app/composables/useBookingsEmailLogs'
 export default defineAppConfig({
   croutonCollections: {
+    bookingsEmailLogs: bookingsEmailLogsConfig,
     bookingsSettings: bookingsSettingsConfig,
     bookingsAssets: bookingsAssetsConfig,
     bookingsPages: bookingsPagesConfig,

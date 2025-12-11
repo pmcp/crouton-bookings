@@ -14,3 +14,4 @@ export { bookingsEmailtemplates } from '../../../layers/bookings/collections/ema
 export { bookingsPages } from '../../../layers/bookings/collections/pages/server/database/schema'
 export { bookingsAssets } from '../../../layers/bookings/collections/assets/server/database/schema'
 export { bookingsSettings } from '../../../layers/bookings/collections/settings/server/database/schema'
+export { bookingsEmaillogs } from '../../../layers/bookings/collections/emaillogs/server/database/schema'
