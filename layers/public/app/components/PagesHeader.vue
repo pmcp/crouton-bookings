@@ -63,8 +63,9 @@ const homeLink = computed(() => {
   return teamContext.buildUrl('/')
 })
 
-// Function to open booking sidebar (injected from layout)
-const openBookingSidebar = inject<() => void>('openBookingSidebar', () => {})
+// Function to toggle booking sidebar and state (injected from layout)
+const toggleBookingSidebar = inject<() => void>('toggleBookingSidebar', () => {})
+const isBookingSidebarOpen = inject<Ref<boolean>>('isBookingSidebarOpen', ref(false))
 </script>
 
 <template>
@@ -83,13 +84,26 @@ const openBookingSidebar = inject<() => void>('openBookingSidebar', () => {})
         <PagesNav :team-slug="teamSlug" />
       </div>
 
-      <!-- Right: Book Now + UserMenu (logged in) or Login (logged out) -->
+      <!-- Right: Book Now / Close Booking + UserMenu (logged in) or Login (logged out) -->
       <div class="flex items-center gap-2">
         <template v-if="loggedIn">
+          <!-- Toggle button: changes appearance based on sidebar state -->
+          <UButton
+            :color="isBookingSidebarOpen ? 'neutral' : 'primary'"
+            :variant="isBookingSidebarOpen ? 'outline' : 'solid'"
+            size="sm"
+            class="hidden lg:flex"
+            @click="toggleBookingSidebar"
+          >
+            <UIcon :name="isBookingSidebarOpen ? 'i-lucide-x' : 'i-lucide-calendar-plus'" class="w-4 h-4" />
+            {{ isBookingSidebarOpen ? 'Close Bookings' : 'Book Now' }}
+          </UButton>
+          <!-- Mobile: always show Book Now (uses slideover) -->
           <UButton
             color="primary"
             size="sm"
-            @click="openBookingSidebar"
+            class="lg:hidden"
+            @click="toggleBookingSidebar"
           >
             <UIcon name="i-lucide-calendar-plus" class="w-4 h-4" />
             Book Now

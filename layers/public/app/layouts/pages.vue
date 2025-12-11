@@ -8,31 +8,42 @@ const { loggedIn } = useUserSession()
 // Booking sidebar state from composable
 const { isOpen: isBookingSidebarOpen } = useBookingCart()
 
-function openBookingSidebar() {
-  isBookingSidebarOpen.value = true
+function toggleBookingSidebar() {
+  isBookingSidebarOpen.value = !isBookingSidebarOpen.value
 }
 
-// Expose the function so the header can call it
-provide('openBookingSidebar', openBookingSidebar)
+// Expose both the toggle function and state so the header can use them
+provide('toggleBookingSidebar', toggleBookingSidebar)
+provide('isBookingSidebarOpen', isBookingSidebarOpen)
 </script>
 
 <template>
-  <div class="h-screen flex flex-col bg-white dark:bg-neutral-950 overflow-hidden">
-    <!-- Header (full width, stays on top) -->
-    <PagesHeader :team-slug="teamSlug" is-app-preview />
+  <div class="min-h-screen bg-neutral-100 dark:bg-neutral-900">
+    <!-- Header (sticky at top) -->
+    <PagesHeader :team-slug="teamSlug" is-app-preview class="sticky top-0 z-40 bg-neutral-100 dark:bg-neutral-900" />
 
-    <!-- Content area: horizontal flex for main + sidebar -->
-    <div class="flex-1 flex min-h-0">
-      <!-- Main content (scrollable) -->
-      <main class="flex-1 min-w-0 overflow-y-auto">
-        <slot />
-      </main>
+    <!-- Main content (full page scroll) -->
+    <main class="p-6">
+      <slot />
+    </main>
 
-      <!-- Booking sidebar (right side, logged in only) -->
-      <BookingSidebarSM v-if="loggedIn" />
-    </div>
+    <!-- Booking sidebar (fixed, slides in from right) -->
+    <Transition
+      enter-active-class="transition-transform duration-300 ease-out"
+      enter-from-class="translate-x-full"
+      enter-to-class="translate-x-0"
+      leave-active-class="transition-transform duration-200 ease-in"
+      leave-from-class="translate-x-0"
+      leave-to-class="translate-x-full"
+    >
+      <aside
+        v-if="loggedIn && isBookingSidebarOpen"
+        class="fixed right-4 z-30 hidden lg:block w-[420px]"
+        style="top: calc(57px + 1.5rem); height: calc(100vh - 57px - 3rem);"
+      >
+        <BookingSidebarSM />
+      </aside>
+    </Transition>
 
-    <!-- Floating booking button (visible on mobile when logged in) -->
-    <BookingFloatingButton v-if="loggedIn" />
   </div>
 </template>
