@@ -17,6 +17,11 @@ export interface BookingsPage {
   showInMenu?: boolean
   order?: number
   template?: string
+  // Hierarchy fields
+  parentId?: string | null
+  path: string
+  depth: number
+  // Timestamps
   createdAt: Date
   updatedAt: Date
   createdBy: string

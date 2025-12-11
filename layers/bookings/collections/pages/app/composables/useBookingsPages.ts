@@ -12,7 +12,9 @@ export const bookingsPageSchema = z.object({
   publishedAt: z.date().optional(),
   showInMenu: z.boolean().optional(),
   order: z.number().optional(),
-  template: z.string().optional()
+  template: z.string().optional(),
+  // Hierarchy field (path and depth are computed server-side)
+  parentId: z.string().nullable().optional()
 })
 
 export const bookingsPagesColumns = [
@@ -48,7 +50,8 @@ export const bookingsPagesConfig = {
     publishedAt: null,
     showInMenu: false,
     order: 0,
-    template: ''
+    template: '',
+    parentId: null
   },
   columns: bookingsPagesColumns,
   hierarchy: {

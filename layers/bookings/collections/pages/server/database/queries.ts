@@ -95,12 +95,42 @@ export async function getBookingsPagesByIds(teamId: string, pageIds: string[]) {
   return pages
 }
 
-export async function createBookingsPage(data: NewBookingsPage) {
+export async function createBookingsPage(data: Omit<NewBookingsPage, 'path' | 'depth'> & { parentId?: string | null; slug: string; createdBy: string; updatedBy: string }) {
   const db = useDB()
+
+  // Build slug-based path from parent hierarchy
+  let path: string
+  let depth: number
+
+  if (data.parentId) {
+    const [parent] = await db
+      .select()
+      .from(tables.bookingsPages)
+      .where(eq(tables.bookingsPages.id, data.parentId))
+
+    if (!parent) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Parent page not found'
+      })
+    }
+
+    // Build path: parent's path + this page's slug
+    path = `${parent.path}/${data.slug}`
+    depth = parent.depth + 1
+  } else {
+    // Root level page
+    path = `/${data.slug}`
+    depth = 0
+  }
 
   const [page] = await db
     .insert(tables.bookingsPages)
-    .values(data)
+    .values({
+      ...data,
+      path,
+      depth
+    })
     .returning()
 
   return page
@@ -207,7 +237,7 @@ export async function updatePositionBookingsPage(
     })
   }
 
-  // Calculate new path and depth
+  // Calculate new slug-based path and depth
   let newPath: string
   let newDepth: number
 
@@ -230,17 +260,19 @@ export async function updatePositionBookingsPage(
     }
 
     // Prevent moving item to its own descendant
-    if (parent.path.startsWith(current.path)) {
+    if (parent.path.startsWith(current.path + '/') || parent.path === current.path) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Cannot move item to its own descendant'
       })
     }
 
-    newPath = `${parent.path}${id}/`
+    // Build slug-based path: parent's path + this page's slug
+    newPath = `${parent.path}/${current.slug}`
     newDepth = parent.depth + 1
   } else {
-    newPath = `/${id}/`
+    // Root level page: just the slug
+    newPath = `/${current.slug}`
     newDepth = 0
   }
 
@@ -324,7 +356,8 @@ export async function updatePositionBookingsPage(
 
   // Update all descendants' paths if the path changed
   if (oldPath !== newPath) {
-    // Get all descendants - items whose path starts with the old path
+    // Get all descendants - items whose path starts with the old path + '/'
+    // This ensures we only get actual children, not pages with similar slug prefixes
     // Query all items and filter in JS to avoid LIKE escaping issues
     const allItems = await db
       .select()
@@ -332,7 +365,7 @@ export async function updatePositionBookingsPage(
       .where(eq(tables.bookingsPages.teamId, teamId))
 
     const descendants = allItems.filter(
-      item => item.path.startsWith(oldPath) && item.id !== id
+      item => item.path.startsWith(oldPath + '/') && item.id !== id
     )
 
     // Update each descendant's path and depth
