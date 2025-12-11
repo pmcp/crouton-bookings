@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| Tasks Completed | 1 / 10 |
+| Tasks Completed | 2 / 10 |
 | Current Phase | Phase 1: Schema & Config |
 | Status | In Progress |
 
@@ -27,7 +27,7 @@ Build a booking email system where team admins can create email templates that a
 
 ## Phase 1: Schema & Config (3 tasks)
 
-**Progress**: 1/3 tasks (33%)
+**Progress**: 2/3 tasks (67%)
 
 ### Task 1.1: Update Email Template Schema
 - [x] ✅ Update `schemas/email-template-schema.json`
@@ -94,7 +94,7 @@ Build a booking email system where team admins can create email templates that a
 ---
 
 ### Task 1.2: Create Email Log Schema
-- [ ] Create `schemas/email-log-schema.json`
+- [x] ✅ Create `schemas/email-log-schema.json`
 
 **New file:**
 ```json
@@ -335,5 +335,5 @@ export default defineTask({
 ## Daily Log
 
 ### 2025-12-11 - Claude Opus 4.5
-- Tasks completed: Plan created, Task 1.1
-- Notes: Updated email-template-schema.json with richtext body, trigger options, recipientType, isActive, and hoursOffset fields
+- Tasks completed: Plan created, Task 1.1, Task 1.2
+- Notes: Updated email-template-schema.json with richtext body, trigger options, recipientType, isActive, and hoursOffset fields. Created email-log-schema.json for tracking sent emails with booking/template references, recipient, status, and error fields.
