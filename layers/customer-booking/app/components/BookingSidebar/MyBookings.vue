@@ -30,19 +30,28 @@ const {
   cancelBooking,
 } = useBookingCart()
 
-// Track which booking is being cancelled
+// Track which booking is being cancelled (loading state)
 const cancellingId = ref<string | null>(null)
 
-// Cancel booking with confirmation
-async function handleCancel(booking: Booking) {
-  // Simple confirm dialog
-  if (!confirm(`Cancel booking at ${booking.locationData?.title || 'Unknown'} on ${formatDate(booking.date)}?`)) {
-    return
-  }
+// Track which booking has confirmation expanded
+const confirmingId = ref<string | null>(null)
 
-  cancellingId.value = booking.id
-  await cancelBooking(booking.id)
+// Show confirmation for a booking
+function showConfirmation(bookingId: string) {
+  confirmingId.value = bookingId
+}
+
+// Hide confirmation
+function hideConfirmation() {
+  confirmingId.value = null
+}
+
+// Confirm and cancel booking
+async function confirmCancel(bookingId: string) {
+  cancellingId.value = bookingId
+  await cancelBooking(bookingId)
   cancellingId.value = null
+  confirmingId.value = null
 }
 
 const hasBookings = computed(() => bookings.value && bookings.value.length > 0)
@@ -171,39 +180,79 @@ function goToBooking() {
         <div
           v-for="booking in upcomingBookings"
           :key="booking.id"
-          class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg group"
+          class="bg-gray-50 dark:bg-gray-800 rounded-lg group overflow-hidden"
         >
-          <div class="flex items-start gap-3">
-            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-              <UIcon name="i-lucide-calendar-check" class="w-4 h-4 text-primary" />
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-start justify-between gap-2">
-                <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                  {{ booking.locationData?.title || 'Unknown' }}
-                </p>
-                <div class="flex items-center gap-1">
-                  <UBadge :color="getStatusColor(booking.status)" variant="subtle" size="xs">
-                    {{ booking.status }}
-                  </UBadge>
-                  <!-- Cancel button (only for non-cancelled bookings) -->
-                  <UButton
-                    v-if="booking.status !== 'cancelled'"
-                    variant="ghost"
-                    color="error"
-                    size="xs"
-                    icon="i-lucide-x"
-                    class="opacity-0 group-hover:opacity-100 transition-opacity"
-                    :loading="cancellingId === booking.id"
-                    @click="handleCancel(booking)"
-                  />
-                </div>
+          <!-- Booking info -->
+          <div class="p-3">
+            <div class="flex items-start gap-3">
+              <div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <UIcon name="i-lucide-calendar-check" class="w-4 h-4 text-primary" />
               </div>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                {{ formatDate(booking.date) }} at {{ getSlotLabel(booking) }}
-              </p>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-2">
+                  <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                    {{ booking.locationData?.title || 'Unknown' }}
+                  </p>
+                  <div class="flex items-center gap-1">
+                    <UBadge :color="getStatusColor(booking.status)" variant="subtle" size="xs">
+                      {{ booking.status }}
+                    </UBadge>
+                    <!-- Cancel button (only for non-cancelled bookings) -->
+                    <UButton
+                      v-if="booking.status !== 'cancelled' && confirmingId !== booking.id"
+                      variant="ghost"
+                      color="error"
+                      size="xs"
+                      icon="i-lucide-x"
+                      class="opacity-0 group-hover:opacity-100 transition-opacity"
+                      @click="showConfirmation(booking.id)"
+                    />
+                  </div>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  {{ formatDate(booking.date) }} at {{ getSlotLabel(booking) }}
+                </p>
+              </div>
             </div>
           </div>
+
+          <!-- Expandable confirmation area -->
+          <Transition
+            enter-active-class="transition-all duration-200 ease-out"
+            enter-from-class="max-h-0 opacity-0"
+            enter-to-class="max-h-20 opacity-100"
+            leave-active-class="transition-all duration-150 ease-in"
+            leave-from-class="max-h-20 opacity-100"
+            leave-to-class="max-h-0 opacity-0"
+          >
+            <div
+              v-if="confirmingId === booking.id"
+              class="border-t border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 px-3 py-2"
+            >
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs text-gray-600 dark:text-gray-400">Cancel this booking?</span>
+                <div class="flex items-center gap-2">
+                  <UButton
+                    variant="ghost"
+                    color="neutral"
+                    size="xs"
+                    @click="hideConfirmation"
+                  >
+                    Keep
+                  </UButton>
+                  <UButton
+                    variant="soft"
+                    color="error"
+                    size="xs"
+                    :loading="cancellingId === booking.id"
+                    @click="confirmCancel(booking.id)"
+                  >
+                    Cancel
+                  </UButton>
+                </div>
+              </div>
+            </div>
+          </Transition>
         </div>
 
         <!-- Show message if no upcoming but has past bookings -->
