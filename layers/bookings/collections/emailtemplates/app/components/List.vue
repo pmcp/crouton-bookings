@@ -24,6 +24,8 @@
 </template>
 
 <script setup lang="ts">
+import useBookingsEmailTemplates from '../composables/useBookingsEmailTemplates'
+
 const props = withDefaults(defineProps<{
   layout?: any
 }>(), {

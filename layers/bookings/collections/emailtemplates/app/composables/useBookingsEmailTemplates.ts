@@ -6,7 +6,9 @@ export const bookingsEmailTemplateSchema = z.object({
   body: z.string().min(1, 'body is required'),
   fromEmail: z.string().min(1, 'fromEmail is required'),
   triggerType: z.string().min(1, 'triggerType is required'),
-  daysOffset: z.number().optional(),
+  recipientType: z.string().min(1, 'recipientType is required'),
+  isActive: z.boolean().optional(),
+  hoursOffset: z.number().optional(),
   locationId: z.string().optional()
 })
 
@@ -16,7 +18,9 @@ export const bookingsEmailTemplatesColumns = [
   { accessorKey: 'body', header: 'Body' },
   { accessorKey: 'fromEmail', header: 'FromEmail' },
   { accessorKey: 'triggerType', header: 'TriggerType' },
-  { accessorKey: 'daysOffset', header: 'DaysOffset' },
+  { accessorKey: 'recipientType', header: 'RecipientType' },
+  { accessorKey: 'isActive', header: 'IsActive' },
+  { accessorKey: 'hoursOffset', header: 'HoursOffset' },
   { accessorKey: 'locationId', header: 'LocationId' }
 ]
 
@@ -32,7 +36,9 @@ export const bookingsEmailTemplatesConfig = {
     body: '',
     fromEmail: '',
     triggerType: '',
-    daysOffset: 0,
+    recipientType: '',
+    isActive: false,
+    hoursOffset: 0,
     locationId: ''
   },
   columns: bookingsEmailTemplatesColumns,

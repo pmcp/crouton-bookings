@@ -10,7 +10,9 @@ export interface BookingsEmailTemplate {
   body: string
   fromEmail: string
   triggerType: string
-  daysOffset?: number
+  recipientType: string
+  isActive?: boolean
+  hoursOffset?: number
   locationId?: string
   createdAt: Date
   updatedAt: Date

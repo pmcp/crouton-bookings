@@ -13,6 +13,7 @@ export async function getAllBookingsEmailTemplates(teamId: string) {
   const createdByUsers = alias(users, 'createdByUsers')
   const updatedByUsers = alias(users, 'updatedByUsers')
 
+  // @ts-expect-error Complex select with joins requires type assertion
   const emailtemplates = await db
     .select({
       ...tables.bookingsEmailtemplates,
@@ -54,6 +55,7 @@ export async function getBookingsEmailTemplatesByIds(teamId: string, emailtempla
   const createdByUsers = alias(users, 'createdByUsers')
   const updatedByUsers = alias(users, 'updatedByUsers')
 
+  // @ts-expect-error Complex select with joins requires type assertion
   const emailtemplates = await db
     .select({
       ...tables.bookingsEmailtemplates,

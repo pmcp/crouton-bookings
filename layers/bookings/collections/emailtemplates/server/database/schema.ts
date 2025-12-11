@@ -27,7 +27,9 @@ export const bookingsEmailtemplates = sqliteTable('bookings_emailtemplates', {
   body: text('body').notNull(),
   fromEmail: text('fromEmail').notNull(),
   triggerType: text('triggerType').notNull(),
-  daysOffset: integer('daysOffset'),
+  recipientType: text('recipientType').notNull(),
+  isActive: integer('isActive', { mode: 'boolean' }).$default(() => false),
+  hoursOffset: integer('hoursOffset'),
   locationId: text('locationId'),
 
   createdAt: integer('createdAt', { mode: 'timestamp' }).notNull().$default(() => new Date()),

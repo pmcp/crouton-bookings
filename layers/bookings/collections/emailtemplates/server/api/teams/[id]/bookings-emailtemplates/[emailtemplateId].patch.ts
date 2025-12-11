@@ -18,7 +18,9 @@ export default defineEventHandler(async (event) => {
     body: body.body,
     fromEmail: body.fromEmail,
     triggerType: body.triggerType,
-    daysOffset: body.daysOffset,
+    recipientType: body.recipientType,
+    isActive: body.isActive,
+    hoursOffset: body.hoursOffset,
     locationId: body.locationId
   })
 })
