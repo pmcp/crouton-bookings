@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid'
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
 import { users } from './users'
 import { subscriptions } from './subscriptions'
+import { domains } from './domains'
 import { relations } from 'drizzle-orm'
 
 export const teams = sqliteTable('teams', {
@@ -70,6 +71,7 @@ export const teamsRelations = relations(teams, ({ many, one }) => ({
     fields: [teams.id],
     references: [subscriptions.teamId],
   }),
+  domains: many(domains),
 }))
 
 export const teamMembersRelations = relations(teamMembers, ({ one }) => ({
