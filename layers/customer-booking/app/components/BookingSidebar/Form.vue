@@ -252,10 +252,10 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
       <UButton
         block
         size="lg"
-        color="primary"
+        :color="canAddToCart ? 'primary' : 'neutral'"
+        :variant="canAddToCart ? 'solid' : 'ghost'"
         icon="i-lucide-plus"
-        class="mt-4 transition-opacity"
-        :class="{ 'opacity-30': !canAddToCart }"
+        class="mt-4"
         :disabled="!canAddToCart"
         @click="addToCart"
       >
