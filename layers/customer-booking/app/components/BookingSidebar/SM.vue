@@ -8,11 +8,6 @@ const {
   activeTab,
   cartCount,
   upcomingBookingsCount,
-  canAddToCart,
-  addToCart,
-  selectedLocation,
-  formState,
-  allSlots,
   cartPulse,
 } = useBookingCart()
 
@@ -25,24 +20,6 @@ watch(cartPulse, () => {
   setTimeout(() => {
     isPulsing.value = false
   }, 600)
-})
-
-// Format date for display in sticky footer
-const selectedDateFormatted = computed(() => {
-  if (!formState.date) return ''
-  return formState.date.toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  })
-})
-
-// Get slot label for display in sticky footer
-const selectedSlotLabel = computed(() => {
-  if (!formState.slotId) return ''
-  if (formState.slotId === 'all-day') return 'All Day'
-  const slot = allSlots.value.find(s => s.id === formState.slotId)
-  return slot?.label || slot?.value || formState.slotId
 })
 
 const breakpoints = useBreakpoints(breakpointsTailwind)
@@ -108,29 +85,6 @@ function toggleCart() {
         <BookingSidebarMyBookings />
       </template>
     </UTabs>
-
-    <!-- Sticky footer for add to cart (only when selection is ready) -->
-    <div
-      v-if="canAddToCart && activeTab === 'book'"
-      class="border-t border-neutral-200 dark:border-neutral-800 p-3 bg-white dark:bg-neutral-950"
-    >
-      <div class="flex items-center gap-3">
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
-            {{ selectedLocation?.title }} - {{ selectedSlotLabel }}
-          </p>
-          <p class="text-xs text-neutral-500 dark:text-neutral-400">
-            {{ selectedDateFormatted }}
-          </p>
-        </div>
-        <UButton
-          icon="i-lucide-plus"
-          size="lg"
-          color="primary"
-          @click="addToCart"
-        />
-      </div>
-    </div>
 
     <!-- Cart trigger button (always visible at bottom) -->
     <div class="border-t border-neutral-200 dark:border-neutral-800 p-2 bg-white dark:bg-neutral-950">
@@ -230,29 +184,6 @@ function toggleCart() {
             <BookingSidebarMyBookings />
           </template>
         </UTabs>
-
-        <!-- Sticky footer for add to cart (only when selection is ready) -->
-        <div
-          v-if="canAddToCart && activeTab === 'book'"
-          class="border-t border-neutral-200 dark:border-neutral-800 p-3 bg-white dark:bg-neutral-950"
-        >
-          <div class="flex items-center gap-3">
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
-                {{ selectedLocation?.title }} - {{ selectedSlotLabel }}
-              </p>
-              <p class="text-xs text-neutral-500 dark:text-neutral-400">
-                {{ selectedDateFormatted }}
-              </p>
-            </div>
-            <UButton
-              icon="i-lucide-plus"
-              size="lg"
-              color="primary"
-              @click="addToCart"
-            />
-          </div>
-        </div>
 
         <!-- Cart trigger button -->
         <div class="border-t border-neutral-200 dark:border-neutral-800 p-2 bg-white dark:bg-neutral-950">

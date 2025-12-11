@@ -247,6 +247,20 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
           </span>
         </template>
       </URadioGroup>
+
+      <!-- Add to Cart button - always visible but disabled when no slot selected -->
+      <UButton
+        block
+        size="lg"
+        color="primary"
+        icon="i-lucide-plus"
+        class="mt-4 transition-opacity"
+        :class="{ 'opacity-30': !canAddToCart }"
+        :disabled="!canAddToCart"
+        @click="addToCart"
+      >
+        Add to Cart
+      </UButton>
     </div>
 
   </div>
