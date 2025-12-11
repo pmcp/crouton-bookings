@@ -19,7 +19,7 @@ provide('openBookingSidebar', openBookingSidebar)
 <template>
   <div class="min-h-screen flex flex-col bg-white dark:bg-neutral-950">
     <!-- Header (full width, stays on top) -->
-    <PagesHeader :team-slug="teamSlug" base-path="app" />
+    <PagesHeader :team-slug="teamSlug" is-app-preview />
 
     <!-- Content area: horizontal flex for main + sidebar -->
     <div class="flex-1 flex overflow-hidden">

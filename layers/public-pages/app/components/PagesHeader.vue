@@ -1,7 +1,7 @@
 <script setup lang="ts">
 interface Props {
   teamSlug: string
-  basePath?: 'p' | 'app' | 'custom-domain' | 'main-domain'
+  isAppPreview?: boolean
 }
 
 interface MenuPage {
@@ -14,13 +14,13 @@ interface MenuPage {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  basePath: 'p',
+  isAppPreview: false,
 })
 
 // Check if user is logged in
 const { loggedIn } = useUserSession()
 
-// For custom domain, use the team context to build URLs
+// Use team context for URL building
 const teamContext = useTeamContext()
 
 // Fetch menu pages to get the first root page
@@ -28,19 +28,14 @@ const { data: pages } = await useFetch<MenuPage[]>(
   () => `/api/public/pages/${props.teamSlug}/menu`
 )
 
-// Generate link based on basePath
+// Generate link based on context
 const getPageLink = (slug: string) => {
-  if (props.basePath === 'custom-domain') {
-    return teamContext.buildUrl(`/${slug}`)
-  }
-  if (props.basePath === 'main-domain') {
-    // Main domain clean URLs: /{teamSlug}/{slug}
-    return `/${props.teamSlug}/${slug}`
-  }
-  if (props.basePath === 'app') {
+  if (props.isAppPreview) {
+    // App preview route uses explicit /app/{teamSlug}/pages/{slug} pattern
     return `/app/${props.teamSlug}/pages/${slug}`
   }
-  return `/p/${props.teamSlug}/${slug}`
+  // For public pages (both custom and main domain), use buildUrl()
+  return teamContext.buildUrl(`/${slug}`)
 }
 
 // Get the first root page (by order) for the Home link
@@ -62,16 +57,10 @@ const homeLink = computed(() => {
   }
 
   // Fallback to index if no pages
-  if (props.basePath === 'custom-domain') {
-    return '/'
-  }
-  if (props.basePath === 'main-domain') {
-    return `/${props.teamSlug}`
-  }
-  if (props.basePath === 'app') {
+  if (props.isAppPreview) {
     return `/app/${props.teamSlug}/pages`
   }
-  return `/p/${props.teamSlug}`
+  return teamContext.buildUrl('/')
 })
 
 // Function to open booking sidebar (injected from layout)
