@@ -6,8 +6,8 @@
 
 | Metric | Value |
 |--------|-------|
-| Tasks Completed | 7 / 10 |
-| Current Phase | Phase 3: Event Hooks |
+| Tasks Completed | 8 / 10 |
+| Current Phase | Phase 4: Scheduled Emails |
 | Status | In Progress |
 
 ---
@@ -235,7 +235,7 @@ CRON_SECRET: z.string().min(32).optional(),
 
 ## Phase 3: Event Hooks (2 tasks)
 
-**Progress**: 1/2 tasks (50%)
+**Progress**: 2/2 tasks (100%)
 
 ### Task 3.1: Hook Booking Creation
 - [x] ✅ Modify `layers/bookings/collections/bookings/server/api/teams/[id]/bookings-bookings/index.post.ts`
@@ -251,7 +251,7 @@ await sendBookingEmail(booking, 'booking_confirmed')
 ---
 
 ### Task 3.2: Hook Booking Cancellation
-- [ ] Modify booking update/delete endpoints to trigger `booking_cancelled`
+- [x] ✅ Modify booking update/delete endpoints to trigger `booking_cancelled`
 
 **Location:** Check for status change to 'cancelled' or deletion
 
@@ -341,3 +341,4 @@ export default defineTask({
 - Task 2.2: Created `emails/booking-notification.vue` Vue email component using @vue-email/components. Accepts subject, bodyHtml (pre-rendered), teamName, teamLogo, and previewText props. Follows existing pattern from member-invite.vue with centered layout.
 - Task 2.3: Added CRON_SECRET to env.ts with zod validation (min 32 chars, optional). Added example to .env with documentation section. Phase 2 complete.
 - Task 3.1: Hooked booking creation to send confirmation emails. Modified `index.post.ts` to import `sendBookingEmail`, fetch full booking with relations after creation, and trigger `booking_confirmed` emails non-blocking. Also fixed a type cast issue in booking-emails.ts.
+- Task 3.2: Hooked booking cancellation to send cancellation emails. Modified `[bookingId].patch.ts` to detect status change to 'cancelled' and trigger `booking_cancelled` emails. Modified `[bookingId].delete.ts` to fetch booking data BEFORE deletion, then send cancellation email after successful deletion. Both use non-blocking email sends. Phase 3 complete.
