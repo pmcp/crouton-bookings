@@ -154,7 +154,6 @@ const hasToc = computed(() => tocLinks.value.length > 0)
         <PagesBreadcrumb
           :team-slug="teamSlug"
           :current-page-id="page.id"
-          base-path="main-domain"
           class="mb-4"
         />
 

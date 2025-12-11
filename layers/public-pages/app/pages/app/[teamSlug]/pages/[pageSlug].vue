@@ -1,4 +1,4 @@
-<script setup lang="ts">
+this<script setup lang="ts">
 definePageMeta({
   layout: 'pages',
 })
@@ -127,7 +127,7 @@ const hasToc = computed(() => tocLinks.value.length > 0)
         <PagesBreadcrumb
           :team-slug="teamSlug"
           :current-page-id="page.id"
-          base-path="app"
+          is-app-preview
           class="mb-4"
         />
 

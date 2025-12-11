@@ -165,7 +165,6 @@ const hasToc = computed(() => tocLinks.value.length > 0)
           v-if="teamSlug"
           :team-slug="teamSlug"
           :current-page-id="page.id"
-          base-path="custom-domain"
           class="mb-4"
         />
 
