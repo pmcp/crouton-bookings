@@ -31,17 +31,18 @@ export function useBookingCart() {
   const route = useRoute()
   const toast = useToast()
 
-  // Team ID from route
-  const teamId = computed(() => route.params.team as string)
+  // Team ID from route - support both 'team' and 'teamSlug' params
+  const teamId = computed(() => (route.params.team || route.params.teamSlug) as string)
 
   // Cart persisted in localStorage
   const cart = useLocalStorage<CartItem[]>('booking-cart', [])
 
-  // Fetch customer bookings for the "My Bookings" count
-  const { data: myBookings } = useFetch<BookingData[]>(
+  // Fetch customer bookings for the "My Bookings" count and list
+  // Using shared key so both the tab count and MyBookings component share the same data
+  const { data: myBookings, status: myBookingsStatus, refresh: refreshMyBookings } = useFetch<BookingData[]>(
     () => `/api/teams/${teamId.value}/customer-bookings`,
     {
-      key: 'booking-cart-my-bookings',
+      key: 'sidebar-customer-bookings',
     },
   )
 
@@ -415,6 +416,11 @@ export function useBookingCart() {
     isDateFullyBooked,
     getBookedSlotLabelsForDate,
     getBookedSlotsForDate,
+
+    // My Bookings (shared data for MyBookings component)
+    myBookings,
+    myBookingsStatus,
+    refreshMyBookings,
 
     // Computed
     canAddToCart,

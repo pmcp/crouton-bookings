@@ -225,8 +225,8 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
         indicator="hidden"
         orientation="vertical"
         :ui="{
-          fieldset: 'grid grid-cols-1 gap-2',
-          item: 'w-full justify-center',
+          fieldset: 'grid grid-cols-1 gap-1.5',
+          item: 'w-full justify-center py-1.5',
           wrapper: 'text-center',
         }"
       >
@@ -249,30 +249,5 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
       </URadioGroup>
     </div>
 
-    <!-- Selected Summary -->
-    <div v-if="selectedLocation && formState.date && formState.slotId" class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-      <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">
-        Selected
-      </p>
-      <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
-        {{ selectedLocation.title }}
-      </p>
-      <p class="text-xs text-gray-500 dark:text-gray-400">
-        {{ formState.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) }}
-        at {{ availableSlots.find(s => s.id === formState.slotId)?.label || formState.slotId }}
-      </p>
-    </div>
-
-    <!-- Add to Cart Button -->
-    <UButton
-      block
-      :disabled="!canAddToCart"
-      :color="canAddToCart ? 'primary' : 'neutral'"
-      :variant="canAddToCart ? 'solid' : 'outline'"
-      icon="i-lucide-plus"
-      @click="addToCart"
-    >
-      Add to Cart
-    </UButton>
   </div>
 </template>

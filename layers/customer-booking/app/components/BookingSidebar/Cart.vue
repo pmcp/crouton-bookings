@@ -33,9 +33,9 @@ function goToBooking() {
 </script>
 
 <template>
-  <div class="p-4 flex flex-col h-full">
+  <div class="flex flex-col h-full overflow-hidden">
     <!-- Empty State -->
-    <div v-if="cartCount === 0" class="flex-1 flex flex-col items-center justify-center text-center py-8">
+    <div v-if="cartCount === 0" class="flex-1 flex flex-col items-center justify-center text-center p-4">
       <UIcon name="i-lucide-shopping-cart" class="w-12 h-12 text-gray-300 dark:text-gray-600 mb-3" />
       <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
         Your cart is empty
@@ -55,7 +55,8 @@ function goToBooking() {
 
     <!-- Cart Items -->
     <template v-else>
-      <div class="flex items-center justify-between mb-4">
+      <!-- Header row -->
+      <div class="flex items-center justify-between px-4 pt-3 pb-2 shrink-0 bg-white dark:bg-neutral-950">
         <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100">
           {{ cartCount }} {{ cartCount === 1 ? 'booking' : 'bookings' }}
         </h3>
@@ -70,8 +71,8 @@ function goToBooking() {
         </UButton>
       </div>
 
-      <!-- Items List -->
-      <div class="flex-1 overflow-y-auto space-y-2 mb-4">
+      <!-- Items List (scrollable) -->
+      <div class="flex-1 overflow-y-auto px-4 space-y-2">
         <div
           v-for="item in cart"
           :key="item.id"
@@ -82,10 +83,10 @@ function goToBooking() {
           </div>
           <div class="flex-1 min-w-0">
             <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-              {{ item.locationTitle }}
+              {{ item.locationTitle }} - {{ item.slotLabel }}
             </p>
             <p class="text-xs text-gray-500 dark:text-gray-400">
-              {{ formatDate(item.date) }} at {{ item.slotLabel }}
+              {{ formatDate(item.date) }}
             </p>
           </div>
           <button
@@ -98,8 +99,8 @@ function goToBooking() {
         </div>
       </div>
 
-      <!-- Submit Button -->
-      <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+      <!-- Submit Button (fixed footer) -->
+      <div class="p-4 border-t border-gray-200 dark:border-gray-700 shrink-0">
         <UButton
           block
           :loading="isSubmitting"

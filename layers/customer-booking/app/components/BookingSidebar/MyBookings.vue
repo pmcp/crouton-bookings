@@ -21,15 +21,13 @@ interface Booking {
   }
 }
 
-const route = useRoute()
-const teamId = computed(() => route.params.team as string)
-
-const { data: bookings, status, refresh } = useFetch<Booking[]>(
-  () => `/api/teams/${teamId.value}/customer-bookings`,
-  {
-    key: 'sidebar-customer-bookings',
-  },
-)
+// Use shared data from composable (same cache key as tab count)
+const {
+  myBookings: bookings,
+  myBookingsStatus: status,
+  refreshMyBookings: refresh,
+  activeTab,
+} = useBookingCart()
 
 const hasBookings = computed(() => bookings.value && bookings.value.length > 0)
 
@@ -38,7 +36,7 @@ const upcomingBookings = computed(() => {
   if (!bookings.value) return []
   const now = new Date()
   now.setHours(0, 0, 0, 0)
-  return bookings.value.filter((b) => {
+  return (bookings.value as Booking[]).filter((b) => {
     const bookingDate = new Date(b.date)
     return bookingDate >= now
   })
@@ -102,8 +100,6 @@ function getStatusColor(status: string): 'success' | 'warning' | 'error' | 'neut
       return 'neutral'
   }
 }
-
-const { activeTab } = useBookingCart()
 
 function goToBooking() {
   activeTab.value = 'book'
