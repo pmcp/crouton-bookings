@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| Tasks Completed | 4 / 10 |
+| Tasks Completed | 5 / 10 |
 | Current Phase | Phase 2: Email Service |
 | Status | In Progress |
 
@@ -180,7 +180,7 @@ collections: ['bookings', 'locations', 'emailTemplates', 'emailLogs', 'pages', '
 
 ## Phase 2: Email Service (3 tasks)
 
-**Progress**: 1/3 tasks (33%)
+**Progress**: 2/3 tasks (67%)
 
 ### Task 2.1: Create Booking Email Service
 - [x] ✅ Create `server/services/booking-emails.ts`
@@ -205,7 +205,7 @@ collections: ['bookings', 'locations', 'emailTemplates', 'emailLogs', 'pages', '
 ---
 
 ### Task 2.2: Create Vue Email Component
-- [ ] Create `emails/booking-notification.vue`
+- [x] ✅ Create `emails/booking-notification.vue`
 
 **Template structure:**
 ```vue
@@ -338,3 +338,4 @@ export default defineTask({
 - Tasks completed: Plan created, Task 1.1, Task 1.2, Task 1.3, Task 2.1
 - Notes: Updated email-template-schema.json with richtext body, trigger options, recipientType, isActive, and hoursOffset fields. Created email-log-schema.json for tracking sent emails with booking/template references, recipient, status, and error fields. Task 1.3: Added emailLogs collection to crouton.config.mjs, ran crouton generate to scaffold the collection (CRUD endpoints, composables, schema, etc.), migrations already applied.
 - Task 2.1: Created `server/services/booking-emails.ts` with functions for getting active templates, rendering variables, sending emails, and logging email sends. Implemented: `getActiveTemplatesForTrigger()`, `renderTemplate()`, `sendBookingEmail()`, `logEmailSend()`, `wasEmailAlreadySent()`. Note: DB schema is missing `isActive`, `recipientType` fields - service defaults to treating all templates as active and recipientType='customer'.
+- Task 2.2: Created `emails/booking-notification.vue` Vue email component using @vue-email/components. Accepts subject, bodyHtml (pre-rendered), teamName, teamLogo, and previewText props. Follows existing pattern from member-invite.vue with centered layout.
