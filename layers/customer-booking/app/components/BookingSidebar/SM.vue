@@ -57,7 +57,7 @@ function toggleCart() {
     <!-- SSR placeholder - render desktop version by default -->
     <div
       :style="{ width: '420px', minWidth: '420px' }"
-      class="flex-shrink-0 h-full bg-white flex flex-col dark:bg-neutral-950 relative overflow-hidden rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800"
+      class="flex-shrink-0 h-full bg-default flex flex-col relative overflow-hidden rounded-lg ring ring-default"
     />
   </template>
 
@@ -65,7 +65,7 @@ function toggleCart() {
   <div
     v-else-if="!isMobile"
     :style="{ width: '420px', minWidth: '420px' }"
-    class="flex-shrink-0 h-full bg-white flex flex-col dark:bg-neutral-950 relative overflow-hidden rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800"
+    class="flex-shrink-0 h-full bg-default flex flex-col relative overflow-hidden rounded-lg ring ring-default"
   >
     <!-- Main content area -->
     <UTabs
@@ -87,7 +87,7 @@ function toggleCart() {
     </UTabs>
 
     <!-- Cart trigger button (always visible at bottom) -->
-    <div class="border-t border-neutral-200 dark:border-neutral-800 p-2 bg-white dark:bg-neutral-950">
+    <div class="border-t border-default p-2 bg-default">
       <UButton
         block
         variant="soft"
@@ -128,10 +128,10 @@ function toggleCart() {
     >
       <div
         v-if="isCartOpen"
-        class="absolute inset-x-0 bottom-0 bg-white dark:bg-neutral-950 border-t border-neutral-200 dark:border-neutral-800 shadow-lg max-h-[70vh] flex flex-col overflow-hidden"
+        class="absolute inset-x-0 bottom-0 bg-elevated border-t border-default shadow-lg max-h-[70vh] flex flex-col overflow-hidden"
       >
         <!-- Cart header with close button -->
-        <div class="flex items-center justify-between p-3 border-b border-neutral-200 dark:border-neutral-800 shrink-0">
+        <div class="flex items-center justify-between p-3 border-b border-default shrink-0">
           <h3 class="font-medium text-sm flex items-center gap-2">
             <UIcon name="i-lucide-shopping-cart" class="w-4 h-4" />
             Cart
@@ -186,7 +186,7 @@ function toggleCart() {
         </UTabs>
 
         <!-- Cart trigger button -->
-        <div class="border-t border-neutral-200 dark:border-neutral-800 p-2 bg-white dark:bg-neutral-950">
+        <div class="border-t border-default p-2 bg-default">
           <UButton
             block
             variant="soft"
@@ -227,10 +227,10 @@ function toggleCart() {
         >
           <div
             v-if="isCartOpen"
-            class="absolute inset-x-0 bottom-0 bg-white dark:bg-neutral-950 border-t border-neutral-200 dark:border-neutral-800 shadow-lg max-h-[70vh] flex flex-col overflow-hidden"
+            class="absolute inset-x-0 bottom-0 bg-elevated border-t border-default shadow-lg max-h-[70vh] flex flex-col overflow-hidden"
           >
             <!-- Cart header with close button -->
-            <div class="flex items-center justify-between p-3 border-b border-neutral-200 dark:border-neutral-800 shrink-0">
+            <div class="flex items-center justify-between p-3 border-b border-default shrink-0">
               <h3 class="font-medium text-sm flex items-center gap-2">
                 <UIcon name="i-lucide-shopping-cart" class="w-4 h-4" />
                 Cart

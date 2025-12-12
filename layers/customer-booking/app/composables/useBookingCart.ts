@@ -431,6 +431,35 @@ export function useBookingCart() {
     }
   }
 
+  // Permanently delete a booking
+  async function deleteBooking(bookingId: string) {
+    try {
+      await $fetch(`/api/teams/${teamId.value}/bookings-bookings/${bookingId}`, {
+        method: 'DELETE',
+      })
+
+      // Refresh the bookings list
+      await refreshMyBookings()
+
+      toast.add({
+        title: 'Booking deleted',
+        description: 'The booking has been permanently removed',
+        color: 'success',
+      })
+
+      return true
+    }
+    catch (error: any) {
+      console.error('Failed to delete booking:', error)
+      toast.add({
+        title: 'Delete failed',
+        description: error.data?.message || 'Failed to delete booking. Please try again.',
+        color: 'error',
+      })
+      return false
+    }
+  }
+
   return {
     // State
     cart,
@@ -474,5 +503,6 @@ export function useBookingCart() {
     submitAll,
     resetForm,
     cancelBooking,
+    deleteBooking,
   }
 }
