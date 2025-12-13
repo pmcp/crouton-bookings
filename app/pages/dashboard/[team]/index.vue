@@ -1,18 +1,32 @@
 <template>
-  <AppContainer :title="`${currentTeam?.name} Home (Demo Page)`">
-    <div class="space-y-6">
-      <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <AppDemoKpi title="Followers" value="8551" up="19%" />
-        <AppDemoKpi title="Impressions" value="80.5k" up="16%" />
-        <AppDemoKpi title="Profile Visits" value="930" down="8%" />
-        <AppDemoKpi title="Likes" value="12.5k" up="32%" />
-      </div>
-      <AppDemoChart title="Impressions Overview" />
-      <AppDemoTable />
+  <main class="fixed inset-0 flex overflow-hidden">
+    <AppSidebar v-if="!isOnboardRoute" />
+    <div class="w-full min-w-0 flex-1 overflow-y-auto">
+      <SuperAdminImpersonationBanner v-if="user?._impersonated" :user="user" />
+      <NuxtPage />
     </div>
-  </AppContainer>
+    <!-- Booking Sidebar - only for customer routes -->
+    <BookingSidebarPanel v-if="showBookingSidebar" />
+  </main>
 </template>
 
-<script lang="ts" setup>
-const { currentTeam } = useTeam()
+<script setup lang="ts">
+definePageMeta({
+  middleware: ['auth'],
+})
+
+const { user } = useUserSession()
+const route = useRoute()
+
+const isOnboardRoute = computed(() =>
+  route.path.startsWith('/dashboard/onboard'),
+)
+
+// Show booking sidebar only on customer-facing routes (bookings section)
+// Exclude /new route as it uses the XL full-page version
+const showBookingSidebar = computed(() => {
+  const path = route.path
+  // Show on bookings routes but not on admin routes or the /new page (which uses XL mode)
+  return path.includes('/bookings') && !path.includes('/admin') && !path.endsWith('/new')
+})
 </script>
