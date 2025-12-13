@@ -1,15 +1,7 @@
 <script setup lang="ts">
 import type { DateValue } from '@internationalized/date'
 
-const { t, locale } = useT()
-
-// TEMP: Language switcher for testing - remove after testing
-const i18n = useI18n()
-const switchLocale = async (code: string) => {
-  console.log('Switching locale to:', code, 'current:', locale.value)
-  await i18n.setLocale(code)
-  console.log('Locale after switch:', locale.value)
-}
+const { t } = useT()
 
 interface SlotItem {
   id: string
@@ -232,17 +224,6 @@ function getStatusColor(statusValue: string): 'success' | 'warning' | 'error' | 
 
 <template>
   <div>
-    <!-- TEMP: Language switcher for testing - remove after testing -->
-    <ClientOnly>
-      <div class="flex items-center gap-2 mb-4 p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
-        <span class="text-xs font-medium">Test i18n:</span>
-        <UButton size="xs" :variant="locale === 'en' ? 'solid' : 'outline'" @click="switchLocale('en')">EN</UButton>
-        <UButton size="xs" :variant="locale === 'nl' ? 'solid' : 'outline'" @click="switchLocale('nl')">NL</UButton>
-        <UButton size="xs" :variant="locale === 'fr' ? 'solid' : 'outline'" @click="switchLocale('fr')">FR</UButton>
-        <span class="text-xs text-muted ml-2">Current: {{ locale }}</span>
-      </div>
-    </ClientOnly>
-
     <!-- Loading -->
     <div v-if="status === 'pending'" class="text-center py-12">
       <UIcon name="i-lucide-loader-2" class="w-8 h-8 text-muted animate-spin mx-auto mb-3" />

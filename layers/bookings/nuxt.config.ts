@@ -27,6 +27,12 @@ export default defineNuxtConfig({
       { code: 'nl', file: 'nl.json' },
       { code: 'fr', file: 'fr.json' }
     ],
-    langDir: './locales'
+    langDir: './locales',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_locale',
+      alwaysRedirect: false,
+      fallbackLocale: 'en'
+    }
   }
 })
