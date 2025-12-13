@@ -79,22 +79,22 @@ const statuses = computed<StatusItem[]>(() => {
   return DEFAULT_STATUSES
 })
 
-// Dynamic status filter state
-const statusFilters = ref<Record<string, boolean>>({})
+// User overrides - starts empty (hydration-safe)
+const statusOverrides = ref<Record<string, boolean>>({})
 
-// Initialize filters when statuses change
-watch(statuses, (newStatuses) => {
-  newStatuses.forEach((s) => {
-    if (!(s.value in statusFilters.value)) {
-      // Default: cancelled off, others on
-      statusFilters.value[s.value] = s.value !== 'cancelled'
-    }
-  })
-}, { immediate: true })
+// Computed: defaults merged with user overrides
+const statusFilters = computed(() =>
+  Object.fromEntries(
+    statuses.value.map(s => [
+      s.value,
+      statusOverrides.value[s.value] ?? s.value !== 'cancelled',
+    ]),
+  ),
+)
 
-// Toggle status filter
+// Toggle stores in overrides
 function toggleStatus(key: string) {
-  statusFilters.value[key] = !statusFilters.value[key]
+  statusOverrides.value[key] = !statusFilters.value[key]
 }
 
 // Get all unique statuses from bookings (for reference)
