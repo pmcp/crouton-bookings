@@ -27,6 +27,6 @@ export default defineNuxtConfig({
       { code: 'nl', file: 'nl.json' },
       { code: 'fr', file: 'fr.json' }
     ],
-    langDir: './i18n/locales'
+    langDir: './locales'
   }
 })
