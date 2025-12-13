@@ -4,8 +4,7 @@ import { getInvite } from '~~/server/database/queries/teams'
 export default defineNuxtRouteMiddleware(async (to, _from) => {
   const paramSlug
     = (Array.isArray(to.params.team) ? to.params.team[0] : to.params.team) || ''
-  const toast = useToast()
-  const { loggedIn } = useUserSession()
+  const { loggedIn, user } = useUserSession()
   const teams = useState<Team[]>('teams', () => [])
   const teamSlug = useState<string>('teamSlug')
 
@@ -28,10 +27,6 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
 
   // Redirect to login if not logged in
   if (!loggedIn.value) {
-    toast.add({
-      title: 'You must be logged in to access this page',
-      color: 'error',
-    })
     if (teamSlug.value) teamSlug.value = ''
     if (teams.value.length) teams.value = []
     return await navigateTo('/auth/login')
@@ -57,7 +52,8 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
 
   // If teams aren't loaded yet, fetch them
   if (!teams.value.length) {
-    teams.value = await useTeam().getMemberships()
+    const { data } = await useFetch<Team[]>('/api/me/memberships')
+    teams.value = data.value || []
 
     // If there are teams and we're coming from registration via invite, skip onboarding
     const fromInvite = useCookie('from-invite')
@@ -74,12 +70,11 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
 
   // Members (non-admins) cannot access dashboard - redirect to public pages
   // This check must happen AFTER teams are loaded so isTeamOwner can be determined
-  const { isAdmin } = useUserRole()
-  if (!isAdmin.value && to.path.startsWith('/dashboard')) {
-    toast.add({
-      title: 'Dashboard access requires admin privileges',
-      color: 'warning',
-    })
+  // Compute isAdmin directly to avoid inject() warning from useUserRole -> useTeam
+  const currentTeam = paramSlug ? teams.value.find((team) => team.slug === paramSlug) : teams.value[0]
+  const isTeamOwner = currentTeam?.ownerId === user.value?.id
+  const isAdmin = user.value?.superAdmin || isTeamOwner
+  if (!isAdmin && to.path.startsWith('/dashboard')) {
     return navigateTo('/')
   }
 

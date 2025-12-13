@@ -1,11 +1,9 @@
 import type { Team } from '@@/types/database'
 
 export default defineNuxtRouteMiddleware(async (to, _from) => {
-  const toast = useToast()
-  const { loggedIn } = useUserSession()
+  const { loggedIn, user } = useUserSession()
   const teams = useState<Team[]>('teams', () => [])
   const teamSlug = useState<string>('teamSlug')
-  const { isTeamOwner } = useTeam()
 
   // Is user logged in?
   if (!loggedIn.value) {
@@ -20,18 +18,12 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
   )
 
   if (!currentTeam) {
-    toast.add({
-      title: 'Team not found',
-      color: 'error',
-    })
     return navigateTo('/dashboard')
   }
 
-  if (!isTeamOwner.value) {
-    toast.add({
-      title: 'Unauthorized Access',
-      color: 'error',
-    })
+  // Check if user is team owner (computed directly to avoid inject warning)
+  const isOwner = currentTeam.ownerId === user.value?.id
+  if (!isOwner) {
     return navigateTo('/dashboard')
   }
 })
