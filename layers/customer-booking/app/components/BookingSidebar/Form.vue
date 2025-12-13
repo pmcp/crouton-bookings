@@ -3,6 +3,8 @@ import type { RadioGroupItem } from '@nuxt/ui'
 import type { DateValue } from '@internationalized/date'
 import { fromDate, toCalendarDate, getLocalTimeZone } from '@internationalized/date'
 
+const { t } = useT()
+
 interface Props {
   hideLocationSelect?: boolean
 }
@@ -145,13 +147,13 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
     <!-- Location Selection - hidden in XL mode -->
     <div v-if="!hideLocationSelect">
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-        Location
+        {{ t('bookings.form.location') }}
       </label>
       <USelect
         v-model="formState.locationId"
         :items="locationOptions"
         :loading="locationsStatus === 'pending'"
-        placeholder="Select a location"
+        :placeholder="t('bookings.form.selectLocation')"
         icon="i-lucide-map-pin"
         class="w-full"
         value-key="value"
@@ -168,13 +170,13 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
     <!-- Calendar with availability indicators -->
     <div v-if="formState.locationId">
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-        Date
+        {{ t('bookings.form.date') }}
       </label>
 
       <!-- Loading state -->
       <div v-if="availabilityLoading" class="flex items-center justify-center py-8">
         <UIcon name="i-lucide-loader-2" class="w-5 h-5 text-gray-400 animate-spin mr-2" />
-        <span class="text-sm text-gray-500">Loading availability...</span>
+        <span class="text-sm text-gray-500">{{ t('bookings.form.loadingAvailability') }}</span>
       </div>
 
       <!-- Calendar -->
@@ -205,14 +207,14 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
     <!-- Time Slots - only show when date selected -->
     <div v-if="formState.date && formState.locationId && !availabilityLoading">
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-        Time Slot
+        {{ t('bookings.form.timeSlot') }}
       </label>
 
       <!-- No slots configured -->
       <div v-if="slotItems.length === 0" class="text-center py-4">
         <UIcon name="i-lucide-clock" class="w-8 h-8 text-gray-300 mx-auto mb-2" />
         <p class="text-sm text-gray-500">
-          No time slots configured
+          {{ t('bookings.form.noTimeSlotsConfigured') }}
         </p>
       </div>
 
@@ -242,7 +244,7 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
             />
             <span :class="item.disabled ? 'line-through text-muted' : ''">{{ item.label }}</span>
             <UBadge v-if="item.disabled" size="xs" color="neutral" variant="subtle" class="ml-1">
-              Booked
+              {{ t('bookings.status.booked') }}
             </UBadge>
           </span>
         </template>
@@ -259,7 +261,7 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
         :disabled="!canAddToCart"
         @click="addToCart"
       >
-        Add to Cart
+        {{ t('bookings.form.addToCart') }}
       </UButton>
     </div>
 

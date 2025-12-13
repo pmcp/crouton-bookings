@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     '@friendlyinternet/nuxt-crouton-connector',
     '@friendlyinternet/nuxt-crouton-editor',
     '@friendlyinternet/nuxt-crouton-maps',
+    '@friendlyinternet/nuxt-crouton-i18n',
     './layers/bookings',
     './layers/customer-booking',
     './layers/public',

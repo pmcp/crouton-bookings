@@ -1,0 +1,44 @@
+{
+  "bookings": {
+    "collections": {
+      "bookings": { "title": "Boekingen" },
+      "locations": { "title": "Locaties" },
+      "assets": { "title": "Middelen" },
+      "settings": { "title": "Instellingen" },
+      "emailtemplates": { "title": "E-mailsjablonen" },
+      "emaillogs": { "title": "E-maillogs" },
+      "pages": { "title": "Pagina's" }
+    },
+    "form": {
+      "location": "Locatie",
+      "date": "Datum",
+      "slot": "Slot",
+      "ageGroup": "Leeftijdsgroep",
+      "status": "Status",
+      "timeSlot": "Tijdslot",
+      "selectLocation": "Selecteer een locatie",
+      "loadingAvailability": "Beschikbaarheid laden...",
+      "noTimeSlotsConfigured": "Geen tijdslots geconfigureerd",
+      "addToCart": "Toevoegen aan winkelwagen"
+    },
+    "status": {
+      "confirmed": "Bevestigd",
+      "pending": "In afwachting",
+      "cancelled": "Geannuleerd",
+      "booked": "Geboekt"
+    },
+    "list": {
+      "loading": "Je boekingen laden...",
+      "noBookings": "Nog geen boekingen",
+      "noBookingsDescription": "Je hebt nog geen boekingen gemaakt. Maak je eerste!",
+      "bookNow": "Nu boeken",
+      "noFilterMatch": "Geen boekingen voldoen aan de geselecteerde filters",
+      "showAllBookings": "Alle boekingen tonen",
+      "unknownLocation": "Onbekende locatie",
+      "bookingCount": "{count} van {total} boekingen"
+    },
+    "common": {
+      "at": "om"
+    }
+  }
+}

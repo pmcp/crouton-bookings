@@ -16,3 +16,6 @@ export { bookingsPages } from '../../../layers/bookings/collections/pages/server
 export { bookingsAssets } from '../../../layers/bookings/collections/assets/server/database/schema'
 export { bookingsSettings } from '../../../layers/bookings/collections/settings/server/database/schema'
 export { bookingsEmaillogs } from '../../../layers/bookings/collections/emaillogs/server/database/schema'
+
+// i18n translations table (local copy for drizzle-kit compatibility)
+export { translationsUi } from './translations-ui'

@@ -6,6 +6,7 @@ settings:
 
 overrides:
   '@friendlyinternet/nuxt-crouton': link:../nuxt-crouton/packages/nuxt-crouton
+  '@friendlyinternet/nuxt-crouton-i18n': link:../nuxt-crouton/packages/nuxt-crouton-i18n
 
 importers:
 
@@ -20,6 +21,9 @@ importers:
       '@friendlyinternet/nuxt-crouton-editor':
         specifier: ^1.3.0
         version: 1.3.0(lymbc77hkdl55o25naeryzuxma)
+      '@friendlyinternet/nuxt-crouton-i18n':
+        specifier: link:../nuxt-crouton/packages/nuxt-crouton-i18n
+        version: link:../nuxt-crouton/packages/nuxt-crouton-i18n
       '@friendlyinternet/nuxt-crouton-maps':
         specifier: ^0.3.1
         version: 0.3.1(qnbqolmwwxon2fshxefplhio2y)

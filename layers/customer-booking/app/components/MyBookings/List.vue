@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import type { DateValue } from '@internationalized/date'
 
+const { t, locale } = useT()
+
+// TEMP: Language switcher for testing - remove after testing
+const i18n = useI18n()
+const switchLocale = async (code: string) => {
+  console.log('Switching locale to:', code, 'current:', locale.value)
+  await i18n.setLocale(code)
+  console.log('Locale after switch:', locale.value)
+}
+
 interface SlotItem {
   id: string
   label?: string
@@ -222,11 +232,22 @@ function getStatusColor(statusValue: string): 'success' | 'warning' | 'error' | 
 
 <template>
   <div>
+    <!-- TEMP: Language switcher for testing - remove after testing -->
+    <ClientOnly>
+      <div class="flex items-center gap-2 mb-4 p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+        <span class="text-xs font-medium">Test i18n:</span>
+        <UButton size="xs" :variant="locale === 'en' ? 'solid' : 'outline'" @click="switchLocale('en')">EN</UButton>
+        <UButton size="xs" :variant="locale === 'nl' ? 'solid' : 'outline'" @click="switchLocale('nl')">NL</UButton>
+        <UButton size="xs" :variant="locale === 'fr' ? 'solid' : 'outline'" @click="switchLocale('fr')">FR</UButton>
+        <span class="text-xs text-muted ml-2">Current: {{ locale }}</span>
+      </div>
+    </ClientOnly>
+
     <!-- Loading -->
     <div v-if="status === 'pending'" class="text-center py-12">
       <UIcon name="i-lucide-loader-2" class="w-8 h-8 text-muted animate-spin mx-auto mb-3" />
       <p class="text-muted">
-        Loading your bookings...
+        {{ t('bookings.list.loading') }}
       </p>
     </div>
 
@@ -234,14 +255,14 @@ function getStatusColor(statusValue: string): 'success' | 'warning' | 'error' | 
     <div v-else-if="!hasBookings" class="text-center py-12">
       <UIcon name="i-lucide-calendar-x" class="w-16 h-16 text-muted mx-auto mb-4" />
       <h3 class="text-lg font-medium mb-2">
-        No bookings yet
+        {{ t('bookings.list.noBookings') }}
       </h3>
       <p class="text-muted mb-6">
-        You haven't made any bookings yet. Create your first one!
+        {{ t('bookings.list.noBookingsDescription') }}
       </p>
       <UButton :to="`/dashboard/${teamId}/bookings/new`">
         <UIcon name="i-lucide-plus" class="w-4 h-4 mr-2" />
-        Book Now
+        {{ t('bookings.list.bookNow') }}
       </UButton>
     </div>
 
@@ -329,10 +350,10 @@ function getStatusColor(statusValue: string): 'success' | 'warning' | 'error' | 
                 <div class="flex items-start justify-between gap-4">
                   <div>
                     <h3 class="font-semibold">
-                      {{ booking.locationData?.title || 'Unknown Location' }}
+                      {{ booking.locationData?.title || t('bookings.list.unknownLocation') }}
                     </h3>
                     <p class="text-sm text-muted mt-1">
-                      {{ formatDate(booking.date) }} at {{ getSlotLabel(booking) }}
+                      {{ formatDate(booking.date) }} {{ t('bookings.common.at') }} {{ getSlotLabel(booking) }}
                     </p>
                   </div>
                   <UBadge :color="getStatusColor(booking.status)" variant="subtle">
@@ -353,14 +374,14 @@ function getStatusColor(statusValue: string): 'success' | 'warning' | 'error' | 
           <!-- Empty state when filtered -->
           <div v-if="filteredBookings.length === 0" class="text-center py-8">
             <UIcon name="i-lucide-filter-x" class="w-12 h-12 text-muted mx-auto mb-3" />
-            <p class="text-sm text-muted">No bookings match the selected filters</p>
+            <p class="text-sm text-muted">{{ t('bookings.list.noFilterMatch') }}</p>
             <UButton
               variant="link"
               size="sm"
               class="mt-2"
               @click="statuses.forEach(s => statusFilters[s.value] = true)"
             >
-              Show all bookings
+              {{ t('bookings.list.showAllBookings') }}
             </UButton>
           </div>
         </div>

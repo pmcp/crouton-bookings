@@ -1,0 +1,44 @@
+{
+  "bookings": {
+    "collections": {
+      "bookings": { "title": "Reservations" },
+      "locations": { "title": "Emplacements" },
+      "assets": { "title": "Ressources" },
+      "settings": { "title": "Parametres" },
+      "emailtemplates": { "title": "Modeles d'email" },
+      "emaillogs": { "title": "Journaux d'email" },
+      "pages": { "title": "Pages" }
+    },
+    "form": {
+      "location": "Emplacement",
+      "date": "Date",
+      "slot": "Creneau",
+      "ageGroup": "Groupe d'age",
+      "status": "Statut",
+      "timeSlot": "Creneau horaire",
+      "selectLocation": "Selectionnez un emplacement",
+      "loadingAvailability": "Chargement des disponibilites...",
+      "noTimeSlotsConfigured": "Aucun creneau horaire configure",
+      "addToCart": "Ajouter au panier"
+    },
+    "status": {
+      "confirmed": "Confirme",
+      "pending": "En attente",
+      "cancelled": "Annule",
+      "booked": "Reserve"
+    },
+    "list": {
+      "loading": "Chargement de vos reservations...",
+      "noBookings": "Pas encore de reservations",
+      "noBookingsDescription": "Vous n'avez pas encore de reservations. Creez votre premiere!",
+      "bookNow": "Reserver maintenant",
+      "noFilterMatch": "Aucune reservation ne correspond aux filtres selectionnes",
+      "showAllBookings": "Afficher toutes les reservations",
+      "unknownLocation": "Emplacement inconnu",
+      "bookingCount": "{count} sur {total} reservations"
+    },
+    "common": {
+      "at": "a"
+    }
+  }
+}

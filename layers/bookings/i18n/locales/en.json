@@ -1,0 +1,44 @@
+{
+  "bookings": {
+    "collections": {
+      "bookings": { "title": "Bookings" },
+      "locations": { "title": "Locations" },
+      "assets": { "title": "Assets" },
+      "settings": { "title": "Settings" },
+      "emailtemplates": { "title": "Email Templates" },
+      "emaillogs": { "title": "Email Logs" },
+      "pages": { "title": "Pages" }
+    },
+    "form": {
+      "location": "Location",
+      "date": "Date",
+      "slot": "Slot",
+      "ageGroup": "Age Group",
+      "status": "Status",
+      "timeSlot": "Time Slot",
+      "selectLocation": "Select a location",
+      "loadingAvailability": "Loading availability...",
+      "noTimeSlotsConfigured": "No time slots configured",
+      "addToCart": "Add to Cart"
+    },
+    "status": {
+      "confirmed": "Confirmed",
+      "pending": "Pending",
+      "cancelled": "Cancelled",
+      "booked": "Booked"
+    },
+    "list": {
+      "loading": "Loading your bookings...",
+      "noBookings": "No bookings yet",
+      "noBookingsDescription": "You haven't made any bookings yet. Create your first one!",
+      "bookNow": "Book Now",
+      "noFilterMatch": "No bookings match the selected filters",
+      "showAllBookings": "Show all bookings",
+      "unknownLocation": "Unknown Location",
+      "bookingCount": "{count} of {total} bookings"
+    },
+    "common": {
+      "at": "at"
+    }
+  }
+}
