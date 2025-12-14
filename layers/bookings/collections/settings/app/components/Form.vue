@@ -17,17 +17,6 @@
     <CroutonFormLayout>
       <template #main>
       <div class="flex flex-col gap-4 p-1">
-        <UFormField label="Statuses" name="statuses" class="not-last:pb-4">
-          <CroutonFormRepeater
-            v-model="state.statuses"
-            component-name="BookingsSettingsStatuseInput"
-            add-label="Add Status"
-            :sortable="true"
-          />
-        </UFormField>
-
-        <USeparator />
-
         <UFormField label="Enable Groups" name="enableGroups" class="not-last:pb-4">
           <USwitch v-model="state.enableGroups" />
           <template #description>

@@ -27,21 +27,15 @@ interface Booking {
 
 interface StatusItem {
   id: string
-  label: string
   value: string
   color: 'success' | 'warning' | 'error' | 'info' | 'neutral'
 }
 
-interface BookingsSettings {
-  id?: string
-  statuses?: StatusItem[]
-}
-
-// Default statuses (fallback when no settings configured)
-const DEFAULT_STATUSES: StatusItem[] = [
-  { id: '1', label: 'Confirmed', value: 'confirmed', color: 'success' },
-  { id: '2', label: 'Pending', value: 'pending', color: 'warning' },
-  { id: '3', label: 'Cancelled', value: 'cancelled', color: 'error' },
+// Hardcoded statuses - labels come from translations
+const STATUSES: StatusItem[] = [
+  { id: '1', value: 'confirmed', color: 'success' },
+  { id: '2', value: 'pending', color: 'warning' },
+  { id: '3', value: 'cancelled', color: 'error' },
 ]
 
 const route = useRoute()
@@ -54,22 +48,8 @@ const { data: bookings, status, refresh } = useFetch<Booking[]>(
   },
 )
 
-// Fetch team's bookings settings
-const { data: settingsData } = useFetch<BookingsSettings[]>(
-  () => `/api/teams/${teamId.value}/bookings-settings`,
-  {
-    key: 'team-bookings-settings',
-  },
-)
-
-// Use statuses from settings or defaults
-const statuses = computed<StatusItem[]>(() => {
-  const settings = settingsData.value?.[0]
-  if (settings?.statuses && settings.statuses.length > 0) {
-    return settings.statuses
-  }
-  return DEFAULT_STATUSES
-})
+// Use hardcoded statuses - labels come from translations
+const statuses = STATUSES
 
 // User overrides - starts empty (hydration-safe)
 const statusOverrides = ref<Record<string, boolean>>({})
@@ -215,16 +195,18 @@ function getSlotLabel(booking: Booking): string {
   return slot?.label || slot?.value || '-'
 }
 
-// Status badge color - dynamic lookup from settings
+// Status badge color - lookup from hardcoded statuses
 function getStatusColor(statusValue: string): 'success' | 'warning' | 'error' | 'info' | 'neutral' {
-  const statusItem = statuses.value.find(s => s.value === statusValue?.toLowerCase())
+  const statusItem = statuses.find(s => s.value === statusValue?.toLowerCase())
   return statusItem?.color || 'neutral'
 }
 
-// Status badge label - dynamic lookup from settings
+// Status badge label - uses translations
 function getStatusLabel(statusValue: string): string {
-  const statusItem = statuses.value.find(s => s.value === statusValue?.toLowerCase())
-  return statusItem?.label || statusValue
+  const key = `bookings.status.${statusValue?.toLowerCase()}`
+  const translated = t(key)
+  // If translation exists, use it; otherwise fallback to the raw value
+  return translated !== key ? translated : statusValue
 }
 </script>
 
@@ -267,7 +249,7 @@ function getStatusLabel(statusValue: string): string {
             <div class="flex items-center gap-3 text-xs text-muted">
               <div v-for="statusItem in statuses" :key="statusItem.id" class="flex items-center gap-1">
                 <UChip :color="statusItem.color" size="xs" standalone inset />
-                <span>{{ statusItem.label }}</span>
+                <span>{{ t('bookings.status.' + statusItem.value) }}</span>
               </div>
             </div>
           </div>
@@ -321,7 +303,7 @@ function getStatusLabel(statusValue: string): string {
               :name="statusFilters[statusItem.value] ? 'i-lucide-check' : 'i-lucide-x'"
               class="w-3 h-3 mr-1"
             />
-            {{ statusItem.label }}
+            {{ t('bookings.status.' + statusItem.value) }}
           </UButton>
         </div>
 
