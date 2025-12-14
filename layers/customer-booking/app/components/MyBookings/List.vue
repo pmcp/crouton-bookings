@@ -277,6 +277,53 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
 
     <!-- Bookings list -->
     <div v-else class="space-y-6">
+      <!-- Header with count and refresh -->
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-muted">
+          {{ filteredBookings.length }} of {{ bookings?.length }} booking{{ bookings?.length === 1 ? '' : 's' }}
+        </p>
+        <UButton variant="ghost" color="neutral" size="sm" icon="i-lucide-refresh-cw" @click="() => refresh()" />
+      </div>
+
+      <!-- Filters -->
+      <div class="flex flex-col gap-3">
+        <!-- Status Filter Toggles -->
+        <div class="flex flex-wrap gap-2">
+          <UButton
+            v-for="statusItem in statuses"
+            :key="statusItem.id"
+            size="xs"
+            :variant="statusFilters[statusItem.value] ? 'solid' : 'outline'"
+            :color="statusItem.color"
+            @click="toggleStatus(statusItem.value)"
+          >
+            <UIcon
+              :name="statusFilters[statusItem.value] ? 'i-lucide-check' : 'i-lucide-x'"
+              class="w-3 h-3 mr-1"
+            />
+            {{ t('bookings.status.' + statusItem.value) }}
+          </UButton>
+        </div>
+
+        <!-- Location Filter Toggles -->
+        <div v-if="availableLocations.length > 1" class="flex flex-wrap gap-2">
+          <UButton
+            v-for="loc in availableLocations"
+            :key="loc.id"
+            size="xs"
+            :variant="locationFilters[loc.id] ? 'solid' : 'outline'"
+            color="neutral"
+            @click="toggleLocation(loc.id)"
+          >
+            <UIcon
+              :name="locationFilters[loc.id] ? 'i-lucide-check' : 'i-lucide-x'"
+              class="w-3 h-3 mr-1"
+            />
+            {{ loc.title }}
+          </UButton>
+        </div>
+      </div>
+
       <!-- Year Calendar -->
       <UCard>
         <template #header>
@@ -319,58 +366,9 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
         </CroutonCalendarYear>
       </UCard>
 
-      <!-- Status Filters + List -->
-      <div class="space-y-4">
-        <!-- Header with count and refresh -->
-        <div class="flex items-center justify-between">
-          <p class="text-sm text-muted">
-            {{ filteredBookings.length }} of {{ bookings?.length }} booking{{ bookings?.length === 1 ? '' : 's' }}
-          </p>
-          <UButton variant="ghost" color="neutral" size="sm" icon="i-lucide-refresh-cw" @click="() => refresh()" />
-        </div>
-
-        <!-- Filters -->
-        <div class="flex flex-col gap-3">
-          <!-- Status Filter Toggles -->
-          <div class="flex flex-wrap gap-2">
-            <UButton
-              v-for="statusItem in statuses"
-              :key="statusItem.id"
-              size="xs"
-              :variant="statusFilters[statusItem.value] ? 'solid' : 'outline'"
-              :color="statusItem.color"
-              @click="toggleStatus(statusItem.value)"
-            >
-              <UIcon
-                :name="statusFilters[statusItem.value] ? 'i-lucide-check' : 'i-lucide-x'"
-                class="w-3 h-3 mr-1"
-              />
-              {{ t('bookings.status.' + statusItem.value) }}
-            </UButton>
-          </div>
-
-          <!-- Location Filter Toggles -->
-          <div v-if="availableLocations.length > 1" class="flex flex-wrap gap-2">
-            <UButton
-              v-for="loc in availableLocations"
-              :key="loc.id"
-              size="xs"
-              :variant="locationFilters[loc.id] ? 'solid' : 'outline'"
-              color="neutral"
-              @click="toggleLocation(loc.id)"
-            >
-              <UIcon
-                :name="locationFilters[loc.id] ? 'i-lucide-check' : 'i-lucide-x'"
-                class="w-3 h-3 mr-1"
-              />
-              {{ loc.title }}
-            </UButton>
-          </div>
-        </div>
-
-        <!-- Bookings List -->
-        <div class="space-y-3">
-          <UCard v-for="booking in filteredBookings" :key="booking.id">
+      <!-- Bookings List -->
+      <div class="space-y-3">
+        <UCard v-for="booking in filteredBookings" :key="booking.id">
             <div class="flex items-start gap-4">
               <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                 <UIcon name="i-lucide-calendar-check" class="w-6 h-6 text-primary" />
