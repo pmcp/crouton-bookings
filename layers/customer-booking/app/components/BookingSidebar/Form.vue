@@ -27,6 +27,8 @@ const {
   hasBookingsOnDate,
   isDateFullyBooked,
   getBookedSlotsForDate,
+  enableGroups,
+  groupOptions,
 } = useBookingCart()
 
 // Fallback colors for slots without a color set (assigned by index)
@@ -250,6 +252,26 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
           </span>
         </template>
       </URadioGroup>
+
+      <!-- Group Selection - only show when groups are enabled and slot is selected -->
+      <div v-if="enableGroups && formState.slotId" class="mt-4">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          {{ t('bookings.form.group') }}
+        </label>
+        <URadioGroup
+          :model-value="formState.groupId ?? undefined"
+          :items="groupOptions.map(g => ({ label: g.label, value: g.id }))"
+          @update:model-value="formState.groupId = $event ?? null"
+          variant="card"
+          indicator="hidden"
+          orientation="vertical"
+          :ui="{
+            fieldset: 'grid grid-cols-1 gap-1.5',
+            item: 'w-full justify-center py-1.5',
+            wrapper: 'text-center',
+          }"
+        />
+      </div>
 
       <!-- Add to Cart button - always visible but disabled when no slot selected -->
       <UButton

@@ -8,6 +8,8 @@ export interface CartItem {
   date: string // ISO string for localStorage
   slotId: string
   slotLabel: string
+  groupId?: string | null
+  groupLabel?: string | null
 }
 
 interface AvailabilityData {
@@ -75,16 +77,30 @@ export function useBookingCart() {
   // Cart pulse animation trigger (increments when item added)
   const cartPulse = useState('bookingCartPulse', () => 0)
 
+  // Fetch booking settings (for enableGroups and groups options)
+  const { data: settingsData } = useFetch<Array<{ enableGroups?: boolean, groups?: Array<{ id: string, label: string }> }>>(
+    () => `/api/teams/${teamId.value}/bookings-settings`,
+    {
+      key: 'booking-cart-settings',
+    },
+  )
+
+  // Settings computed values
+  const enableGroups = computed(() => settingsData.value?.[0]?.enableGroups ?? false)
+  const groupOptions = computed(() => settingsData.value?.[0]?.groups ?? [])
+
   // Form state - use useState for shared state across components
   // Note: useState returns a Ref, so we wrap in reactive to maintain existing API
   const formStateRef = useState<{
     locationId: string | null
     date: Date | null
     slotId: string | null
+    groupId: string | null
   }>('bookingFormState', () => ({
     locationId: null,
     date: null,
     slotId: null,
+    groupId: null,
   }))
 
   // Create a reactive wrapper to maintain the existing API (formState.locationId instead of formState.value.locationId)
@@ -95,6 +111,8 @@ export function useBookingCart() {
     set date(v: Date | null) { formStateRef.value.date = v },
     get slotId() { return formStateRef.value.slotId },
     set slotId(v: string | null) { formStateRef.value.slotId = v },
+    get groupId() { return formStateRef.value.groupId },
+    set groupId(v: string | null) { formStateRef.value.groupId = v },
   })
 
   // Availability data from API
@@ -279,10 +297,14 @@ export function useBookingCart() {
     }
   }, { immediate: true })
 
-  // Can add to cart
-  const canAddToCart = computed(() =>
-    !!formState.locationId && !!formState.date && !!formState.slotId,
-  )
+  // Can add to cart (require group if enableGroups is true)
+  const canAddToCart = computed(() => {
+    const baseValid = !!formState.locationId && !!formState.date && !!formState.slotId
+    if (!baseValid) return false
+    // If groups are enabled, require a group selection
+    if (enableGroups.value && !formState.groupId) return false
+    return true
+  })
 
   // Cart count for badge
   const cartCount = computed(() => cart.value.length)
@@ -299,6 +321,13 @@ export function useBookingCart() {
     return slot?.label || slot?.value || slotId
   }
 
+  // Get group label by ID
+  function getGroupLabel(groupId: string | null): string | null {
+    if (!groupId) return null
+    const group = groupOptions.value.find(g => g.id === groupId)
+    return group?.label || groupId
+  }
+
   // Add current selection to cart
   function addToCart() {
     if (!canAddToCart.value || !selectedLocation.value || !formState.date || !formState.slotId) {
@@ -312,12 +341,15 @@ export function useBookingCart() {
       date: formState.date.toISOString(),
       slotId: formState.slotId,
       slotLabel: getSlotLabel(formState.slotId),
+      groupId: formState.groupId,
+      groupLabel: getGroupLabel(formState.groupId),
     }
 
     cart.value.push(item)
 
     // Reset form for next booking
     formState.slotId = null
+    formState.groupId = null
 
     toast.add({
       title: 'Added to cart',
@@ -400,6 +432,7 @@ export function useBookingCart() {
     formState.locationId = null
     formState.date = null
     formState.slotId = null
+    formState.groupId = null
   }
 
   // Cancel a booking (set status to 'cancelled')
@@ -474,6 +507,10 @@ export function useBookingCart() {
     isSubmitting,
     availabilityLoading,
     cartPulse,
+
+    // Settings (groups)
+    enableGroups,
+    groupOptions,
 
     // Locations
     locations,
