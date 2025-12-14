@@ -27,23 +27,19 @@ provide('isBookingSidebarOpen', isBookingSidebarOpen)
       <slot />
     </main>
 
-    <!-- Booking sidebar (fixed, slides in from right) -->
-    <Transition
-      enter-active-class="transition-transform duration-300 ease-out"
-      enter-from-class="translate-x-full"
-      enter-to-class="translate-x-0"
-      leave-active-class="transition-transform duration-200 ease-in"
-      leave-from-class="translate-x-0"
-      leave-to-class="translate-x-full"
+    <!-- Booking drawer (right side) -->
+    <UDrawer
+      v-if="loggedIn"
+      v-model:open="isBookingSidebarOpen"
+      direction="right"
+      :modal="false"
+      :handle="false"
+      :ui="{ content: 'w-[420px] max-w-[90vw]' }"
     >
-      <aside
-        v-if="loggedIn && isBookingSidebarOpen"
-        class="fixed right-4 z-30 hidden lg:block w-[420px]"
-        style="top: calc(57px + 1.5rem); height: calc(100vh - 57px - 3rem);"
-      >
+      <template #content>
         <BookingSidebarSM />
-      </aside>
-    </Transition>
+      </template>
+    </UDrawer>
 
   </div>
 </template>
