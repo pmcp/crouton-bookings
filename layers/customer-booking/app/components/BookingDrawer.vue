@@ -1,34 +1,22 @@
 <script setup lang="ts">
 const { loggedIn } = useUserSession()
 const { isOpen } = useBookingCart()
-
-function close() {
-  isOpen.value = false
-}
 </script>
 
 <template>
-  <UDrawer
+  <USlideover
     v-if="loggedIn"
     v-model:open="isOpen"
-    direction="right"
-    inset
+    side="right"
+    :overlay="false"
     :modal="false"
-    :handle="false"
+    :close="false"
+    :ui="{ content: '!w-96' }"
   >
-    <template #body>
-      <div class="relative h-full">
-        <!-- Close button -->
-        <UButton
-          icon="i-lucide-x"
-          color="neutral"
-          variant="ghost"
-          size="sm"
-          class="absolute top-2 right-2 z-10"
-          @click="close"
-        />
+    <template #content>
+      <div class="h-full w-full overflow-hidden">
         <BookingSidebarSM />
       </div>
     </template>
-  </UDrawer>
+  </USlideover>
 </template>
