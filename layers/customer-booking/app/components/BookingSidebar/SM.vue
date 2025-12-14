@@ -35,9 +35,6 @@ const tabItems = computed<TabsItem[]>(() => [
   },
 ])
 
-function toggleCart() {
-  isCartOpen.value = !isCartOpen.value
-}
 </script>
 
 <template>
@@ -61,14 +58,14 @@ function toggleCart() {
       </template>
     </UTabs>
 
-    <!-- Cart trigger button (always visible at bottom) -->
-    <div class="border-t border-default p-2">
+    <!-- Cart section (collapsible at bottom) -->
+    <UCollapsible v-model:open="isCartOpen" class="border-t border-default">
+      <!-- Cart trigger button -->
       <UButton
         block
         variant="soft"
         color="neutral"
-        class="justify-between"
-        @click="toggleCart"
+        class="justify-between rounded-none"
       >
         <span class="flex items-center gap-2">
           <UIcon name="i-lucide-shopping-cart" class="w-4 h-4" />
@@ -85,38 +82,19 @@ function toggleCart() {
             {{ cartCount }}
           </UBadge>
           <UIcon
-            :name="isCartOpen ? 'i-lucide-chevron-down' : 'i-lucide-chevron-up'"
-            class="w-4 h-4 transition-transform"
+            name="i-lucide-chevron-up"
+            class="w-4 h-4 transition-transform duration-200"
+            :class="{ 'rotate-180': isCartOpen }"
           />
         </span>
       </UButton>
-    </div>
 
-    <!-- Cart panel (slides up from bottom using USlideover) -->
-    <USlideover
-      v-model:open="isCartOpen"
-      side="bottom"
-      :overlay="false"
-      :modal="false"
-      title="Cart"
-      :ui="{
-        content: 'max-h-[70vh] rounded-t-lg',
-        body: 'p-0',
-      }"
-    >
-      <template #title>
-        <span class="flex items-center gap-2">
-          <UIcon name="i-lucide-shopping-cart" class="w-4 h-4" />
-          Cart
-          <UBadge v-if="cartCount > 0" color="primary" size="xs">
-            {{ cartCount }}
-          </UBadge>
-        </span>
+      <!-- Cart content -->
+      <template #content>
+        <div class="max-h-[50vh] overflow-y-auto">
+          <BookingSidebarCart />
+        </div>
       </template>
-
-      <template #body>
-        <BookingSidebarCart />
-      </template>
-    </USlideover>
+    </UCollapsible>
   </UCard>
 </template>
