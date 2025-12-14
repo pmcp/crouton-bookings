@@ -180,11 +180,12 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
       </div>
 
       <!-- Calendar -->
-      <div v-else class="flex flex-col items-center">
+      <div v-else class="flex flex-col">
         <UCalendar
           v-model="calendarValue"
           :is-date-disabled="isDateDisabled"
-          :ui="{ gridRow: 'grid grid-cols-7 mb-1' }"
+          class="w-full"
+          :ui="{ root: 'w-full', header: 'justify-between', gridRow: 'grid grid-cols-7 mb-1' }"
         >
           <template #day="{ day }">
             <div class="flex flex-col items-center">
