@@ -10,6 +10,7 @@ interface Booking {
   location: string
   date: string | Date
   slot: string[] | string | null
+  group?: string | null
   status: string
   createdAt: string | Date
   locationData?: {
@@ -29,6 +30,7 @@ const {
   activeTab,
   cancelBooking,
   deleteBooking,
+  groupOptions,
 } = useBookingCart()
 
 // Alias for template usage
@@ -171,6 +173,13 @@ function getStatusColor(status: string): 'success' | 'warning' | 'error' | 'neut
 function goToBooking() {
   activeTab.value = 'book'
 }
+
+// Get group label from settings
+function getGroupLabel(groupId: string | null | undefined): string | null {
+  if (!groupId) return null
+  const group = groupOptions.value.find(g => g.id === groupId)
+  return group?.label || groupId
+}
 </script>
 
 <template>
@@ -238,7 +247,7 @@ function goToBooking() {
                   {{ booking.locationData?.title || 'Unknown' }}
                 </p>
                 <p class="text-xs text-muted mt-0.5">
-                  {{ formatDate(booking.date) }} at {{ getSlotLabel(booking) }}
+                  {{ formatDate(booking.date) }} at {{ getSlotLabel(booking) }}<span v-if="getGroupLabel(booking.group)"> · {{ getGroupLabel(booking.group) }}</span>
                 </p>
               </div>
               <!-- Status badge + action button (aligned) -->

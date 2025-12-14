@@ -33,6 +33,15 @@
       />
       <span v-else class="text-gray-400">—</span>
     </template>
+    <template #group-cell="{ row }">
+      <CroutonOptionsFieldCardMini
+        v-if="row.original.group"
+        :value="row.original.group"
+        options-collection="bookingsSettings"
+        options-field="groups"
+      />
+      <span v-else class="text-gray-400">—</span>
+    </template>
   </CroutonCollection>
 </template>
 
