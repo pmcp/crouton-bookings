@@ -79,23 +79,46 @@ function toggleStatus(key: string) {
   statusOverrides.value[key] = !statusFilters.value[key]
 }
 
-// Get all unique statuses from bookings (for reference)
-const availableStatuses = computed<string[]>(() => {
+// Get unique locations from bookings
+interface LocationItem {
+  id: string
+  title: string
+}
+const availableLocations = computed<LocationItem[]>(() => {
   if (!bookings.value) return []
-  const statusSet = new Set<string>()
+  const locationMap = new Map<string, string>()
   bookings.value.forEach((b) => {
-    const s = b.status?.toLowerCase()
-    if (s) statusSet.add(s)
+    if (b.location && b.locationData?.title) {
+      locationMap.set(b.location, b.locationData.title)
+    }
   })
-  return Array.from(statusSet)
+  return Array.from(locationMap.entries()).map(([id, title]) => ({ id, title }))
 })
 
-// Filtered bookings based on status
+// Location filter state - all locations enabled by default
+const locationOverrides = ref<Record<string, boolean>>({})
+
+const locationFilters = computed(() =>
+  Object.fromEntries(
+    availableLocations.value.map(loc => [
+      loc.id,
+      locationOverrides.value[loc.id] ?? true,
+    ]),
+  ),
+)
+
+function toggleLocation(locationId: string) {
+  locationOverrides.value[locationId] = !locationFilters.value[locationId]
+}
+
+// Filtered bookings based on status AND location
 const filteredBookings = computed(() => {
   if (!bookings.value) return []
   return bookings.value.filter((b) => {
     const s = b.status?.toLowerCase() as StatusKey
-    return statusFilters.value[s] !== false
+    const statusMatch = statusFilters.value[s] !== false
+    const locationMatch = locationFilters.value[b.location] !== false
+    return statusMatch && locationMatch
   })
 })
 
@@ -103,22 +126,22 @@ const filteredBookings = computed(() => {
 const currentYear = ref(new Date().getFullYear())
 const selectedDate = ref<Date | null>(null)
 
-// Get dates that have bookings for calendar highlighting
+// Get dates that have bookings for calendar highlighting (respects status filters)
 function hasBookingOnDate(date: DateValue): boolean {
-  if (!bookings.value) return false
+  if (!filteredBookings.value.length) return false
   const dateStr = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`
-  return bookings.value.some((b) => {
+  return filteredBookings.value.some((b) => {
     const bookingDate = new Date(b.date)
     const bookingStr = bookingDate.toISOString().substring(0, 10)
     return bookingStr === dateStr
   })
 }
 
-// Get booking status for a date (for coloring the chip)
+// Get booking status for a date (for coloring the chip, respects status filters)
 function getBookingStatusForDate(date: DateValue): string | null {
-  if (!bookings.value) return null
+  if (!filteredBookings.value.length) return null
   const dateStr = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`
-  const booking = bookings.value.find((b) => {
+  const booking = filteredBookings.value.find((b) => {
     const bookingDate = new Date(b.date)
     const bookingStr = bookingDate.toISOString().substring(0, 10)
     return bookingStr === dateStr
@@ -133,11 +156,11 @@ function getChipColorForDate(date: DateValue): 'success' | 'warning' | 'error' |
   return getStatusColor(status)
 }
 
-// Get bookings for a specific date
+// Get bookings for a specific date (respects status filters)
 function getBookingsForDate(date: DateValue): Booking[] {
-  if (!bookings.value) return []
+  if (!filteredBookings.value.length) return []
   const dateStr = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`
-  return bookings.value.filter((b) => {
+  return filteredBookings.value.filter((b) => {
     const bookingDate = new Date(b.date)
     const bookingStr = bookingDate.toISOString().substring(0, 10)
     return bookingStr === dateStr
@@ -306,22 +329,43 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
           <UButton variant="ghost" color="neutral" size="sm" icon="i-lucide-refresh-cw" @click="() => refresh()" />
         </div>
 
-        <!-- Status Filter Toggles -->
-        <div class="flex flex-wrap gap-2">
-          <UButton
-            v-for="statusItem in statuses"
-            :key="statusItem.id"
-            size="xs"
-            :variant="statusFilters[statusItem.value] ? 'solid' : 'outline'"
-            :color="statusItem.color"
-            @click="toggleStatus(statusItem.value)"
-          >
-            <UIcon
-              :name="statusFilters[statusItem.value] ? 'i-lucide-check' : 'i-lucide-x'"
-              class="w-3 h-3 mr-1"
-            />
-            {{ t('bookings.status.' + statusItem.value) }}
-          </UButton>
+        <!-- Filters -->
+        <div class="flex flex-col gap-3">
+          <!-- Status Filter Toggles -->
+          <div class="flex flex-wrap gap-2">
+            <UButton
+              v-for="statusItem in statuses"
+              :key="statusItem.id"
+              size="xs"
+              :variant="statusFilters[statusItem.value] ? 'solid' : 'outline'"
+              :color="statusItem.color"
+              @click="toggleStatus(statusItem.value)"
+            >
+              <UIcon
+                :name="statusFilters[statusItem.value] ? 'i-lucide-check' : 'i-lucide-x'"
+                class="w-3 h-3 mr-1"
+              />
+              {{ t('bookings.status.' + statusItem.value) }}
+            </UButton>
+          </div>
+
+          <!-- Location Filter Toggles -->
+          <div v-if="availableLocations.length > 1" class="flex flex-wrap gap-2">
+            <UButton
+              v-for="loc in availableLocations"
+              :key="loc.id"
+              size="xs"
+              :variant="locationFilters[loc.id] ? 'solid' : 'outline'"
+              color="neutral"
+              @click="toggleLocation(loc.id)"
+            >
+              <UIcon
+                :name="locationFilters[loc.id] ? 'i-lucide-check' : 'i-lucide-x'"
+                class="w-3 h-3 mr-1"
+              />
+              {{ loc.title }}
+            </UButton>
+          </div>
         </div>
 
         <!-- Bookings List -->
@@ -368,7 +412,7 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
               variant="link"
               size="sm"
               class="mt-2"
-              @click="statuses.forEach(s => statusFilters[s.value] = true)"
+              @click="statusOverrides = {}; locationOverrides = {}"
             >
               {{ t('bookings.list.showAllBookings') }}
             </UButton>
