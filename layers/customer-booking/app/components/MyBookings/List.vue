@@ -418,5 +418,4 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
         </div>
       </div>
     </div>
-  </div>
 </template>
