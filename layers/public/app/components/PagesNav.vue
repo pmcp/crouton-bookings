@@ -92,5 +92,11 @@ const navItems = computed<NavigationMenuItem[]>(() => {
     :orientation="orientation"
     color="neutral"
     variant="link"
+    content-orientation="vertical"
+    :ui="{
+      content: 'w-auto min-w-48',
+      childList: 'min-w-48',
+      childLinkLabel: '',
+    }"
   />
 </template>
