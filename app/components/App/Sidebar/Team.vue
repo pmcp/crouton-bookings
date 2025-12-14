@@ -88,6 +88,11 @@ const settingsLinks = computed(() => [
     to: `${teamPath.value}/email-logs`,
   },
   {
+    label: 'Translations',
+    icon: 'i-lucide-languages',
+    to: `${teamPath.value}/translations`,
+  },
+  {
     label: 'Workspace Settings',
     icon: 'i-lucide-settings',
     to: `${teamPath.value}/settings`,

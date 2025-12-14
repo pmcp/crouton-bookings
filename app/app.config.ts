@@ -1,4 +1,5 @@
 import { teamMembersConfig } from '@friendlyinternet/nuxt-crouton-connector/supersaas'
+import { translationsUiConfig } from '@friendlyinternet/nuxt-crouton-i18n/app/composables/useTranslationsUi'
 import { bookingsBookingsConfig } from '../layers/bookings/collections/bookings/app/composables/useBookingsBookings'
 import { bookingsLocationsConfig } from '../layers/bookings/collections/locations/app/composables/useBookingsLocations'
 import { bookingsEmailTemplatesConfig } from '../layers/bookings/collections/emailtemplates/app/composables/useBookingsEmailTemplates'
@@ -8,6 +9,7 @@ import { bookingsSettingsConfig } from '../layers/bookings/collections/settings/
 import { bookingsEmailLogsConfig } from '../layers/bookings/collections/emaillogs/app/composables/useBookingsEmailLogs'
 export default defineAppConfig({
   croutonCollections: {
+    translationsUi: translationsUiConfig,
     bookingsEmailLogs: bookingsEmailLogsConfig,
     bookingsSettings: bookingsSettingsConfig,
     bookingsAssets: bookingsAssetsConfig,
