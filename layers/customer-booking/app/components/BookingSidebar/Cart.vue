@@ -86,7 +86,7 @@ function goToBooking() {
               {{ item.locationTitle }} - {{ item.slotLabel }}
             </p>
             <p class="text-xs text-muted">
-              {{ formatDate(item.date) }}
+              {{ formatDate(item.date) }}<span v-if="item.groupLabel"> · {{ item.groupLabel }}</span>
             </p>
           </div>
           <UButton
