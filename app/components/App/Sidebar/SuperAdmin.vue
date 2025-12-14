@@ -29,6 +29,11 @@ const links = [
     to: '/dashboard/super-admin/teams',
   },
   {
+    label: 'Translations',
+    icon: 'i-lucide-languages',
+    to: '/dashboard/super-admin/translations',
+  },
+  {
     label: 'Stripe Plans',
     icon: 'i-lucide-credit-card',
     to: '/dashboard/super-admin/stripe-plans',
