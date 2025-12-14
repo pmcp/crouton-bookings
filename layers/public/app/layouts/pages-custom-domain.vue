@@ -8,22 +8,12 @@ const teamSlug = computed(() => teamContext.teamSlug.value || '')
 
 // Auth state
 const { loggedIn } = useUserSession()
-
-// Booking sidebar state from composable
-const { isOpen: isBookingSidebarOpen } = useBookingCart()
-
-function openBookingSidebar() {
-  isBookingSidebarOpen.value = true
-}
-
-// Expose the function so the header can call it
-provide('openBookingSidebar', openBookingSidebar)
 </script>
 
 <template>
   <div class="h-screen flex flex-col bg-white dark:bg-neutral-950 overflow-hidden">
-    <!-- Header (full width, stays on top) -->
-    <PagesHeader :team-slug="teamSlug" />
+    <!-- Header (only when not logged in - logged in users see FloatingIslandNav) -->
+    <PagesHeader v-if="!loggedIn" :team-slug="teamSlug" />
 
     <!-- Content area: horizontal flex for main + sidebar -->
     <div class="flex-1 flex min-h-0">
@@ -36,7 +26,7 @@ provide('openBookingSidebar', openBookingSidebar)
       <BookingSidebarSM v-if="loggedIn" />
     </div>
 
-    <!-- Floating booking button (visible on mobile when logged in) -->
-    <BookingFloatingButton v-if="loggedIn" />
+    <!-- Floating island navigation (visible when logged in) -->
+    <FloatingIslandNav :team-slug="teamSlug" />
   </div>
 </template>

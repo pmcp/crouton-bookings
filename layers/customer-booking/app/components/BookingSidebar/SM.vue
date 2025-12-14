@@ -41,7 +41,7 @@ function toggleCart() {
 </script>
 
 <template>
-  <div class="h-full flex flex-col relative">
+  <UCard class="h-full flex flex-col relative" :ui="{ body: 'flex-1 flex flex-col min-h-0 p-0' }">
     <!-- Main content area with tabs -->
     <UTabs
       v-model="activeTab"
@@ -62,7 +62,7 @@ function toggleCart() {
     </UTabs>
 
     <!-- Cart trigger button (always visible at bottom) -->
-    <div class="border-t border-default p-2 bg-default">
+    <div class="border-t border-default p-2">
       <UButton
         block
         variant="soft"
@@ -103,7 +103,7 @@ function toggleCart() {
     >
       <div
         v-if="isCartOpen"
-        class="absolute inset-x-0 bottom-0 bg-elevated border-t border-default shadow-lg max-h-[70vh] flex flex-col overflow-hidden"
+        class="absolute inset-x-0 bottom-0 bg-elevated border-t border-default shadow-lg max-h-[70vh] flex flex-col overflow-hidden rounded-b-lg"
       >
         <!-- Cart header with close button -->
         <div class="flex items-center justify-between p-3 border-b border-default shrink-0">
@@ -129,5 +129,5 @@ function toggleCart() {
         </div>
       </div>
     </Transition>
-  </div>
+  </UCard>
 </template>

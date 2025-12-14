@@ -64,9 +64,6 @@ const homeLink = computed(() => {
   return teamContext.buildUrl('/')
 })
 
-// Function to toggle booking sidebar and state (injected from layout)
-const toggleBookingSidebar = inject<() => void>('toggleBookingSidebar', () => {})
-const isBookingSidebarOpen = inject<Ref<boolean>>('isBookingSidebarOpen', ref(false))
 </script>
 
 <template>
@@ -85,43 +82,17 @@ const isBookingSidebarOpen = inject<Ref<boolean>>('isBookingSidebarOpen', ref(fa
         <PagesNav :team-slug="teamSlug" />
       </div>
 
-      <!-- Right: Book Now / Close Booking + UserMenu (logged in) or Login (logged out) -->
-      <div class="flex items-center gap-2">
-        <template v-if="loggedIn">
-          <!-- Toggle button: changes appearance based on sidebar state -->
-          <UButton
-            :color="isBookingSidebarOpen ? 'neutral' : 'primary'"
-            :variant="isBookingSidebarOpen ? 'outline' : 'solid'"
-            size="sm"
-            class="hidden lg:flex"
-            @click="toggleBookingSidebar"
-          >
-            <UIcon :name="isBookingSidebarOpen ? 'i-lucide-x' : 'i-lucide-calendar-plus'" class="w-4 h-4" />
-            {{ isBookingSidebarOpen ? 'Close Bookings' : 'Book Now' }}
-          </UButton>
-          <!-- Mobile: always show Book Now (uses slideover) -->
-          <UButton
-            color="primary"
-            size="sm"
-            class="lg:hidden"
-            @click="toggleBookingSidebar"
-          >
-            <UIcon name="i-lucide-calendar-plus" class="w-4 h-4" />
-            Book Now
-          </UButton>
-          <PublicUserMenu />
-        </template>
-        <UButton
-          v-else
-          to="/login"
-          variant="outline"
-          color="neutral"
-          size="sm"
-        >
-          <UIcon name="i-lucide-log-in" class="w-4 h-4" />
-          Login
-        </UButton>
-      </div>
+      <!-- Right: Login button (only when not logged in, island handles logged-in state) -->
+      <UButton
+        v-if="!loggedIn"
+        to="/login"
+        variant="outline"
+        color="neutral"
+        size="sm"
+      >
+        <UIcon name="i-lucide-log-in" class="w-4 h-4" />
+        Login
+      </UButton>
     </div>
   </header>
 </template>
