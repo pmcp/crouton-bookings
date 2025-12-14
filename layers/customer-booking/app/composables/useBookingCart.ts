@@ -66,6 +66,9 @@ export function useBookingCart() {
   // Cart drawer open state (bottom drawer)
   const isCartOpen = useState('bookingCartDrawer', () => false)
 
+  // Expanded state (XL mode with map)
+  const isExpanded = useState('bookingSidebarExpanded', () => false)
+
   // Submitting state
   const isSubmitting = ref(false)
 
@@ -465,6 +468,7 @@ export function useBookingCart() {
     cart,
     isOpen,
     isCartOpen,
+    isExpanded,
     activeTab,
     formState,
     isSubmitting,

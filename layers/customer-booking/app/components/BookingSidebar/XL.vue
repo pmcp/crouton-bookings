@@ -7,6 +7,7 @@ const {
   locationsStatus,
   selectedLocation,
   isCartOpen,
+  isExpanded,
   cartCount,
   activeTab,
 } = useBookingCart()
@@ -44,40 +45,22 @@ function toggleCart() {
 </script>
 
 <template>
-  <div class="h-screen flex flex-col bg-white dark:bg-neutral-950">
-    <!-- Map Hero Section with floating overlays -->
-    <div class="relative flex-shrink-0 h-[50vh] min-h-[350px] bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
-      <!-- Full-width map -->
-      <ClientOnly>
-        <BookingSidebarLocationMap :location="selectedLocation" />
-        <template #fallback>
-          <div class="absolute inset-0 flex items-center justify-center">
-            <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-neutral-400" />
-          </div>
-        </template>
-      </ClientOnly>
+  <div class="fixed inset-0 grid grid-rows-[50vh_1fr] bg-white dark:bg-neutral-950">
+    <!-- Collapse button (top-left) -->
+    <div class="absolute top-4 left-4 z-30">
+      <UButton
+        variant="solid"
+        color="neutral"
+        size="sm"
+        icon="i-lucide-minimize-2"
+        @click="isExpanded = false"
+      >
+        Collapse
+      </UButton>
+    </div>
 
-      <!-- Floating Location Nav (centered top) -->
-      <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 max-w-[calc(100%-32px)] md:max-w-[calc(100%-420px)]">
-        <div v-if="locationsStatus === 'pending'" class="bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm rounded-full shadow-lg px-4 py-2">
-          <div class="flex items-center gap-2">
-            <UIcon name="i-lucide-loader-2" class="w-4 h-4 animate-spin" />
-            <span class="text-sm text-muted">Loading...</span>
-          </div>
-        </div>
-        <div
-          v-else-if="locations && locations.length > 0"
-          class="bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm rounded-full shadow-lg px-2 py-1.5"
-        >
-          <BookingSidebarLocationNav
-            v-model="formState.locationId"
-            :locations="locations"
-          />
-        </div>
-      </div>
-
-      <!-- Floating Booking Sidebar (right) - Desktop only -->
-      <div class="absolute top-4 right-4 bottom-4 w-[380px] z-20 hidden md:block">
+    <!-- Floating Booking Sidebar (right) - Desktop only - positioned at root level -->
+    <div class="absolute top-4 right-4 bottom-4 w-[380px] z-30 hidden md:block">
         <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl h-full flex flex-col overflow-hidden relative">
           <!-- Tabs: Book / My Bookings -->
           <UTabs
@@ -172,10 +155,41 @@ function toggleCart() {
           </Transition>
         </div>
       </div>
+
+    <!-- Map Hero Section -->
+    <div class="relative min-h-[350px] bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+      <!-- Full-width map -->
+      <ClientOnly>
+        <BookingSidebarLocationMap :location="selectedLocation" />
+        <template #fallback>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-neutral-400" />
+          </div>
+        </template>
+      </ClientOnly>
+
+      <!-- Floating Location Nav (centered top) -->
+      <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 max-w-[calc(100%-32px)] md:max-w-[calc(100%-420px)]">
+        <div v-if="locationsStatus === 'pending'" class="bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm rounded-full shadow-lg px-4 py-2">
+          <div class="flex items-center gap-2">
+            <UIcon name="i-lucide-loader-2" class="w-4 h-4 animate-spin" />
+            <span class="text-sm text-muted">Loading...</span>
+          </div>
+        </div>
+        <div
+          v-else-if="locations && locations.length > 0"
+          class="bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm rounded-full shadow-lg px-2 py-1.5"
+        >
+          <BookingSidebarLocationNav
+            v-model="formState.locationId"
+            :locations="locations"
+          />
+        </div>
+      </div>
     </div>
 
     <!-- Scrollable content area -->
-    <div class="flex-1 overflow-y-auto">
+    <div class="overflow-y-auto">
       <!-- Content Section (below map) -->
       <div class="bg-white dark:bg-neutral-950">
         <BookingSidebarLocationContent :location="selectedLocation" />

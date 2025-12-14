@@ -5,9 +5,71 @@
       <SuperAdminImpersonationBanner v-if="user?._impersonated" :user="user" />
       <NuxtPage />
     </div>
-    <!-- Booking Sidebar - only for customer routes -->
-    <BookingSidebarPanel v-if="showBookingSidebar" />
   </main>
+
+  <!-- Floating Book Now Button - visible when sidebar is closed -->
+  <Transition
+    enter-active-class="transition-all duration-300"
+    enter-from-class="opacity-0 translate-x-4"
+    enter-to-class="opacity-100 translate-x-0"
+    leave-active-class="transition-all duration-200"
+    leave-from-class="opacity-100 translate-x-0"
+    leave-to-class="opacity-0 translate-x-4"
+  >
+    <div v-if="showBookingButton" class="fixed bottom-6 right-6 z-40">
+      <UButton
+        color="primary"
+        size="lg"
+        icon="i-lucide-calendar-plus"
+        class="shadow-lg"
+        @click="openBookingSidebar"
+      >
+        Book Now
+        <UBadge v-if="cartCount > 0" color="neutral" variant="solid" size="xs" class="ml-2">
+          {{ cartCount }}
+        </UBadge>
+      </UButton>
+    </div>
+  </Transition>
+
+  <!-- Booking Sidebar SM - Slideover -->
+  <USlideover
+    v-model:open="isOpen"
+    side="right"
+    :ui="{ content: 'w-full max-w-md' }"
+  >
+    <template #header>
+      <div class="flex items-center justify-between w-full">
+        <span class="font-semibold">Bookings</span>
+        <UButton
+          variant="ghost"
+          color="neutral"
+          size="xs"
+          icon="i-lucide-maximize-2"
+          @click="expandSidebar"
+        />
+      </div>
+    </template>
+    <template #body>
+      <BookingSidebarSM />
+    </template>
+  </USlideover>
+
+  <!-- Booking Sidebar XL - full screen overlay when expanded -->
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition-opacity duration-300"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-200"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="isExpanded" class="fixed inset-0 z-50 h-screen w-screen">
+        <BookingSidebarXL />
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -22,11 +84,20 @@ const isOnboardRoute = computed(() =>
   route.path.startsWith('/dashboard/onboard'),
 )
 
-// Show booking sidebar only on customer-facing routes (bookings section)
-// Exclude /new route as it uses the XL full-page version
-const showBookingSidebar = computed(() => {
-  const path = route.path
-  // Show on bookings routes but not on admin routes or the /new page (which uses XL mode)
-  return path.includes('/bookings') && !path.includes('/admin') && !path.endsWith('/new')
+// Booking cart state
+const { isOpen, isExpanded, cartCount } = useBookingCart()
+
+// Show floating button when sidebar is closed and not expanded
+const showBookingButton = computed(() => {
+  return !isOpen.value && !isExpanded.value && !isOnboardRoute.value
 })
+
+function openBookingSidebar() {
+  isOpen.value = true
+}
+
+function expandSidebar() {
+  isOpen.value = false
+  isExpanded.value = true
+}
 </script>
