@@ -95,8 +95,6 @@ const tocLinks = computed<TocLink[]>(() => {
   return links
 })
 
-// Check if there's meaningful TOC content
-const hasToc = computed(() => tocLinks.value.length > 0)
 </script>
 
 <template>
@@ -104,33 +102,11 @@ const hasToc = computed(() => tocLinks.value.length > 0)
     <!-- Left: Sub-navigation + TOC -->
     <template #left>
       <UPageAside v-if="page && teamSlug">
-        <!-- Page sub-navigation -->
         <PagesSidebar
           :team-slug="teamSlug"
           :current-page-id="page.id"
+          :toc-links="tocLinks"
         />
-
-        <!-- Table of Contents (if page has headings) -->
-        <div v-if="hasToc" class="mt-6">
-          <h3 class="text-sm font-semibold text-neutral-900 dark:text-white mb-3">
-            On this page
-          </h3>
-          <nav class="space-y-1">
-            <a
-              v-for="link in tocLinks"
-              :key="link.id"
-              :href="`#${link.id}`"
-              class="block text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors"
-              :class="{
-                'pl-0': link.depth === 2,
-                'pl-3': link.depth === 3,
-                'pl-6': link.depth === 4,
-              }"
-            >
-              {{ link.text }}
-            </a>
-          </nav>
-        </div>
       </UPageAside>
     </template>
 
