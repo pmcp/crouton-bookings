@@ -67,7 +67,7 @@ const statusOverrides = ref<Record<string, boolean>>({})
 // Computed: defaults merged with user overrides
 const statusFilters = computed(() =>
   Object.fromEntries(
-    statuses.value.map(s => [
+    statuses.map(s => [
       s.value,
       statusOverrides.value[s.value] ?? s.value !== 'cancelled',
     ]),
