@@ -77,7 +77,8 @@ function openBookingSidebar() {
   >
     <div
       v-if="showIsland"
-      class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40"
+      class="fixed left-1/2 -translate-x-1/2 z-40"
+      style="bottom: 24px;"
     >
       <div
         class="flex items-center gap-1 p-1.5 bg-neutral-900/95 backdrop-blur-xl rounded-full shadow-2xl border border-white/10"
