@@ -16,22 +16,15 @@
   <USlideover
     v-model:open="isOpen"
     side="right"
-    :ui="{ content: 'w-full max-w-md' }"
+    :overlay="false"
+    :modal="false"
+    :close="false"
+    :ui="{ content: '!w-96' }"
   >
-    <template #header>
-      <div class="flex items-center justify-between w-full">
-        <span class="font-semibold">Bookings</span>
-        <UButton
-          variant="ghost"
-          color="neutral"
-          size="xs"
-          icon="i-lucide-maximize-2"
-          @click="expandSidebar"
-        />
+    <template #content>
+      <div class="h-full w-full overflow-hidden">
+        <BookingSidebarSM />
       </div>
-    </template>
-    <template #body>
-      <BookingSidebarSM />
     </template>
   </USlideover>
 
@@ -66,9 +59,4 @@ const isOnboardRoute = computed(() =>
 
 // Booking cart state
 const { isOpen, isExpanded } = useBookingCart()
-
-function expandSidebar() {
-  isOpen.value = false
-  isExpanded.value = true
-}
 </script>
