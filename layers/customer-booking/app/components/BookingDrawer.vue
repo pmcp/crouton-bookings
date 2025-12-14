@@ -1,6 +1,10 @@
 <script setup lang="ts">
 const { loggedIn } = useUserSession()
 const { isOpen } = useBookingCart()
+
+function close() {
+  isOpen.value = false
+}
 </script>
 
 <template>
@@ -12,8 +16,19 @@ const { isOpen } = useBookingCart()
     :modal="false"
     :handle="false"
   >
-    <template #content>
-      <BookingSidebarSM />
+    <template #body>
+      <div class="relative h-full">
+        <!-- Close button -->
+        <UButton
+          icon="i-lucide-x"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          class="absolute top-2 right-2 z-10"
+          @click="close"
+        />
+        <BookingSidebarSM />
+      </div>
     </template>
   </UDrawer>
 </template>
