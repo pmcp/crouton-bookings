@@ -48,6 +48,9 @@ const getPageLink = (page: MenuPage) => {
 }
 
 // Build navigation menu items from pages
+// Root pages are shown in top nav, so sidebar only shows:
+// - On root page: children only
+// - On child page: back link + siblings + children
 const navItems = computed<NavigationMenuItem[][]>(() => {
   if (!pages.value || pages.value.length === 0) return []
 
@@ -63,12 +66,6 @@ const navItems = computed<NavigationMenuItem[][]>(() => {
   const currentPage = pageMap.get(props.currentPageId)
   if (!currentPage) return []
 
-  // Get parent page (if exists)
-  const parent = currentPage.parentId ? pageMap.get(currentPage.parentId) : null
-
-  // Get siblings (pages with same parent, including current)
-  const siblings = sorted.filter(p => p.parentId === currentPage.parentId)
-
   // Build a map of children for each page
   const childrenMap = new Map<string, MenuPage[]>()
   sorted.forEach(page => {
@@ -80,39 +77,65 @@ const navItems = computed<NavigationMenuItem[][]>(() => {
   })
 
   const items: NavigationMenuItem[][] = []
+  const isRootPage = !currentPage.parentId
 
-  // Back link to parent
-  if (parent) {
-    items.push([
-      {
-        label: parent.title,
-        icon: 'i-lucide-arrow-left',
-        to: getPageLink(parent),
-      },
-    ])
-  }
-
-  // Siblings with their children
-  const siblingItems: NavigationMenuItem[] = siblings.map(page => {
-    const children = childrenMap.get(page.id) || []
-    const isActive = page.id === props.currentPageId
-
-    return {
-      label: page.title,
-      to: getPageLink(page),
-      active: isActive,
-      defaultOpen: isActive && children.length > 0,
-      children: children.length > 0
-        ? children.map(child => ({
-            label: child.title,
-            to: getPageLink(child),
-          }))
-        : undefined,
+  if (isRootPage) {
+    // On a root page: only show children (root siblings are in top nav)
+    const children = childrenMap.get(currentPage.id) || []
+    if (children.length > 0) {
+      const childItems: NavigationMenuItem[] = children.map(child => {
+        const grandchildren = childrenMap.get(child.id) || []
+        return {
+          label: child.title,
+          to: getPageLink(child),
+          children: grandchildren.length > 0
+            ? grandchildren.map(gc => ({
+                label: gc.title,
+                to: getPageLink(gc),
+              }))
+            : undefined,
+        }
+      })
+      items.push(childItems)
     }
-  })
+  } else {
+    // On a child page: show back link, siblings, and their children
+    const parent = pageMap.get(currentPage.parentId!)
 
-  if (siblingItems.length > 0) {
-    items.push(siblingItems)
+    // Back link to parent
+    if (parent) {
+      items.push([
+        {
+          label: parent.title,
+          icon: 'i-lucide-arrow-left',
+          to: getPageLink(parent),
+        },
+      ])
+    }
+
+    // Siblings (pages with same parent)
+    const siblings = sorted.filter(p => p.parentId === currentPage.parentId)
+    const siblingItems: NavigationMenuItem[] = siblings.map(page => {
+      const children = childrenMap.get(page.id) || []
+      const isActive = page.id === props.currentPageId
+
+      return {
+        label: page.title,
+        to: getPageLink(page),
+        active: isActive,
+        defaultOpen: isActive && children.length > 0,
+        children: children.length > 0
+          ? children.map(child => ({
+              label: child.title,
+              to: getPageLink(child),
+            }))
+          : undefined,
+      }
+    })
+
+    if (siblingItems.length > 0) {
+      items.push(siblingItems)
+    }
   }
 
   return items

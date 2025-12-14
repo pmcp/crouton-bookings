@@ -10,6 +10,7 @@ interface MenuPage {
   slug: string
   order: number | null
   parentId: string | null
+  path: string
   depth: number
 }
 
@@ -29,13 +30,13 @@ const { data: pages } = await useFetch<MenuPage[]>(
 )
 
 // Generate link based on context
-const getPageLink = (slug: string) => {
+const getPageLink = (page: MenuPage) => {
   if (props.isAppPreview) {
     // App preview route uses explicit /app/{teamSlug}/pages/{slug} pattern
-    return `/app/${props.teamSlug}/pages/${slug}`
+    return `/app/${props.teamSlug}/pages/${page.slug}`
   }
-  // For public pages (both custom and main domain), use buildUrl()
-  return teamContext.buildUrl(`/${slug}`)
+  // For public pages (both custom and main domain), use buildUrl() with full path
+  return teamContext.buildUrl(page.path)
 }
 
 // Get the first root page (by order) for the Home link
@@ -53,7 +54,7 @@ const homeLink = computed(() => {
 
   // If we have a first page, link to it
   if (firstPage) {
-    return getPageLink(firstPage.slug)
+    return getPageLink(firstPage)
   }
 
   // Fallback to index if no pages

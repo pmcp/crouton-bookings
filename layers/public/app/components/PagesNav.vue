@@ -29,10 +29,11 @@ const { data: pages } = await useFetch<MenuPage[]>(
 const teamContext = useTeamContext()
 
 // Generate link using teamContext.buildUrl()
-// - Custom domain: returns /{slug}
-// - Main domain: returns /{teamSlug}/{slug}
-const getPageLink = (slug: string) => {
-  return teamContext.buildUrl(`/${slug}`)
+// - Custom domain: returns {path}
+// - Main domain: returns /{teamSlug}{path}
+const getPageLink = (page: MenuPage) => {
+  // Use full path (already starts with /)
+  return teamContext.buildUrl(page.path)
 }
 
 // Build 2-level nav: root pages + direct children only
@@ -62,13 +63,13 @@ function buildTree(flatPages: MenuPage[]): NavigationMenuItem[] {
 
     const item: NavigationMenuItem = {
       label: root.title,
-      to: getPageLink(root.slug),
+      to: getPageLink(root),
     }
 
     if (directChildren.length > 0) {
       item.children = directChildren.map(child => ({
         label: child.title,
-        to: getPageLink(child.slug),
+        to: getPageLink(child),
       }))
     }
 
