@@ -9,6 +9,8 @@ interface CartItem {
   date: string
   slotId: string
   slotLabel: string
+  groupId?: string | null
+  groupLabel?: string | null
 }
 
 interface BatchRequestBody {
@@ -42,6 +44,7 @@ export default defineEventHandler(async (event) => {
     location: item.locationId,
     date: new Date(item.date),
     slot: [item.slotId], // Already an array for JSON column
+    group: item.groupId || null,
     status: 'pending',
     createdBy: user.id,
     updatedBy: user.id,
