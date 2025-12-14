@@ -7,30 +7,10 @@
     </div>
   </main>
 
-  <!-- Floating Book Now Button - visible when sidebar is closed -->
-  <Transition
-    enter-active-class="transition-all duration-300"
-    enter-from-class="opacity-0 translate-x-4"
-    enter-to-class="opacity-100 translate-x-0"
-    leave-active-class="transition-all duration-200"
-    leave-from-class="opacity-100 translate-x-0"
-    leave-to-class="opacity-0 translate-x-4"
-  >
-    <div v-if="showBookingButton" class="fixed bottom-6 right-6 z-40">
-      <UButton
-        color="primary"
-        size="lg"
-        icon="i-lucide-calendar-plus"
-        class="shadow-lg"
-        @click="openBookingSidebar"
-      >
-        Book Now
-        <UBadge v-if="cartCount > 0" color="neutral" variant="solid" size="xs" class="ml-2">
-          {{ cartCount }}
-        </UBadge>
-      </UButton>
-    </div>
-  </Transition>
+  <!-- Floating Island Navigation -->
+  <Teleport to="body">
+    <FloatingIslandNav />
+  </Teleport>
 
   <!-- Booking Sidebar SM - Slideover -->
   <USlideover
@@ -85,16 +65,7 @@ const isOnboardRoute = computed(() =>
 )
 
 // Booking cart state
-const { isOpen, isExpanded, cartCount } = useBookingCart()
-
-// Show floating button when sidebar is closed and not expanded
-const showBookingButton = computed(() => {
-  return !isOpen.value && !isExpanded.value && !isOnboardRoute.value
-})
-
-function openBookingSidebar() {
-  isOpen.value = true
-}
+const { isOpen, isExpanded } = useBookingCart()
 
 function expandSidebar() {
   isOpen.value = false
