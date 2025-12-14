@@ -40,7 +40,7 @@
             :selected-date="state.date"
           />
         </UFormField>
-        <UFormField label="Age Group" name="group" class="not-last:pb-4">
+        <UFormField v-if="enableGroups" label="Age Group" name="group" class="not-last:pb-4">
           <CroutonFormOptionsSelect
             v-model="state.group"
             options-collection="bookingsSettings"
@@ -83,6 +83,10 @@ import type { SlotOption } from '../composables/useBookingAvailability'
 const props = defineProps<BookingsBookingFormProps>()
 const { defaultValue, schema, collection } = useBookingsBookings()
 const { currentTeam } = useTeam()
+
+// Fetch settings to check if groups are enabled
+const { items: settingsItems } = await useCollectionQuery('bookingsSettings')
+const enableGroups = computed(() => settingsItems.value?.[0]?.enableGroups ?? false)
 
 // Available slots from calendar (updates when date is selected)
 const availableSlots = ref<SlotOption[]>([])

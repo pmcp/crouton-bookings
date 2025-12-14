@@ -78,6 +78,11 @@ const contentLinks = computed(() => [
 
 const settingsLinks = computed(() => [
   {
+    label: 'Booking Options',
+    icon: 'i-lucide-sliders-horizontal',
+    to: `${teamPath.value}/crouton/bookingsSettings`,
+  },
+  {
     label: 'Email Templates',
     icon: 'i-lucide-mail',
     to: `${teamPath.value}/settings/email-templates`,

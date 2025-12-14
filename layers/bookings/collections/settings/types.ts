@@ -6,6 +6,7 @@ export interface BookingsSetting {
   teamId: string
   owner: string
   statuses?: any[]
+  enableGroups?: boolean
   groups?: any[]
   createdAt: Date
   updatedAt: Date

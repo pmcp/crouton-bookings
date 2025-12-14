@@ -23,6 +23,7 @@ export const bookingsSettings = sqliteTable('bookings_settings', {
   teamId: text('teamId').notNull(),
   owner: text('owner').notNull(),
   statuses: jsonColumn('statuses').$default(() => (null)),
+  enableGroups: integer('enableGroups', { mode: 'boolean' }).$default(() => false),
   groups: jsonColumn('groups').$default(() => (null)),
 
   createdAt: integer('createdAt', { mode: 'timestamp' }).notNull().$default(() => new Date()),

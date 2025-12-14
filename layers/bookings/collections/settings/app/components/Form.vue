@@ -25,7 +25,17 @@
             :sortable="true"
           />
         </UFormField>
-        <UFormField label="Groups" name="groups" class="not-last:pb-4">
+
+        <USeparator />
+
+        <UFormField label="Enable Groups" name="enableGroups" class="not-last:pb-4">
+          <USwitch v-model="state.enableGroups" />
+          <template #description>
+            When enabled, bookings must include a group selection (e.g., age groups)
+          </template>
+        </UFormField>
+
+        <UFormField v-if="state.enableGroups" label="Groups" name="groups" class="not-last:pb-4">
           <CroutonFormRepeater
             v-model="state.groups"
             component-name="BookingsSettingsGroupInput"

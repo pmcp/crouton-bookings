@@ -2,11 +2,13 @@ import { z } from 'zod'
 
 export const bookingsSettingSchema = z.object({
   statuses: z.array(z.any()).optional(),
+  enableGroups: z.boolean().optional(),
   groups: z.array(z.any()).optional()
 })
 
 export const bookingsSettingsColumns = [
   { accessorKey: 'statuses', header: 'Statuses' },
+  { accessorKey: 'enableGroups', header: 'Groups Enabled' },
   { accessorKey: 'groups', header: 'Groups' }
 ]
 
@@ -18,6 +20,7 @@ export const bookingsSettingsConfig = {
   schema: bookingsSettingSchema,
   defaultValues: {
     statuses: [],
+    enableGroups: false,
     groups: []
   },
   columns: bookingsSettingsColumns,
