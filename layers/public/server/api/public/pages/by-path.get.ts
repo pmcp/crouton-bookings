@@ -31,6 +31,28 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Team not found' })
   }
 
+  // For root path, return the first root-level page (top of tree)
+  if (normalizedPath === '/') {
+    const rootPage = await db
+      .select()
+      .from(tables.bookingsPages)
+      .where(
+        and(
+          eq(tables.bookingsPages.teamId, team.id),
+          eq(tables.bookingsPages.depth, 0),
+          eq(tables.bookingsPages.status, 'published')
+        )
+      )
+      .orderBy(tables.bookingsPages.order)
+      .get()
+
+    if (!rootPage) {
+      throw createError({ statusCode: 404, statusMessage: 'No homepage found' })
+    }
+
+    return rootPage
+  }
+
   // Find published page by path
   const page = await db
     .select()
