@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
 
   return await updateBookingsSetting(settingId, team.id, user.id, {
     statuses: body.statuses,
+    enableGroups: body.enableGroups,
     groups: body.groups
   })
 })
