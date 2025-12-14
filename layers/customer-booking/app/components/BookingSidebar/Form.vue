@@ -143,7 +143,7 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
 </script>
 
 <template>
-  <div class="p-4 space-y-4">
+  <div class="p-4 w-full space-y-4">
     <!-- Location Selection - hidden in XL mode -->
     <div v-if="!hideLocationSelect">
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

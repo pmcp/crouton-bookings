@@ -46,10 +46,10 @@ function toggleCart() {
     <UTabs
       v-model="activeTab"
       :items="tabItems"
-      class="flex-1 flex flex-col min-h-0"
+      class="flex-1 flex flex-col min-h-0 w-full"
       :ui="{
-        root: 'flex-1 flex flex-col min-h-0',
-        content: 'flex-1 overflow-y-auto',
+        root: 'flex-1 flex flex-col min-h-0 w-full',
+        content: 'flex-1 overflow-y-auto w-full',
       }"
     >
       <template #book>
@@ -92,42 +92,31 @@ function toggleCart() {
       </UButton>
     </div>
 
-    <!-- Cart panel (slides up from bottom) -->
-    <Transition
-      enter-active-class="transition-transform duration-300 ease-out"
-      enter-from-class="translate-y-full"
-      enter-to-class="translate-y-0"
-      leave-active-class="transition-transform duration-200 ease-in"
-      leave-from-class="translate-y-0"
-      leave-to-class="translate-y-full"
+    <!-- Cart panel (slides up from bottom using USlideover) -->
+    <USlideover
+      v-model:open="isCartOpen"
+      side="bottom"
+      :overlay="false"
+      :modal="false"
+      title="Cart"
+      :ui="{
+        content: 'max-h-[70vh] rounded-t-lg',
+        body: 'p-0',
+      }"
     >
-      <div
-        v-if="isCartOpen"
-        class="absolute inset-x-0 bottom-0 bg-elevated border-t border-default shadow-lg max-h-[70vh] flex flex-col overflow-hidden rounded-b-lg"
-      >
-        <!-- Cart header with close button -->
-        <div class="flex items-center justify-between p-3 border-b border-default shrink-0">
-          <h3 class="font-medium text-sm flex items-center gap-2">
-            <UIcon name="i-lucide-shopping-cart" class="w-4 h-4" />
-            Cart
-            <UBadge v-if="cartCount > 0" color="primary" size="xs">
-              {{ cartCount }}
-            </UBadge>
-          </h3>
-          <UButton
-            variant="ghost"
-            color="neutral"
-            size="xs"
-            icon="i-lucide-chevron-down"
-            @click="isCartOpen = false"
-          />
-        </div>
+      <template #title>
+        <span class="flex items-center gap-2">
+          <UIcon name="i-lucide-shopping-cart" class="w-4 h-4" />
+          Cart
+          <UBadge v-if="cartCount > 0" color="primary" size="xs">
+            {{ cartCount }}
+          </UBadge>
+        </span>
+      </template>
 
-        <!-- Cart content (scrollable area) -->
-        <div class="flex-1 min-h-0 overflow-y-auto">
-          <BookingSidebarCart />
-        </div>
-      </div>
-    </Transition>
+      <template #body>
+        <BookingSidebarCart />
+      </template>
+    </USlideover>
   </UCard>
 </template>

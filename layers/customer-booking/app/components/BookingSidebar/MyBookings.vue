@@ -174,7 +174,7 @@ function goToBooking() {
 </script>
 
 <template>
-  <div class="p-4 flex flex-col h-full min-h-0 overflow-hidden">
+  <div class="p-4 w-full flex flex-col h-full min-h-0 overflow-hidden">
     <!-- Loading -->
     <div v-if="status === 'pending'" class="flex-1 flex flex-col items-center justify-center py-8">
       <UIcon name="i-lucide-loader-2" class="w-6 h-6 text-muted animate-spin mb-2" />

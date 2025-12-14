@@ -5,14 +5,14 @@ const teamSlug = computed(() => route.params.teamSlug as string)
 // Auth state
 const { loggedIn } = useUserSession()
 
-// Booking sidebar state from composable
+// Booking sidebar state from composable (for header toggle)
 const { isOpen: isBookingSidebarOpen } = useBookingCart()
 
 function toggleBookingSidebar() {
   isBookingSidebarOpen.value = !isBookingSidebarOpen.value
 }
 
-// Expose both the toggle function and state so the header can use them
+// Expose toggle function for header
 provide('toggleBookingSidebar', toggleBookingSidebar)
 provide('isBookingSidebarOpen', isBookingSidebarOpen)
 </script>
@@ -28,18 +28,7 @@ provide('isBookingSidebarOpen', isBookingSidebarOpen)
     </main>
 
     <!-- Booking drawer (right side) -->
-    <UDrawer
-      v-if="loggedIn"
-      v-model:open="isBookingSidebarOpen"
-      direction="right"
-      :modal="false"
-      :handle="false"
-      :ui="{ content: 'w-[420px] max-w-[90vw]' }"
-    >
-      <template #content>
-        <BookingSidebarSM />
-      </template>
-    </UDrawer>
+    <BookingDrawer />
 
   </div>
 </template>

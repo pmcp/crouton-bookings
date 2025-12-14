@@ -8,9 +8,6 @@ const teamSlug = computed(() => teamContext.teamSlug.value || '')
 
 // Auth state
 const { loggedIn } = useUserSession()
-
-// Booking sidebar state from composable
-const { isOpen: isBookingSidebarOpen } = useBookingCart()
 </script>
 
 <template>
@@ -28,18 +25,7 @@ const { isOpen: isBookingSidebarOpen } = useBookingCart()
     </div>
 
     <!-- Booking drawer (right side) -->
-    <UDrawer
-      v-if="loggedIn"
-      v-model:open="isBookingSidebarOpen"
-      direction="right"
-      :modal="false"
-      :handle="false"
-      :ui="{ content: 'w-[420px] max-w-[90vw]' }"
-    >
-      <template #content>
-        <BookingSidebarSM />
-      </template>
-    </UDrawer>
+    <BookingDrawer />
 
     <!-- Floating island navigation (visible when logged in) -->
     <FloatingIslandNav :team-slug="teamSlug" />
