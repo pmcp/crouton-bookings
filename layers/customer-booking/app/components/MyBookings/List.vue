@@ -220,6 +220,12 @@ function getStatusColor(statusValue: string): 'success' | 'warning' | 'error' | 
   const statusItem = statuses.value.find(s => s.value === statusValue?.toLowerCase())
   return statusItem?.color || 'neutral'
 }
+
+// Status badge label - dynamic lookup from settings
+function getStatusLabel(statusValue: string): string {
+  const statusItem = statuses.value.find(s => s.value === statusValue?.toLowerCase())
+  return statusItem?.label || statusValue
+}
 </script>
 
 <template>
@@ -338,7 +344,7 @@ function getStatusColor(statusValue: string): 'success' | 'warning' | 'error' | 
                     </p>
                   </div>
                   <UBadge :color="getStatusColor(booking.status)" variant="subtle">
-                    {{ booking.status }}
+                    {{ getStatusLabel(booking.status) }}
                   </UBadge>
                 </div>
 

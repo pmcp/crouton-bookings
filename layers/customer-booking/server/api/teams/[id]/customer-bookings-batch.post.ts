@@ -1,6 +1,8 @@
 // Batch create bookings endpoint - creates multiple bookings in a single transaction
+import { eq } from 'drizzle-orm'
 import { resolveTeamAndCheckMembership } from '#crouton/team-auth'
 import { bookingsBookings } from '~~/layers/bookings/collections/bookings/server/database/schema'
+import { bookingsSettings } from '~~/layers/bookings/collections/settings/server/database/schema'
 
 interface CartItem {
   id: string
@@ -35,6 +37,17 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  const db = useDB()
+
+  // Fetch team's booking settings to get default status
+  const settings = await db.select()
+    .from(bookingsSettings)
+    .where(eq(bookingsSettings.teamId, team.id))
+    .limit(1)
+
+  // Get default status from settings (first status) or fallback to 'pending'
+  const defaultStatus = settings[0]?.statuses?.[0]?.value || 'pending'
+
   // Transform cart items to database records
   const bookingsToInsert = body.bookings.map(item => ({
     teamId: team.id,
@@ -42,12 +55,10 @@ export default defineEventHandler(async (event) => {
     location: item.locationId,
     date: new Date(item.date),
     slot: [item.slotId], // Already an array for JSON column
-    status: 'pending',
+    status: defaultStatus,
     createdBy: user.id,
     updatedBy: user.id,
   }))
-
-  const db = useDB()
 
   try {
     // Insert all bookings in a single transaction
