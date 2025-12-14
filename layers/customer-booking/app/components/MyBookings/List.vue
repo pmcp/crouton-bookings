@@ -14,6 +14,7 @@ interface Booking {
   location: string
   date: string | Date
   slot: string[] | string | null
+  group?: string | null
   status: string
   createdAt: string | Date
   locationData?: {
@@ -47,6 +48,15 @@ const { data: bookings, status, refresh } = useFetch<Booking[]>(
     key: 'customer-bookings',
   },
 )
+
+// Fetch settings for group labels
+interface GroupItem { id: string, label: string }
+interface SettingsData { enableGroups?: boolean, groups?: GroupItem[] }
+const { data: settingsData } = useFetch<SettingsData[]>(
+  () => `/api/teams/${teamId.value}/bookings-settings`,
+  { key: 'mybookings-settings' },
+)
+const groupOptions = computed(() => settingsData.value?.[0]?.groups ?? [])
 
 // Use hardcoded statuses - labels come from translations
 const statuses = STATUSES
@@ -208,6 +218,13 @@ function getStatusLabel(statusValue: string): string {
   // If translation exists, use it; otherwise fallback to the raw value
   return translated !== key ? translated : statusValue
 }
+
+// Get group label from settings
+function getGroupLabel(groupId: string | null | undefined): string | null {
+  if (!groupId) return null
+  const group = groupOptions.value.find(g => g.id === groupId)
+  return group?.label || groupId
+}
 </script>
 
 <template>
@@ -323,6 +340,9 @@ function getStatusLabel(statusValue: string): string {
                     </h3>
                     <p class="text-sm text-muted mt-1">
                       {{ formatDate(booking.date) }} {{ t('bookings.common.at') }} {{ getSlotLabel(booking) }}
+                      <span v-if="getGroupLabel(booking.group)" class="ml-2">
+                        · {{ getGroupLabel(booking.group) }}
+                      </span>
                     </p>
                   </div>
                   <UBadge :color="getStatusColor(booking.status)" variant="subtle">
