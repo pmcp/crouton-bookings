@@ -74,7 +74,12 @@
           <CroutonCalendar v-model:date="state.publishedAt" />
         </UFormField>
         <UFormField label="Template" name="template" class="not-last:pb-4">
-          <UInput v-model="state.template" class="w-full" size="xl" />
+          <USelect
+            v-model="state.template"
+            :items="templateOptions"
+            class="w-full"
+            size="xl"
+          />
         </UFormField>
       </div>
 
@@ -111,6 +116,12 @@ import useBookingsPages from '../composables/useBookingsPages'
 
 const props = defineProps<BookingsPageFormProps>()
 const { defaultValue, schema, collection } = useBookingsPages()
+
+// Template options for page rendering
+const templateOptions = [
+  { label: 'Default Page', value: 'default' },
+  { label: 'Article', value: 'article' },
+]
 
 // Form layout configuration
 const navigationItems = [

@@ -21,13 +21,7 @@ interface PublicPage {
   parentId: string | null
   path: string
   depth: number
-}
-
-interface TocLink {
-  id: string
-  text: string
-  depth: number
-  children?: TocLink[]
+  template: string | null
 }
 
 const route = useRoute()
@@ -73,28 +67,22 @@ useSeoMeta({
   description: () => page.value?.metaDescription || page.value?.excerpt || '',
 })
 
-// Extract TOC links from HTML content
-const tocLinks = computed<TocLink[]>(() => {
-  if (!page.value?.content) return []
+// Computed refs for composable inputs
+const pageContent = computed(() => page.value?.content)
+const pageTemplate = computed(() => page.value?.template)
 
-  const headingRegex = /<h([2-4])[^>]*(?:id="([^"]*)")?[^>]*>([^<]*)<\/h[2-4]>/gi
-  const links: TocLink[] = []
-  let match
+// Use shared composable for TOC extraction
+const { tocLinks } = useContentToc(pageContent)
 
-  while ((match = headingRegex.exec(page.value.content)) !== null) {
-    const depth = parseInt(match[1] || '2')
-    const headingText = match[3] || ''
-    const id = match[2] || headingText.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')
-    const text = headingText.trim()
+// Resolve template component based on page setting
+const { template } = usePageTemplate(pageTemplate)
 
-    if (text) {
-      links.push({ id, text, depth })
-    }
-  }
-
-  return links
-})
-
+// Build props for the template component
+const templateProps = computed(() => ({
+  title: page.value?.title,
+  content: page.value?.content,
+  description: page.value?.excerpt,
+}))
 </script>
 
 <template>
@@ -143,13 +131,8 @@ const tocLinks = computed<TocLink[]>(() => {
           class="mb-4"
         />
 
-        <h1 class="text-4xl font-bold mb-6 text-neutral-900 dark:text-white">
-          {{ page.title }}
-        </h1>
-        <div
-          class="prose prose-neutral dark:prose-invert max-w-none"
-          v-html="page.content"
-        />
+        <!-- Dynamic template rendering -->
+        <component :is="template" v-bind="templateProps" />
       </template>
     </UPageBody>
   </UPage>
