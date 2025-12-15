@@ -83,27 +83,28 @@ function toggleBookingSidebar() {
   >
     <div
       v-if="showIsland"
-      class="fixed top-4 right-4 z-50 flex flex-col bg-elevated shadow-2xl transition-all duration-300"
-      :class="isOpen ? 'rounded-xl' : 'rounded-xl'"
+      class="fixed top-4 right-4 z-50 flex flex-col rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 transition-all duration-300"
       style="width: 384px;"
     >
-      <!-- Island Header (always visible) -->
-      <div class="w-full">
-        <div class="flex items-center justify-between p-2 gap-2">
+      <!-- Island Header (always visible) - darker for contrast -->
+      <div class="w-full bg-neutral-900/95 backdrop-blur-sm">
+        <div class="flex items-center justify-between px-3 py-2.5">
           <!-- Left: Admin Settings Link (conditional) -->
-          <div class="flex items-center gap-1">
+          <div class="flex items-center">
             <UButton
               v-if="isAdmin"
               color="neutral"
               variant="ghost"
-              size="sm"
+              size="xs"
               icon="i-lucide-settings"
               to="/dashboard"
+              class="opacity-60 hover:opacity-100"
             />
+            <div v-else class="w-7" />
           </div>
 
           <!-- Right: Language, Account, Book button -->
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-0.5">
             <!-- Language Switcher -->
             <UDropdownMenu
               :items="localeItems"
@@ -113,9 +114,10 @@ function toggleBookingSidebar() {
               <UButton
                 color="neutral"
                 variant="ghost"
-                size="sm"
+                size="xs"
                 icon="i-lucide-globe"
                 :label="locale.toUpperCase()"
+                class="opacity-60 hover:opacity-100"
               />
             </UDropdownMenu>
 
@@ -128,16 +130,20 @@ function toggleBookingSidebar() {
               <UButton
                 color="neutral"
                 variant="ghost"
-                size="sm"
+                size="xs"
                 icon="i-lucide-user"
+                class="opacity-60 hover:opacity-100"
               />
             </UDropdownMenu>
+
+            <!-- Spacer -->
+            <div class="w-px h-4 bg-white/10 mx-1.5" />
 
             <!-- Book Button -->
             <UButton
               color="primary"
-              size="sm"
-              :icon="isOpen ? 'i-lucide-chevron-up' : 'i-lucide-calendar-plus'"
+              size="xs"
+              :icon="isOpen ? 'i-lucide-x' : 'i-lucide-calendar-plus'"
               :label="isOpen ? 'Close' : 'Book'"
               @click="toggleBookingSidebar"
             >
@@ -166,7 +172,7 @@ function toggleBookingSidebar() {
       >
         <div
           v-if="isOpen"
-          class="w-full overflow-hidden flex flex-col border-t border-default"
+          class="w-full overflow-hidden flex flex-col bg-neutral-900/90 backdrop-blur-sm"
           style="height: calc(100vh - 5rem);"
         >
           <BookingSidebarSM class="flex-1 min-h-0" />
