@@ -28,18 +28,20 @@ const tabItems = computed<TabsItem[]>(() => [
     <UTabs
       v-model="activeTab"
       :items="tabItems"
-      class="flex-1 flex flex-col min-h-0 w-full px-3 pt-2"
+      variant="link"
+      class="gap-4 w-full"
       :ui="{
         root: 'flex-1 flex flex-col min-h-0 w-full',
         content: 'flex-1 overflow-y-auto w-full',
+        trigger: 'grow'
       }"
     >
       <template #book>
-        <BookingSidebarForm />
+        <BookingSidebarForm class="p-3"/>
       </template>
 
       <template #my-bookings>
-        <BookingSidebarMyBookings />
+        <BookingSidebarMyBookings class="p-3"/>
       </template>
     </UTabs>
   </div>
