@@ -29,6 +29,13 @@ const {
   getBookedSlotsForDate,
   enableGroups,
   groupOptions,
+  // Cart functionality
+  cart,
+  cartCount,
+  isSubmitting,
+  removeFromCart,
+  clearCart,
+  submitAll,
 } = useBookingCart()
 
 // Fallback colors for slots without a color set (assigned by index)
@@ -40,7 +47,8 @@ function getFallbackColor(slotId: string): string {
   // Find index in allSlots (skip 'all-day' at index 0)
   const index = allSlots.value.findIndex(s => s.id === slotId)
   if (index <= 0) return DEFAULT_SLOT_COLOR
-  return FALLBACK_COLORS[(index - 1) % FALLBACK_COLORS.length]
+  const color = FALLBACK_COLORS[(index - 1) % FALLBACK_COLORS.length]
+  return color ?? DEFAULT_SLOT_COLOR
 }
 
 // Get the color for a slot (from slot data or fallback)
@@ -141,6 +149,21 @@ function getTooltipText(dateValue: DateValue): string {
 function dateHasPartialBookings(dateValue: DateValue): boolean {
   const date = dateValueToDate(dateValue)
   return hasBookingsOnDate(date) && !isDateFullyBooked(date)
+}
+
+// Format date for cart display
+function formatCartDate(isoString: string): string {
+  const date = new Date(isoString)
+  return date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
+// Handle submit
+async function handleSubmit() {
+  await submitAll()
 }
 </script>
 
@@ -288,5 +311,78 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
       </UButton>
     </div>
 
+    <!-- Cart Section (always visible at bottom) -->
+    <USeparator class="my-4" />
+
+    <div class="space-y-3">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-medium">{{ t('bookings.cart.yourSelections') }}</span>
+        <div class="flex items-center gap-2">
+          <UBadge v-if="cartCount > 0" color="primary" variant="subtle">
+            {{ cartCount }}
+          </UBadge>
+          <UButton
+            v-if="cartCount > 0"
+            variant="ghost"
+            color="neutral"
+            size="xs"
+            icon="i-lucide-trash-2"
+            @click="clearCart"
+          />
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <UAlert
+        v-if="cartCount === 0"
+        color="neutral"
+        variant="subtle"
+        icon="i-lucide-info"
+        :title="t('bookings.cart.emptyTitle')"
+        :description="t('bookings.cart.emptyDescription')"
+      />
+
+      <!-- Cart items -->
+      <div v-else class="space-y-2">
+        <UCard
+          v-for="item in cart"
+          :key="item.id"
+          :ui="{ body: 'p-3' }"
+        >
+          <div class="flex items-center gap-3">
+            <UAvatar
+              :style="{ backgroundColor: getSlotColorById(item.slotId) }"
+              icon="i-lucide-calendar"
+              size="sm"
+            />
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium truncate">{{ item.slotLabel }}</p>
+              <p class="text-xs text-muted">
+                {{ formatCartDate(item.date) }}<span v-if="item.groupLabel"> · {{ item.groupLabel }}</span>
+              </p>
+            </div>
+            <UButton
+              size="xs"
+              variant="ghost"
+              color="neutral"
+              icon="i-lucide-x"
+              @click="removeFromCart(item.id)"
+            />
+          </div>
+        </UCard>
+
+        <!-- Submit button -->
+        <UButton
+          block
+          color="primary"
+          icon="i-lucide-check"
+          :loading="isSubmitting"
+          :disabled="isSubmitting"
+          @click="handleSubmit"
+        >
+          {{ isSubmitting ? t('bookings.cart.booking') : t('bookings.cart.bookSlots', { count: cartCount }) }}
+        </UButton>
+      </div>
+    </div>
   </div>
 </template>

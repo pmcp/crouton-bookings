@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import type { DateValue } from '@internationalized/date'
+import { fromDate, toCalendarDate, getLocalTimeZone } from '@internationalized/date'
+
 interface SlotItem {
   id: string
   label?: string
   value?: string
+  color?: string
 }
 
 interface Booking {
@@ -180,6 +184,142 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
   const group = groupOptions.value.find(g => g.id === groupId)
   return group?.label || groupId
 }
+
+// Calendar filter state (using Date for simplicity, convert to DateValue only for calendar)
+const selectedFilterDate = ref<Date | null>(null)
+
+// Convert DateValue to Date for helper functions
+function dateValueToDate(dateValue: DateValue): Date {
+  return dateValue.toDate(getLocalTimeZone())
+}
+
+// Get bookings for a specific date (for calendar dots)
+function getBookingsForDate(dateValue: DateValue): Booking[] {
+  if (!bookings.value) return []
+  const targetDate = dateValueToDate(dateValue)
+  targetDate.setHours(0, 0, 0, 0)
+
+  return (bookings.value as Booking[]).filter((b) => {
+    const bookingDate = new Date(b.date)
+    bookingDate.setHours(0, 0, 0, 0)
+    return bookingDate.getTime() === targetDate.getTime() && b.status !== 'cancelled'
+  })
+}
+
+// Check if date has bookings (for calendar indicators)
+function hasBookingsOnDate(dateValue: DateValue): boolean {
+  return getBookingsForDate(dateValue).length > 0
+}
+
+// Fallback colors for slots without a color set
+const FALLBACK_COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#14b8a6', '#a855f7', '#ef4444']
+const DEFAULT_SLOT_COLOR = '#9ca3af'
+
+// Get slot color for a booking
+function getBookingSlotColor(booking: Booking): string {
+  if (!booking.slot || !booking.locationData?.slots) return DEFAULT_SLOT_COLOR
+
+  let locationSlots: SlotItem[]
+  try {
+    locationSlots = typeof booking.locationData.slots === 'string'
+      ? JSON.parse(booking.locationData.slots)
+      : booking.locationData.slots
+  }
+  catch {
+    return DEFAULT_SLOT_COLOR
+  }
+
+  if (!Array.isArray(locationSlots)) return DEFAULT_SLOT_COLOR
+
+  let bookingSlotIds: string[]
+  try {
+    bookingSlotIds = typeof booking.slot === 'string'
+      ? JSON.parse(booking.slot)
+      : booking.slot
+  }
+  catch {
+    return DEFAULT_SLOT_COLOR
+  }
+
+  if (!Array.isArray(bookingSlotIds) || bookingSlotIds.length === 0) return DEFAULT_SLOT_COLOR
+
+  // Find the slot and get its color
+  const slot = locationSlots.find(s => bookingSlotIds.includes(s.id))
+  if (slot?.color) return slot.color
+
+  // Fallback color based on slot index
+  const index = locationSlots.findIndex(s => bookingSlotIds.includes(s.id))
+  if (index >= 0) {
+    const color = FALLBACK_COLORS[index % FALLBACK_COLORS.length]
+    return color ?? DEFAULT_SLOT_COLOR
+  }
+
+  return DEFAULT_SLOT_COLOR
+}
+
+// Convert Date to DateValue for calendar
+function dateToDateValue(date: Date | null): DateValue | undefined {
+  if (!date) return undefined
+  const zonedDateTime = fromDate(date, getLocalTimeZone())
+  return toCalendarDate(zonedDateTime)
+}
+
+// Calendar model value (computed to convert between Date and DateValue)
+const calendarFilterValue = computed({
+  get: () => dateToDateValue(selectedFilterDate.value),
+  set: (value: DateValue | undefined) => {
+    if (!value) {
+      selectedFilterDate.value = null
+    }
+    else {
+      selectedFilterDate.value = value.toDate(getLocalTimeZone())
+    }
+  },
+})
+
+// Handle date selection from calendar (toggle behavior)
+// UCalendar can emit DateValue | DateRange | DateValue[] | null | undefined
+function onDateSelect(dateValue: unknown) {
+  // Only handle single DateValue selections
+  if (!dateValue || typeof dateValue !== 'object' || !('toDate' in dateValue)) {
+    selectedFilterDate.value = null
+    return
+  }
+
+  const newDate = (dateValue as DateValue).toDate(getLocalTimeZone())
+  newDate.setHours(0, 0, 0, 0)
+
+  // Toggle off if clicking same date
+  if (selectedFilterDate.value) {
+    const currentDate = new Date(selectedFilterDate.value)
+    currentDate.setHours(0, 0, 0, 0)
+    if (currentDate.getTime() === newDate.getTime()) {
+      selectedFilterDate.value = null
+      return
+    }
+  }
+
+  selectedFilterDate.value = newDate
+}
+
+// Clear the date filter
+function clearDateFilter() {
+  selectedFilterDate.value = null
+}
+
+// Filter bookings by selected date
+const filteredUpcomingBookings = computed(() => {
+  if (!selectedFilterDate.value) return upcomingBookings.value
+
+  const targetDate = new Date(selectedFilterDate.value)
+  targetDate.setHours(0, 0, 0, 0)
+
+  return upcomingBookings.value.filter((b) => {
+    const bookingDate = new Date(b.date)
+    bookingDate.setHours(0, 0, 0, 0)
+    return bookingDate.getTime() === targetDate.getTime()
+  })
+})
 </script>
 
 <template>
@@ -213,9 +353,52 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
 
     <!-- Bookings list -->
     <template v-else>
+      <!-- Mini Calendar with booking indicators -->
+      <UCalendar
+        v-model="calendarFilterValue"
+        size="sm"
+        class="mb-4 w-full"
+        :ui="{ root: 'w-full', header: 'justify-between', gridRow: 'grid grid-cols-7 mb-1' }"
+        @update:model-value="onDateSelect"
+      >
+        <template #day="{ day }">
+          <div class="flex flex-col items-center">
+            <span>{{ day.day }}</span>
+            <div v-if="hasBookingsOnDate(day)" class="flex gap-px mt-px">
+              <span
+                v-for="booking in getBookingsForDate(day)"
+                :key="booking.id"
+                class="w-1 h-1 rounded-full"
+                :style="{ backgroundColor: getBookingSlotColor(booking) }"
+              />
+            </div>
+          </div>
+        </template>
+      </UCalendar>
+
+      <!-- Filter indicator -->
+      <UAlert
+        v-if="selectedFilterDate"
+        color="primary"
+        variant="subtle"
+        icon="i-lucide-filter"
+        :title="`Showing: ${formatDate(selectedFilterDate)}`"
+        class="mb-4"
+      >
+        <template #actions>
+          <UButton
+            size="xs"
+            variant="ghost"
+            color="primary"
+            icon="i-lucide-x"
+            @click="clearDateFilter"
+          />
+        </template>
+      </UAlert>
+
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-medium">
-          {{ activeUpcomingCount }} upcoming
+          {{ selectedFilterDate ? filteredUpcomingBookings.length : activeUpcomingCount }} {{ selectedFilterDate ? 'on this date' : 'upcoming' }}
         </h3>
         <div class="flex items-center gap-2">
           <label class="flex items-center gap-1.5 text-xs text-muted cursor-pointer">
@@ -235,7 +418,7 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
       <!-- Items List -->
       <div class="flex-1 min-h-0 overflow-y-auto space-y-2">
         <div
-          v-for="booking in upcomingBookings"
+          v-for="booking in filteredUpcomingBookings"
           :key="booking.id"
           class="bg-elevated/50 rounded-lg group overflow-hidden"
         >
@@ -338,18 +521,18 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
           </div>
         </div>
 
-        <!-- Show message if no upcoming but has past bookings -->
-        <div v-if="upcomingBookings.length === 0 && hasBookings" class="text-center py-4">
+        <!-- Show message if no bookings match filter -->
+        <div v-if="filteredUpcomingBookings.length === 0" class="text-center py-4">
           <p class="text-xs text-muted">
-            No upcoming bookings
+            {{ selectedFilterDate ? 'No bookings on this date' : 'No upcoming bookings' }}
           </p>
           <UButton
             variant="link"
             size="xs"
             class="mt-2"
-            @click="goToBooking"
+            @click="selectedFilterDate ? clearDateFilter() : goToBooking()"
           >
-            Book a new slot
+            {{ selectedFilterDate ? 'Clear filter' : 'Book a new slot' }}
           </UButton>
         </div>
       </div>
