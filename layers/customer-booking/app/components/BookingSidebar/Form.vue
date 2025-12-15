@@ -251,15 +251,9 @@ async function handleSubmit() {
         {{ t('bookings.form.date') }}
       </label>
 
-      <!-- Loading state -->
-      <div v-if="formState.locationId && availabilityLoading" class="flex items-center justify-center py-8">
-        <UIcon name="i-lucide-loader-2" class="w-5 h-5 text-gray-400 animate-spin mr-2" />
-        <span class="text-sm text-gray-500">{{ t('bookings.form.loadingAvailability') }}</span>
-      </div>
-
       <!-- Calendar -->
-      <div v-else class="flex flex-col relative">
-        <!-- Disabled overlay when no location selected -->
+      <div class="flex flex-col relative">
+        <!-- Overlay when no location selected -->
         <div
           v-if="!formState.locationId"
           class="absolute inset-0 bg-default/60 z-10 rounded-lg flex items-center justify-center"
@@ -269,8 +263,8 @@ async function handleSubmit() {
         <UCalendar
           v-model="calendarValue"
           :is-date-disabled="(date) => !formState.locationId || isDateDisabled(date)"
-          class="w-full"
-          :class="{ 'opacity-50 pointer-events-none': !formState.locationId }"
+          class="w-full transition-opacity duration-200"
+          :class="{ 'opacity-50 pointer-events-none': !formState.locationId || availabilityLoading }"
           :ui="{ root: 'w-full', header: 'justify-between', gridRow: 'grid grid-cols-7 mb-1' }"
         >
           <template #day="{ day }">
@@ -291,13 +285,17 @@ async function handleSubmit() {
     </div>
 
     <!-- Time Slots - only show when date selected -->
-    <div v-if="formState.date && formState.locationId && !availabilityLoading">
+    <div
+      v-if="formState.date && formState.locationId"
+      class="transition-opacity duration-200"
+      :class="{ 'opacity-50 pointer-events-none': availabilityLoading }"
+    >
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
         {{ t('bookings.form.timeSlot') }}
       </label>
 
       <!-- No slots configured -->
-      <div v-if="slotItems.length === 0" class="text-center py-4">
+      <div v-if="slotItems.length === 0 && !availabilityLoading" class="text-center py-4">
         <UIcon name="i-lucide-clock" class="w-8 h-8 text-gray-300 mx-auto mb-2" />
         <p class="text-sm text-gray-500">
           {{ t('bookings.form.noTimeSlotsConfigured') }}
@@ -306,7 +304,7 @@ async function handleSubmit() {
 
       <!-- Slots RadioGroup with colored indicators -->
       <URadioGroup
-        v-else
+        v-else-if="slotItems.length > 0"
         v-model="formState.slotId"
         :items="slotItems"
         variant="card"
