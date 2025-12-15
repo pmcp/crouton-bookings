@@ -13,8 +13,6 @@
       <h1 class="flex-1 truncate font-bold">{{ title }}</h1>
     </div>
     <slot name="actions" />
-    <!-- Booking cart toggle - only on mobile, only on booking routes -->
-    <BookingSidebarToggle v-if="showBookingToggle" class="lg:hidden" />
   </header>
   <div :class="{ 'p-4': padding }">
     <slot />
@@ -23,7 +21,6 @@
 
 <script lang="ts" setup>
 const mobileMenu = useState('mobileMenu')
-const route = useRoute()
 
 withDefaults(
   defineProps<{
@@ -35,10 +32,4 @@ withDefaults(
     padding: true,
   },
 )
-
-// Show booking toggle on booking routes (not admin)
-const showBookingToggle = computed(() => {
-  const path = route.path
-  return path.includes('/bookings') && !path.includes('/admin')
-})
 </script>

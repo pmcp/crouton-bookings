@@ -38,12 +38,12 @@ const tabItems = computed<TabsItem[]>(() => [
 </script>
 
 <template>
-  <UCard class="h-full w-full flex flex-col relative overflow-hidden" :ui="{ root: 'bg-transparent shadow-none ring-0', body: 'p-2 sm:p-1 flex-1 flex flex-col min-h-0 overflow-hidden' }">
+  <div class="h-full w-full flex flex-col relative overflow-hidden bg-default">
     <!-- Main content area with tabs -->
     <UTabs
       v-model="activeTab"
       :items="tabItems"
-      class="flex-1 flex flex-col min-h-0 w-full p-2"
+      class="flex-1 flex flex-col min-h-0 w-full px-3 pt-2"
       :ui="{
         root: 'flex-1 flex flex-col min-h-0 w-full',
         content: 'flex-1 overflow-y-auto w-full',
@@ -58,14 +58,14 @@ const tabItems = computed<TabsItem[]>(() => [
       </template>
     </UTabs>
 
-    <!-- Cart section (collapsible at bottom) -->
-    <UCollapsible v-model:open="isCartOpen" class="border-t border-default">
+    <!-- Cart section (collapsible at bottom) - flush with edges -->
+    <UCollapsible v-model:open="isCartOpen" class="mt-auto">
       <!-- Cart trigger button -->
       <UButton
         block
         variant="soft"
         color="neutral"
-        class="justify-between rounded-none"
+        class="justify-between rounded-none py-3"
       >
         <span class="flex items-center gap-2">
           <UIcon name="i-lucide-shopping-cart" class="w-4 h-4" />
@@ -96,5 +96,5 @@ const tabItems = computed<TabsItem[]>(() => [
         </div>
       </template>
     </UCollapsible>
-  </UCard>
+  </div>
 </template>

@@ -83,101 +83,80 @@ function toggleBookingSidebar() {
   >
     <div
       v-if="showIsland"
-      class="fixed top-4 right-4 z-50 flex flex-col rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 transition-all duration-300"
-      style="width: 384px;"
+      class="fixed top-4 right-4 z-50 flex flex-col rounded-xl overflow-hidden shadow-2xl transition-all duration-300"
+      style="width: 384px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);"
     >
-      <!-- Island Header (always visible) - darker for contrast -->
-      <div class="w-full bg-neutral-900/95 backdrop-blur-sm">
-        <div class="flex items-center justify-between px-3 py-2.5">
-          <!-- Left: Admin Settings Link (conditional) -->
-          <div class="flex items-center">
+      <!-- Island Header (always visible) -->
+      <div class="relative w-full bg-elevated flex justify-between">
+        <!-- Left section: Settings -->
+        <div class="ml-2 flex items-center gap-1">
+          <UButton
+            v-if="isAdmin"
+            color="neutral"
+            variant="soft"
+            size="xs"
+            icon="i-lucide-settings"
+            to="/dashboard"
+          />
+
+
+          <!-- Account Menu -->
+          <UDropdownMenu
+            :items="accountItems"
+            :content="{ align: 'center', side: 'bottom', sideOffset: 12 }"
+          >
             <UButton
-              v-if="isAdmin"
               color="neutral"
-              variant="ghost"
+              variant="soft"
               size="xs"
-              icon="i-lucide-settings"
-              to="/dashboard"
-              class="opacity-60 hover:opacity-100"
+              icon="i-lucide-user"
             />
-            <div v-else class="w-7" />
-          </div>
+          </UDropdownMenu>
 
-          <!-- Right: Language, Account, Book button -->
-          <div class="flex items-center gap-0.5">
-            <!-- Language Switcher -->
-            <UDropdownMenu
-              :items="localeItems"
-              :content="{ align: 'center', side: 'bottom', sideOffset: 8 }"
-              :ui="{ content: 'min-w-24' }"
-            >
-              <UButton
-                color="neutral"
-                variant="ghost"
-                size="xs"
-                icon="i-lucide-globe"
-                :label="locale.toUpperCase()"
-                class="opacity-60 hover:opacity-100"
-              />
-            </UDropdownMenu>
-
-            <!-- Account Menu -->
-            <UDropdownMenu
-              :items="accountItems"
-              :content="{ align: 'end', side: 'bottom', sideOffset: 8 }"
-              :ui="{ content: 'w-48' }"
-            >
-              <UButton
-                color="neutral"
-                variant="ghost"
-                size="xs"
-                icon="i-lucide-user"
-                class="opacity-60 hover:opacity-100"
-              />
-            </UDropdownMenu>
-
-            <!-- Spacer -->
-            <div class="w-px h-4 bg-white/10 mx-1.5" />
-
-            <!-- Book Button -->
+          <!-- Language Menu -->
+          <UDropdownMenu
+            :items="localeItems"
+            :content="{ align: 'center', side: 'bottom', sideOffset: 12 }"
+          >
             <UButton
-              color="primary"
+              color="neutral"
+              variant="soft"
               size="xs"
-              :icon="isOpen ? 'i-lucide-x' : 'i-lucide-calendar-plus'"
-              :label="isOpen ? 'Close' : 'Book'"
-              @click="toggleBookingSidebar"
-            >
-              <template v-if="cartCount > 0 && !isOpen" #trailing>
-                <UBadge
-                  color="white"
-                  variant="solid"
-                  size="xs"
-                >
-                  {{ cartCount > 9 ? '9+' : cartCount }}
-                </UBadge>
-              </template>
-            </UButton>
-          </div>
+              icon="i-lucide-globe"
+              :label="locale.toUpperCase()"
+            />
+          </UDropdownMenu>
+
         </div>
+
+        <!-- Book Button - fills top-right corner -->
+        <UButton
+          :variant="isOpen ? 'soft' : 'solid'"
+          class="w-42 rounded-none flex"
+          @click="toggleBookingSidebar"
+        >
+          <div class="flex items-center gap-1 grow">
+            <UIcon :name="isOpen ? 'i-lucide-x' : 'i-lucide-calendar-plus'" />
+            <span>
+              {{ isOpen ? 'Close' : 'Book' }}
+            </span>
+          </div>
+          <UBadge
+            v-if="cartCount > 0"
+            color="neutral"
+            :variant="isOpen ? 'soft' : 'solid'"
+          >
+            {{ cartCount > 9 ? '9+' : cartCount }}
+          </UBadge>
+        </UButton>
       </div>
 
-      <!-- Sidebar Content (slides down when open) -->
-      <Transition
-        enter-active-class="transition-all duration-300 ease-out origin-top"
-        enter-from-class="opacity-0 scale-y-95"
-        enter-to-class="opacity-100 scale-y-100"
-        leave-active-class="transition-all duration-150 ease-in origin-top"
-        leave-from-class="opacity-100 scale-y-100"
-        leave-to-class="opacity-0 scale-y-0"
+      <div
+        v-if="isOpen"
+        style="height: calc(100vh - 5rem);"
       >
-        <div
-          v-if="isOpen"
-          class="w-full overflow-hidden flex flex-col bg-neutral-900/90 backdrop-blur-sm"
-          style="height: calc(100vh - 5rem);"
-        >
-          <BookingSidebarSM class="flex-1 min-h-0" />
-        </div>
-      </Transition>
+        <BookingSidebarSM class="pt-4" />
+      </div>
     </div>
   </Transition>
 </template>

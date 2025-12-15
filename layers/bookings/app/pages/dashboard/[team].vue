@@ -8,9 +8,7 @@
   </main>
 
   <!-- Combined Floating Island + Sidebar (experiment) -->
-  <Teleport to="body">
-    <FloatingIslandSidebar />
-  </Teleport>
+  <FloatingIslandSidebar />
 
   <!-- Booking Sidebar XL - full screen overlay when expanded -->
   <Teleport to="body">
