@@ -20,10 +20,7 @@ const { loggedIn } = useUserSession()
       <slot />
     </main>
 
-    <!-- Booking drawer (right side) -->
-    <BookingDrawer />
-
-    <!-- Floating island navigation (visible when logged in) -->
-    <FloatingIslandNav :team-slug="teamSlug" />
+    <!-- Combined floating island + sidebar (visible when logged in) -->
+    <FloatingIslandSidebar :team-slug="teamSlug" />
   </div>
 </template>

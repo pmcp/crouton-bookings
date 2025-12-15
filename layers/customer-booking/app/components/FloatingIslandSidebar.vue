@@ -160,9 +160,9 @@ function toggleBookingSidebar() {
         enter-active-class="transition-all duration-300 ease-out origin-top"
         enter-from-class="opacity-0 scale-y-95"
         enter-to-class="opacity-100 scale-y-100"
-        leave-active-class="transition-all duration-200 ease-in origin-top"
+        leave-active-class="transition-all duration-150 ease-in origin-top"
         leave-from-class="opacity-100 scale-y-100"
-        leave-to-class="opacity-0 scale-y-95"
+        leave-to-class="opacity-0 scale-y-0"
       >
         <div
           v-if="isOpen"

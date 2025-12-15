@@ -1,20 +1,6 @@
 <script setup lang="ts">
 const route = useRoute()
 const teamSlug = computed(() => route.params.teamSlug as string)
-
-// Auth state
-const { loggedIn } = useUserSession()
-
-// Booking sidebar state from composable (for header toggle)
-const { isOpen: isBookingSidebarOpen } = useBookingCart()
-
-function toggleBookingSidebar() {
-  isBookingSidebarOpen.value = !isBookingSidebarOpen.value
-}
-
-// Expose toggle function for header
-provide('toggleBookingSidebar', toggleBookingSidebar)
-provide('isBookingSidebarOpen', isBookingSidebarOpen)
 </script>
 
 <template>
@@ -27,8 +13,7 @@ provide('isBookingSidebarOpen', isBookingSidebarOpen)
       <slot />
     </main>
 
-    <!-- Booking drawer (right side) -->
-    <BookingDrawer />
-
+    <!-- Combined floating island + sidebar (visible when logged in) -->
+    <FloatingIslandSidebar :team-slug="teamSlug" />
   </div>
 </template>
