@@ -10,16 +10,6 @@ const {
   activeTab,
 } = useBookingCart()
 
-// Format date for display
-function formatDate(isoString: string): string {
-  const date = new Date(isoString)
-  return date.toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  })
-}
-
 // Handle submit
 async function handleSubmit() {
   await submitAll()
@@ -73,31 +63,17 @@ function goToBooking() {
 
       <!-- Items List -->
       <div class="space-y-2 mb-4">
-        <div
+        <BookingSidebarBookingItem
           v-for="item in cart"
           :key="item.id"
-          class="p-3 bg-elevated rounded-lg flex items-start gap-3"
-        >
-          <div class="shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-            <UIcon name="i-lucide-calendar" class="w-4 h-4 text-primary" />
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-default truncate">
-              {{ item.locationTitle }} - {{ item.slotLabel }}
-            </p>
-            <p class="text-xs text-muted">
-              {{ formatDate(item.date) }}<span v-if="item.groupLabel"> · {{ item.groupLabel }}</span>
-            </p>
-          </div>
-          <UButton
-            variant="ghost"
-            color="neutral"
-            size="xs"
-            icon="i-lucide-x"
-            class="shrink-0"
-            @click="removeFromCart(item.id)"
-          />
-        </div>
+          :id="item.id"
+          :location-title="item.locationTitle"
+          :slot-label="item.slotLabel"
+          :date="item.date"
+          :group-label="item.groupLabel"
+          action-type="remove"
+          @remove="removeFromCart(item.id)"
+        />
       </div>
 
       <!-- Submit Button -->

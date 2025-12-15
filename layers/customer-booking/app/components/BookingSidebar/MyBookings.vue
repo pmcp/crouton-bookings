@@ -160,22 +160,22 @@ function getSlotLabel(booking: Booking): string {
   return slot?.label || slot?.value || '-'
 }
 
-// Status badge color
-function getStatusColor(status: string): 'success' | 'warning' | 'error' | 'neutral' {
-  switch (status?.toLowerCase()) {
-    case 'confirmed':
-      return 'success'
-    case 'pending':
-      return 'warning'
-    case 'cancelled':
-      return 'error'
-    default:
-      return 'neutral'
-  }
-}
-
 function goToBooking() {
   activeTab.value = 'book'
+}
+
+// Get display status - past bookings that were pending/confirmed should show as "completed"
+function getDisplayStatus(booking: Booking): string {
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
+  const bookingDate = new Date(booking.date)
+  bookingDate.setHours(0, 0, 0, 0)
+  const isPast = bookingDate < now
+
+  if (isPast && (booking.status === 'pending' || booking.status === 'confirmed')) {
+    return 'completed'
+  }
+  return booking.status
 }
 
 // Get group label from settings
@@ -193,16 +193,24 @@ function dateValueToDate(dateValue: DateValue): Date {
   return dateValue.toDate(getLocalTimeZone())
 }
 
-// Get bookings for a specific date (for calendar dots)
-function getBookingsForDate(dateValue: DateValue): Booking[] {
+// Get all bookings (including past) respecting showCancelled toggle
+const allVisibleBookings = computed(() => {
   if (!bookings.value) return []
+  return (bookings.value as Booking[]).filter((b) => {
+    return showCancelled.value || b.status !== 'cancelled'
+  })
+})
+
+// Get bookings for a specific date (for calendar dots) - shows ALL bookings
+function getBookingsForDate(dateValue: DateValue): Booking[] {
+  if (!allVisibleBookings.value) return []
   const targetDate = dateValueToDate(dateValue)
   targetDate.setHours(0, 0, 0, 0)
 
-  return (bookings.value as Booking[]).filter((b) => {
+  return allVisibleBookings.value.filter((b) => {
     const bookingDate = new Date(b.date)
     bookingDate.setHours(0, 0, 0, 0)
-    return bookingDate.getTime() === targetDate.getTime() && b.status !== 'cancelled'
+    return bookingDate.getTime() === targetDate.getTime()
   })
 }
 
@@ -308,13 +316,15 @@ function clearDateFilter() {
 }
 
 // Filter bookings by selected date
-const filteredUpcomingBookings = computed(() => {
+// When no filter: show upcoming only
+// When filter applied: show ALL bookings for that date (including past)
+const filteredBookings = computed(() => {
   if (!selectedFilterDate.value) return upcomingBookings.value
 
   const targetDate = new Date(selectedFilterDate.value)
   targetDate.setHours(0, 0, 0, 0)
 
-  return upcomingBookings.value.filter((b) => {
+  return allVisibleBookings.value.filter((b) => {
     const bookingDate = new Date(b.date)
     bookingDate.setHours(0, 0, 0, 0)
     return bookingDate.getTime() === targetDate.getTime()
@@ -362,7 +372,7 @@ const filteredUpcomingBookings = computed(() => {
         @update:model-value="onDateSelect"
       >
         <template #day="{ day }">
-          <div class="flex flex-col items-center">
+          <div class="flex flex-col items-center cursor-pointer" @click.stop="onDateSelect(day)">
             <span>{{ day.day }}</span>
             <div v-if="hasBookingsOnDate(day)" class="flex gap-px mt-px">
               <span
@@ -377,28 +387,26 @@ const filteredUpcomingBookings = computed(() => {
       </UCalendar>
 
       <!-- Filter indicator -->
-      <UAlert
+      <div
         v-if="selectedFilterDate"
-        color="primary"
-        variant="subtle"
-        icon="i-lucide-filter"
-        :title="`Showing: ${formatDate(selectedFilterDate)}`"
-        class="mb-4"
+        class="mb-3 px-3 py-2 bg-primary/10 rounded-lg flex items-center justify-between gap-2"
       >
-        <template #actions>
-          <UButton
-            size="xs"
-            variant="ghost"
-            color="primary"
-            icon="i-lucide-x"
-            @click="clearDateFilter"
-          />
-        </template>
-      </UAlert>
+        <div class="flex items-center gap-2 text-sm text-primary">
+          <UIcon name="i-lucide-filter" class="w-4 h-4" />
+          <span>{{ formatDate(selectedFilterDate) }}</span>
+        </div>
+        <UButton
+          size="xs"
+          variant="ghost"
+          color="primary"
+          icon="i-lucide-x"
+          @click="clearDateFilter"
+        />
+      </div>
 
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-medium">
-          {{ selectedFilterDate ? filteredUpcomingBookings.length : activeUpcomingCount }} {{ selectedFilterDate ? 'on this date' : 'upcoming' }}
+          {{ selectedFilterDate ? filteredBookings.length : activeUpcomingCount }} {{ selectedFilterDate ? 'on this date' : 'upcoming' }}
         </h3>
         <div class="flex items-center gap-2">
           <label class="flex items-center gap-1.5 text-xs text-muted cursor-pointer">
@@ -417,112 +425,28 @@ const filteredUpcomingBookings = computed(() => {
 
       <!-- Items List -->
       <div class="flex-1 min-h-0 overflow-y-auto space-y-2">
-        <div
-          v-for="booking in filteredUpcomingBookings"
+        <BookingSidebarBookingItem
+          v-for="booking in filteredBookings"
           :key="booking.id"
-          class="bg-elevated/50 rounded-lg group overflow-hidden"
-        >
-          <!-- Booking info -->
-          <div class="p-3">
-            <div class="flex items-center gap-3">
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium truncate">
-                  {{ booking.locationData?.title || 'Unknown' }}
-                </p>
-                <p class="text-xs text-muted mt-0.5">
-                  {{ formatDate(booking.date) }} at {{ getSlotLabel(booking) }}<span v-if="getGroupLabel(booking.group)"> · {{ getGroupLabel(booking.group) }}</span>
-                </p>
-              </div>
-              <!-- Status badge + action button (aligned) -->
-              <div class="flex items-center gap-2 flex-shrink-0">
-                <UBadge :color="getStatusColor(booking.status)" variant="subtle" size="sm">
-                  {{ booking.status }}
-                </UBadge>
-                <!-- Cancel button for non-cancelled bookings -->
-                <UButton
-                  v-if="booking.status !== 'cancelled' && confirmingId !== booking.id"
-                  variant="ghost"
-                  color="neutral"
-                  size="xs"
-                  icon="i-lucide-x"
-                  class="transition-all duration-200 hover:scale-110 hover:rotate-90 hover:text-error"
-                  @click="showConfirmation(booking.id)"
-                />
-                <!-- Delete button for cancelled bookings -->
-                <UButton
-                  v-else-if="booking.status === 'cancelled' && confirmingDeleteId !== booking.id"
-                  variant="ghost"
-                  color="error"
-                  size="xs"
-                  icon="i-lucide-trash-2"
-                  class="transition-all duration-200 hover:scale-110"
-                  @click="showDeleteConfirmation(booking.id)"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Cancel confirmation (only for non-cancelled bookings) -->
-          <div
-            v-if="booking.status !== 'cancelled' && confirmingId === booking.id"
-            class="px-3 pb-3"
-          >
-            <div class="flex items-center justify-between gap-2 bg-error/10 rounded-lg px-3 py-2">
-              <span class="text-xs text-muted">Cancel this booking?</span>
-              <div class="flex items-center gap-2">
-                <UButton
-                  variant="ghost"
-                  color="neutral"
-                  size="xs"
-                  @click="hideConfirmation"
-                >
-                  Keep
-                </UButton>
-                <UButton
-                  variant="soft"
-                  color="error"
-                  size="xs"
-                  :loading="cancellingId === booking.id"
-                  @click="confirmCancel(booking.id)"
-                >
-                  Cancel
-                </UButton>
-              </div>
-            </div>
-          </div>
-
-          <!-- Delete confirmation (only for cancelled bookings) -->
-          <div
-            v-if="booking.status === 'cancelled' && confirmingDeleteId === booking.id"
-            class="px-3 pb-3"
-          >
-            <div class="flex items-center justify-between gap-2 bg-error/10 rounded-lg px-3 py-2">
-              <span class="text-xs text-muted">Delete permanently?</span>
-              <div class="flex items-center gap-2">
-                <UButton
-                  variant="ghost"
-                  color="neutral"
-                  size="xs"
-                  @click="hideConfirmation"
-                >
-                  Keep
-                </UButton>
-                <UButton
-                  variant="soft"
-                  color="error"
-                  size="xs"
-                  :loading="deletingId === booking.id"
-                  @click="confirmDelete(booking.id)"
-                >
-                  Delete
-                </UButton>
-              </div>
-            </div>
-          </div>
-        </div>
+          :id="booking.id"
+          :location-title="booking.locationData?.title || 'Unknown'"
+          :slot-label="getSlotLabel(booking)"
+          :slot-color="getBookingSlotColor(booking)"
+          :date="booking.date"
+          :group-label="getGroupLabel(booking.group)"
+          :status="getDisplayStatus(booking)"
+          show-status
+          :action-type="booking.status === 'cancelled' ? 'delete' : 'cancel'"
+          :loading="cancellingId === booking.id || deletingId === booking.id"
+          :show-confirmation="confirmingId === booking.id || confirmingDeleteId === booking.id"
+          @show-confirmation="booking.status === 'cancelled' ? showDeleteConfirmation(booking.id) : showConfirmation(booking.id)"
+          @hide-confirmation="hideConfirmation"
+          @cancel="confirmCancel(booking.id)"
+          @delete="confirmDelete(booking.id)"
+        />
 
         <!-- Show message if no bookings match filter -->
-        <div v-if="filteredUpcomingBookings.length === 0" class="text-center py-4">
+        <div v-if="filteredBookings.length === 0" class="text-center py-4">
           <p class="text-xs text-muted">
             {{ selectedFilterDate ? 'No bookings on this date' : 'No upcoming bookings' }}
           </p>

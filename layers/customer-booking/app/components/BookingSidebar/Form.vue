@@ -38,6 +38,17 @@ const {
   submitAll,
 } = useBookingCart()
 
+// Auto-select first location when locations are loaded
+watch(
+  () => locations.value,
+  (locs) => {
+    if (locs && locs.length > 0 && !formState.locationId) {
+      formState.locationId = locs[0].id
+    }
+  },
+  { immediate: true },
+)
+
 // Fallback colors for slots without a color set (assigned by index)
 const FALLBACK_COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#14b8a6', '#a855f7', '#ef4444']
 const DEFAULT_SLOT_COLOR = '#9ca3af'
@@ -151,15 +162,36 @@ function dateHasPartialBookings(dateValue: DateValue): boolean {
   return hasBookingsOnDate(date) && !isDateFullyBooked(date)
 }
 
-// Format date for cart display
-function formatCartDate(isoString: string): string {
-  const date = new Date(isoString)
-  return date.toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  })
-}
+// Cache location title to prevent flicker during location switch
+const cachedLocationTitle = ref('Select location')
+watch(
+  () => selectedLocation.value?.title,
+  (newTitle) => {
+    if (newTitle) {
+      cachedLocationTitle.value = newTitle
+    }
+  },
+  { immediate: true },
+)
+
+// Preview card data for current selection
+const previewData = computed(() => {
+  const slot = allSlots.value.find(s => s.id === formState.slotId)
+  const group = groupOptions.value.find(g => g.id === formState.groupId)
+
+  const d = formState.date
+  return {
+    hasDate: !!d,
+    day: d?.getDate() ?? '--',
+    month: d?.toLocaleDateString('en-US', { month: 'short' }) ?? '---',
+    weekday: d?.toLocaleDateString('en-US', { weekday: 'short' }) ?? '---',
+    locationTitle: cachedLocationTitle.value,
+    slotLabel: slot?.label || slot?.value || 'Select a slot',
+    slotColor: slot ? getSlotColorById(slot.id) : DEFAULT_SLOT_COLOR,
+    groupLabel: group?.label || null,
+    hasSlot: !!formState.slotId,
+  }
+})
 
 // Handle submit
 async function handleSubmit() {
@@ -171,51 +203,72 @@ async function handleSubmit() {
   <div class=" w-full space-y-4">
     <!-- Location Selection - hidden in XL mode -->
     <div v-if="!hideLocationSelect">
-      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
         {{ t('bookings.form.location') }}
       </label>
-      <USelect
+
+      <!-- Loading state -->
+      <div v-if="locationsStatus === 'pending'" class="grid grid-cols-2 gap-2">
+        <div v-for="i in 2" :key="i" class="h-20 bg-elevated rounded-lg animate-pulse" />
+      </div>
+
+      <!-- Location cards -->
+      <URadioGroup
+        v-else
         v-model="formState.locationId"
         :items="locationOptions"
-        :loading="locationsStatus === 'pending'"
-        :placeholder="t('bookings.form.selectLocation')"
-        icon="i-lucide-map-pin"
-        class="w-full"
+        variant="card"
+        indicator="hidden"
         value-key="value"
+        :ui="{
+          fieldset: 'grid grid-cols-2 gap-2',
+          item: 'p-3 cursor-pointer',
+        }"
       >
-        <template #item-label="{ item }">
-          <div class="flex flex-col py-0.5">
-            <span class="font-medium">{{ item.label }}</span>
-            <span v-if="item.address" class="text-xs text-muted">{{ item.address }}</span>
+        <template #label="{ item }">
+          <div class="flex flex-col gap-0.5">
+            <div class="flex items-center gap-1.5">
+              <UIcon name="i-lucide-map-pin" class="w-3.5 h-3.5 text-primary shrink-0" />
+              <span class="font-medium text-sm truncate">{{ item.label }}</span>
+            </div>
+            <span v-if="item.address" class="text-[11px] text-muted line-clamp-2 leading-tight">{{ item.address }}</span>
           </div>
         </template>
-      </USelect>
+      </URadioGroup>
     </div>
 
     <!-- Calendar with availability indicators -->
-    <div v-if="formState.locationId">
+    <div>
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
         {{ t('bookings.form.date') }}
       </label>
 
       <!-- Loading state -->
-      <div v-if="availabilityLoading" class="flex items-center justify-center py-8">
+      <div v-if="formState.locationId && availabilityLoading" class="flex items-center justify-center py-8">
         <UIcon name="i-lucide-loader-2" class="w-5 h-5 text-gray-400 animate-spin mr-2" />
         <span class="text-sm text-gray-500">{{ t('bookings.form.loadingAvailability') }}</span>
       </div>
 
       <!-- Calendar -->
-      <div v-else class="flex flex-col">
+      <div v-else class="flex flex-col relative">
+        <!-- Disabled overlay when no location selected -->
+        <div
+          v-if="!formState.locationId"
+          class="absolute inset-0 bg-default/60 z-10 rounded-lg flex items-center justify-center"
+        >
+          <span class="text-xs text-muted">Select a location first</span>
+        </div>
         <UCalendar
           v-model="calendarValue"
-          :is-date-disabled="isDateDisabled"
+          :is-date-disabled="(date) => !formState.locationId || isDateDisabled(date)"
           class="w-full"
+          :class="{ 'opacity-50 pointer-events-none': !formState.locationId }"
           :ui="{ root: 'w-full', header: 'justify-between', gridRow: 'grid grid-cols-7 mb-1' }"
         >
           <template #day="{ day }">
             <div class="flex flex-col items-center">
               <span>{{ day.day }}</span>
-              <div v-if="getBookedSlotsForDateValue(day).length > 0" class="flex gap-px mt-px">
+              <div v-if="formState.locationId && getBookedSlotsForDateValue(day).length > 0" class="flex gap-px mt-px">
                 <span
                   v-for="slot in getBookedSlotsForDateValue(day)"
                   :key="slot.id"
@@ -226,7 +279,6 @@ async function handleSubmit() {
             </div>
           </template>
         </UCalendar>
-
       </div>
     </div>
 
@@ -296,19 +348,56 @@ async function handleSubmit() {
         />
       </div>
 
-      <!-- Add to Cart button - always visible but disabled when no slot selected -->
-      <UButton
-        block
-        size="lg"
-        :color="canAddToCart ? 'primary' : 'neutral'"
-        :variant="canAddToCart ? 'solid' : 'soft'"
-        icon="i-lucide-plus"
-        class="mt-4"
-        :disabled="!canAddToCart"
-        @click="addToCart"
+      <!-- Preview card - always visible, shows current selection -->
+      <div
+        class="mt-4 rounded-lg overflow-hidden transition-colors duration-200"
+        :class="canAddToCart ? 'bg-primary/10 ring-1 ring-primary/30' : 'bg-elevated/50'"
       >
-        {{ t('bookings.form.addToCart') }}
-      </UButton>
+        <div class="p-3 flex items-center gap-3">
+          <!-- Date card -->
+          <div
+            class="shrink-0 w-11 h-14 rounded-lg flex flex-col items-center justify-center transition-colors duration-200"
+            :class="canAddToCart ? 'bg-primary/20 text-primary' : 'bg-muted/20 text-muted'"
+          >
+            <span class="text-[9px] font-medium uppercase tracking-wide opacity-70">{{ previewData.weekday }}</span>
+            <span class="text-lg font-bold leading-tight">{{ previewData.day }}</span>
+            <span class="text-[9px] font-medium uppercase tracking-wide">{{ previewData.month }}</span>
+          </div>
+
+          <!-- Content -->
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium truncate flex items-center gap-1">
+              <UIcon name="i-lucide-map-pin" class="w-3.5 h-3.5 text-muted shrink-0" />
+              {{ previewData.locationTitle }}
+            </p>
+            <p class="text-xs text-muted mt-0.5 flex items-center gap-1.5">
+              <UIcon name="i-lucide-clock" class="w-3 h-3" />
+              <span :class="{ 'opacity-50': !previewData.hasSlot }">{{ previewData.slotLabel }}</span>
+              <span
+                v-if="previewData.hasSlot"
+                class="w-2 h-2 rounded-full shrink-0 inline-block"
+                :style="{ backgroundColor: previewData.slotColor }"
+              />
+              <template v-if="previewData.groupLabel">
+                <span class="mx-1" />
+                <UIcon name="i-lucide-users" class="w-3 h-3" />
+                <span>{{ previewData.groupLabel }}</span>
+              </template>
+            </p>
+          </div>
+
+          <!-- Add button -->
+          <UButton
+            :color="canAddToCart ? 'primary' : 'neutral'"
+            :variant="canAddToCart ? 'solid' : 'soft'"
+            size="sm"
+            :disabled="!canAddToCart"
+            @click="addToCart"
+          >
+            Add
+          </UButton>
+        </div>
+      </div>
     </div>
 
     <!-- Cart Section (always visible at bottom) -->
@@ -344,32 +433,18 @@ async function handleSubmit() {
 
       <!-- Cart items -->
       <div v-else class="space-y-2">
-        <UCard
+        <BookingSidebarBookingItem
           v-for="item in cart"
           :key="item.id"
-          :ui="{ body: 'p-3' }"
-        >
-          <div class="flex items-center gap-3">
-            <UAvatar
-              :style="{ backgroundColor: getSlotColorById(item.slotId) }"
-              icon="i-lucide-calendar"
-              size="sm"
-            />
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium truncate">{{ item.slotLabel }}</p>
-              <p class="text-xs text-muted">
-                {{ formatCartDate(item.date) }}<span v-if="item.groupLabel"> · {{ item.groupLabel }}</span>
-              </p>
-            </div>
-            <UButton
-              size="xs"
-              variant="ghost"
-              color="neutral"
-              icon="i-lucide-x"
-              @click="removeFromCart(item.id)"
-            />
-          </div>
-        </UCard>
+          :id="item.id"
+          :location-title="item.locationTitle"
+          :slot-label="item.slotLabel"
+          :slot-color="getSlotColorById(item.slotId)"
+          :date="item.date"
+          :group-label="item.groupLabel"
+          action-type="remove"
+          @remove="removeFromCart(item.id)"
+        />
 
         <!-- Submit button -->
         <UButton
