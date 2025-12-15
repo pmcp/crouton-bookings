@@ -74,10 +74,10 @@ const tabItems = computed<TabsItem[]>(() => [
         <span class="flex items-center gap-2">
           <UBadge
             v-if="cartCount > 0"
-            color="primary"
+            :color="isPulsing ? 'info' : 'primary'"
             size="xs"
-            class="transition-transform"
-            :class="{ 'animate-pulse scale-110': isPulsing }"
+            class="transition-all duration-300"
+            :class="isPulsing ? 'scale-150' : ''"
           >
             {{ cartCount }}
           </UBadge>

@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
 
-interface Props {
-  teamSlug?: string
-}
-
-const props = defineProps<Props>()
-
 const { loggedIn, clear: logout, user } = useUserSession()
-const { isOpen, isExpanded, cartCount } = useBookingCart()
+const { isOpen, isExpanded, cartCount, cartPulse } = useBookingCart()
 const { isAdmin } = useUserRole()
 const router = useRouter()
 const { locale, locales, setLocale } = useI18n()
+
+// Track pulse animation for cart badge
+const isPulsing = ref(false)
+
+watch(cartPulse, () => {
+  isPulsing.value = true
+  setTimeout(() => isPulsing.value = false, 600)
+})
 
 // Locale items for language switcher
 const localeItems = computed<DropdownMenuItem[][]>(() => {
@@ -132,7 +134,7 @@ function toggleBookingSidebar() {
         <!-- Book Button - fills top-right corner -->
         <UButton
           :variant="isOpen ? 'soft' : 'solid'"
-          class="w-42 rounded-none flex"
+          class=" rounded-none flex"
           @click="toggleBookingSidebar"
         >
           <div class="flex items-center gap-1 grow">
@@ -143,8 +145,10 @@ function toggleBookingSidebar() {
           </div>
           <UBadge
             v-if="cartCount > 0"
-            color="neutral"
+            :color="isPulsing ? 'success' : 'neutral'"
             :variant="isOpen ? 'soft' : 'solid'"
+            class="transition-all duration-300"
+            :class="isPulsing ? 'scale-125' : ''"
           >
             {{ cartCount > 9 ? '9+' : cartCount }}
           </UBadge>
