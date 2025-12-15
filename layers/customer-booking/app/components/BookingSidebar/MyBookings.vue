@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DateValue } from '@internationalized/date'
+import type { DateValue, DateRange } from '@internationalized/date'
 import { fromDate, toCalendarDate, getLocalTimeZone } from '@internationalized/date'
 
 interface SlotItem {
@@ -185,8 +185,11 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
   return group?.label || groupId
 }
 
-// Calendar filter state (using Date for simplicity, convert to DateValue only for calendar)
-const selectedFilterDate = ref<Date | null>(null)
+// Calendar filter state - supports date range
+const selectedFilterRange = ref<{ start: Date | null, end: Date | null }>({ start: null, end: null })
+
+// Check if a range is active (at least start date selected)
+const hasActiveRange = computed(() => selectedFilterRange.value.start !== null)
 
 // Convert DateValue to Date for helper functions
 function dateValueToDate(dateValue: DateValue): Date {
@@ -272,62 +275,63 @@ function dateToDateValue(date: Date | null): DateValue | undefined {
   return toCalendarDate(zonedDateTime)
 }
 
-// Calendar model value (computed to convert between Date and DateValue)
-const calendarFilterValue = computed({
-  get: () => dateToDateValue(selectedFilterDate.value),
-  set: (value: DateValue | undefined) => {
-    if (!value) {
-      selectedFilterDate.value = null
+// Calendar range value - let calendar manage selection state
+const calendarRangeValue = shallowRef<DateRange | undefined>(undefined)
+
+// Sync filter state when calendar completes a range selection
+watch(calendarRangeValue, (value) => {
+  if (!value) {
+    selectedFilterRange.value = { start: null, end: null }
+  }
+  else {
+    selectedFilterRange.value = {
+      start: value.start ? value.start.toDate(getLocalTimeZone()) : null,
+      end: value.end ? value.end.toDate(getLocalTimeZone()) : null,
     }
-    else {
-      selectedFilterDate.value = value.toDate(getLocalTimeZone())
-    }
-  },
+  }
 })
-
-// Handle date selection from calendar (toggle behavior)
-// UCalendar can emit DateValue | DateRange | DateValue[] | null | undefined
-function onDateSelect(dateValue: unknown) {
-  // Only handle single DateValue selections
-  if (!dateValue || typeof dateValue !== 'object' || !('toDate' in dateValue)) {
-    selectedFilterDate.value = null
-    return
-  }
-
-  const newDate = (dateValue as DateValue).toDate(getLocalTimeZone())
-  newDate.setHours(0, 0, 0, 0)
-
-  // Toggle off if clicking same date
-  if (selectedFilterDate.value) {
-    const currentDate = new Date(selectedFilterDate.value)
-    currentDate.setHours(0, 0, 0, 0)
-    if (currentDate.getTime() === newDate.getTime()) {
-      selectedFilterDate.value = null
-      return
-    }
-  }
-
-  selectedFilterDate.value = newDate
-}
 
 // Clear the date filter
 function clearDateFilter() {
-  selectedFilterDate.value = null
+  calendarRangeValue.value = undefined
 }
 
-// Filter bookings by selected date
-// When no filter: show upcoming only
-// When filter applied: show ALL bookings for that date (including past)
-const filteredBookings = computed(() => {
-  if (!selectedFilterDate.value) return upcomingBookings.value
+// Format date range for display
+const filterRangeDisplay = computed(() => {
+  if (!selectedFilterRange.value.start) return ''
+  const start = formatDate(selectedFilterRange.value.start)
+  if (!selectedFilterRange.value.end || selectedFilterRange.value.start.getTime() === selectedFilterRange.value.end.getTime()) {
+    return start
+  }
+  const end = formatDate(selectedFilterRange.value.end)
+  return `${start} – ${end}`
+})
 
-  const targetDate = new Date(selectedFilterDate.value)
-  targetDate.setHours(0, 0, 0, 0)
+// Check if range spans multiple days (for display text)
+const isMultiDayRange = computed(() => {
+  if (!selectedFilterRange.value.start || !selectedFilterRange.value.end) return false
+  return selectedFilterRange.value.start.getTime() !== selectedFilterRange.value.end.getTime()
+})
+
+// Filter bookings by selected date range
+// When no filter: show upcoming only
+// When filter applied: show ALL bookings in that range (including past)
+const filteredBookings = computed(() => {
+  if (!hasActiveRange.value) return upcomingBookings.value
+
+  const startDate = selectedFilterRange.value.start
+  const endDate = selectedFilterRange.value.end || selectedFilterRange.value.start
+  if (!startDate) return upcomingBookings.value
+
+  const rangeStart = new Date(startDate)
+  rangeStart.setHours(0, 0, 0, 0)
+
+  const rangeEnd = new Date(endDate!)
+  rangeEnd.setHours(23, 59, 59, 999)
 
   return allVisibleBookings.value.filter((b) => {
     const bookingDate = new Date(b.date)
-    bookingDate.setHours(0, 0, 0, 0)
-    return bookingDate.getTime() === targetDate.getTime()
+    return bookingDate >= rangeStart && bookingDate <= rangeEnd
   })
 })
 </script>
@@ -363,16 +367,16 @@ const filteredBookings = computed(() => {
 
     <!-- Bookings list -->
     <template v-else>
-      <!-- Mini Calendar with booking indicators -->
+      <!-- Mini Calendar with booking indicators - range mode -->
       <UCalendar
-        v-model="calendarFilterValue"
+        v-model="calendarRangeValue"
+        range
         size="sm"
         class="mb-4 w-full"
         :ui="{ root: 'w-full', header: 'justify-between', gridRow: 'grid grid-cols-7 mb-1' }"
-        @update:model-value="onDateSelect"
       >
         <template #day="{ day }">
-          <div class="flex flex-col items-center cursor-pointer" @click.stop="onDateSelect(day)">
+          <div class="flex flex-col items-center">
             <span>{{ day.day }}</span>
             <div v-if="hasBookingsOnDate(day)" class="flex gap-px mt-px">
               <span
@@ -388,12 +392,12 @@ const filteredBookings = computed(() => {
 
       <!-- Filter indicator -->
       <div
-        v-if="selectedFilterDate"
+        v-if="hasActiveRange"
         class="mb-3 px-3 py-2 bg-primary/10 rounded-lg flex items-center justify-between gap-2"
       >
         <div class="flex items-center gap-2 text-sm text-primary">
           <UIcon name="i-lucide-filter" class="w-4 h-4" />
-          <span>{{ formatDate(selectedFilterDate) }}</span>
+          <span>{{ filterRangeDisplay }}</span>
         </div>
         <UButton
           size="xs"
@@ -406,7 +410,7 @@ const filteredBookings = computed(() => {
 
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-medium">
-          {{ selectedFilterDate ? filteredBookings.length : activeUpcomingCount }} {{ selectedFilterDate ? 'on this date' : 'upcoming' }}
+          {{ hasActiveRange ? filteredBookings.length : activeUpcomingCount }} {{ hasActiveRange ? (isMultiDayRange ? 'in range' : 'on this date') : 'upcoming' }}
         </h3>
         <div class="flex items-center gap-2">
           <label class="flex items-center gap-1.5 text-xs text-muted cursor-pointer">
@@ -448,15 +452,15 @@ const filteredBookings = computed(() => {
         <!-- Show message if no bookings match filter -->
         <div v-if="filteredBookings.length === 0" class="text-center py-4">
           <p class="text-xs text-muted">
-            {{ selectedFilterDate ? 'No bookings on this date' : 'No upcoming bookings' }}
+            {{ hasActiveRange ? (isMultiDayRange ? 'No bookings in this range' : 'No bookings on this date') : 'No upcoming bookings' }}
           </p>
           <UButton
             variant="link"
             size="xs"
             class="mt-2"
-            @click="selectedFilterDate ? clearDateFilter() : goToBooking()"
+            @click="hasActiveRange ? clearDateFilter() : goToBooking()"
           >
-            {{ selectedFilterDate ? 'Clear filter' : 'Book a new slot' }}
+            {{ hasActiveRange ? 'Clear filter' : 'Book a new slot' }}
           </UButton>
         </div>
       </div>
