@@ -7,26 +7,10 @@
     </div>
   </main>
 
-  <!-- Floating Island Navigation -->
+  <!-- Combined Floating Island + Sidebar (experiment) -->
   <Teleport to="body">
-    <FloatingIslandNav />
+    <FloatingIslandSidebar />
   </Teleport>
-
-  <!-- Booking Sidebar SM - Slideover -->
-  <USlideover
-    v-model:open="isOpen"
-    side="right"
-    :overlay="false"
-    :modal="false"
-    :close="false"
-    :ui="{ content: '!w-96' }"
-  >
-    <template #content>
-      <div class="h-full w-full overflow-hidden">
-        <BookingSidebarSM />
-      </div>
-    </template>
-  </USlideover>
 
   <!-- Booking Sidebar XL - full screen overlay when expanded -->
   <Teleport to="body">

@@ -38,7 +38,7 @@ const tabItems = computed<TabsItem[]>(() => [
 </script>
 
 <template>
-  <UCard class="h-full w-full flex flex-col relative overflow-hidden" :ui="{ body: 'p-2 sm:p-1 flex-1 flex flex-col min-h-0 overflow-hidden' }">
+  <UCard class="h-full w-full flex flex-col relative overflow-hidden" :ui="{ root: 'bg-transparent shadow-none ring-0', body: 'p-2 sm:p-1 flex-1 flex flex-col min-h-0 overflow-hidden' }">
     <!-- Main content area with tabs -->
     <UTabs
       v-model="activeTab"
