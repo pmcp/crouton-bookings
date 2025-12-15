@@ -1,4 +1,4 @@
-import { teamMembersConfig } from '@friendlyinternet/nuxt-crouton-connector/supersaas'
+import { teamMembersConfig } from '@friendlyinternet/nuxt-crouton-supersaas/supersaas'
 import { translationsUiConfig } from '@friendlyinternet/nuxt-crouton-i18n/app/composables/useTranslationsUi'
 import { bookingsBookingsConfig } from '../layers/bookings/collections/bookings/app/composables/useBookingsBookings'
 import { bookingsLocationsConfig } from '../layers/bookings/collections/locations/app/composables/useBookingsLocations'

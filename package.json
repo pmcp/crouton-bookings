@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@friendlyinternet/nuxt-crouton": "link:../nuxt-crouton/packages/nuxt-crouton",
-    "@friendlyinternet/nuxt-crouton-connector": "^0.3.0",
+    "@friendlyinternet/nuxt-crouton-supersaas": "link:../nuxt-crouton/packages/nuxt-crouton-supersaas",
     "@friendlyinternet/nuxt-crouton-editor": "^1.3.0",
     "@friendlyinternet/nuxt-crouton-i18n": "link:../nuxt-crouton/packages/nuxt-crouton-i18n",
     "@friendlyinternet/nuxt-crouton-maps": "^0.3.1",

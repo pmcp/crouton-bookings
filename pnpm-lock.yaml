@@ -15,18 +15,18 @@ importers:
       '@friendlyinternet/nuxt-crouton':
         specifier: link:../nuxt-crouton/packages/nuxt-crouton
         version: link:../nuxt-crouton/packages/nuxt-crouton
-      '@friendlyinternet/nuxt-crouton-connector':
-        specifier: ^0.3.0
-        version: 0.3.0(nuxt@4.2.2(@netlify/blobs@8.2.0)(@parcel/watcher@2.5.1)(@types/node@24.10.2)(@vue/compiler-sfc@3.5.25)(cac@6.7.14)(db0@0.3.4(drizzle-orm@0.44.1(@cloudflare/workers-types@4.20251209.0)(gel@2.0.2)))(drizzle-orm@0.44.1(@cloudflare/workers-types@4.20251209.0)(gel@2.0.2))(eslint@9.24.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.2)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(typescript@5.9.3)(vite@7.2.7(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))(vue-tsc@2.2.12(typescript@5.9.3))(yaml@2.8.2))(zod@3.25.76)
       '@friendlyinternet/nuxt-crouton-editor':
         specifier: ^1.3.0
-        version: 1.3.0(zhsj3oeozg6p2utcdtqt3jaqmi)
+        version: 1.3.0(lymbc77hkdl55o25naeryzuxma)
       '@friendlyinternet/nuxt-crouton-i18n':
         specifier: link:../nuxt-crouton/packages/nuxt-crouton-i18n
         version: link:../nuxt-crouton/packages/nuxt-crouton-i18n
       '@friendlyinternet/nuxt-crouton-maps':
         specifier: ^0.3.1
         version: 0.3.1(qnbqolmwwxon2fshxefplhio2y)
+      '@friendlyinternet/nuxt-crouton-supersaas':
+        specifier: link:../nuxt-crouton/packages/nuxt-crouton-supersaas
+        version: link:../nuxt-crouton/packages/nuxt-crouton-supersaas
       '@iconify-json/lucide':
         specifier: ^1.2.79
         version: 1.2.79
@@ -1082,13 +1082,6 @@ packages:
 
   '@floating-ui/vue@1.1.9':
     resolution: {integrity: sha512-BfNqNW6KA83Nexspgb9DZuz578R7HT8MZw1CfK9I6Ah4QReNWEJsXWHN+SdmOVLNGmTPDi+fDT535Df5PzMLbQ==}
-
-  '@friendlyinternet/nuxt-crouton-connector@0.3.0':
-    resolution: {integrity: sha512-QOzeVo2LZUiKgddkYdYnoZ+aNNZBdsmo9cTWzdOsr/oCH/AZPuAijdXtINPc1m+pKRywokhFjDDrM7PmecaacQ==}
-    peerDependencies:
-      '@friendlyinternet/nuxt-crouton': link:/Users/pmcp/Projects/nuxt-crouton/packages/nuxt-crouton
-      nuxt: ^4.0.0
-      zod: ^3.0.0
 
   '@friendlyinternet/nuxt-crouton-editor@1.3.0':
     resolution: {integrity: sha512-/JfbdD5asm0KiBnyPmCrb4PamXKl7mQ+mqFNW1DMgBoiPc00JME5dgbT8RpxJdrkor5LNapDFh7xD2NaE+Rziw==}
@@ -8156,13 +8149,9 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
-  '@friendlyinternet/nuxt-crouton-connector@0.3.0(nuxt@4.2.2(@netlify/blobs@8.2.0)(@parcel/watcher@2.5.1)(@types/node@24.10.2)(@vue/compiler-sfc@3.5.25)(cac@6.7.14)(db0@0.3.4(drizzle-orm@0.44.1(@cloudflare/workers-types@4.20251209.0)(gel@2.0.2)))(drizzle-orm@0.44.1(@cloudflare/workers-types@4.20251209.0)(gel@2.0.2))(eslint@9.24.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.2)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(typescript@5.9.3)(vite@7.2.7(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))(vue-tsc@2.2.12(typescript@5.9.3))(yaml@2.8.2))(zod@3.25.76)':
+  '@friendlyinternet/nuxt-crouton-editor@1.3.0(lymbc77hkdl55o25naeryzuxma)':
     dependencies:
-      nuxt: 4.2.2(@netlify/blobs@8.2.0)(@parcel/watcher@2.5.1)(@types/node@24.10.2)(@vue/compiler-sfc@3.5.25)(cac@6.7.14)(db0@0.3.4(drizzle-orm@0.44.1(@cloudflare/workers-types@4.20251209.0)(gel@2.0.2)))(drizzle-orm@0.44.1(@cloudflare/workers-types@4.20251209.0)(gel@2.0.2))(eslint@9.24.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.2)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(typescript@5.9.3)(vite@7.2.7(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))(vue-tsc@2.2.12(typescript@5.9.3))(yaml@2.8.2)
-      zod: 3.25.76
-
-  '@friendlyinternet/nuxt-crouton-editor@1.3.0(zhsj3oeozg6p2utcdtqt3jaqmi)':
-    dependencies:
+      '@friendlyinternet/nuxt-crouton': link:../nuxt-crouton/packages/nuxt-crouton
       '@nuxt/icon': 2.1.0(magicast@0.5.1)(vite@7.2.7(@types/node@24.10.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))(vue@3.5.25(typescript@5.9.3))
       '@tiptap/extension-color': 2.27.1(@tiptap/core@2.27.1(@tiptap/pm@2.27.1))(@tiptap/extension-text-style@2.27.1(@tiptap/core@2.27.1(@tiptap/pm@2.27.1)))
       '@tiptap/extension-text-style': 2.27.1(@tiptap/core@2.27.1(@tiptap/pm@2.27.1))
