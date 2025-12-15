@@ -29,14 +29,9 @@ const emit = defineEmits<{
   'hide-confirmation': []
 }>()
 
-// Parse date
-const parsedDate = computed(() => {
-  const d = typeof props.date === 'string' ? new Date(props.date) : props.date
-  return {
-    day: d.getDate(),
-    month: d.toLocaleDateString('en-US', { month: 'short' }),
-    weekday: d.toLocaleDateString('en-US', { weekday: 'short' }),
-  }
+// Date badge variant based on status
+const dateBadgeVariant = computed(() => {
+  return props.status === 'cancelled' ? 'error' : 'primary'
 })
 
 // Status badge color
@@ -80,14 +75,7 @@ function confirmAction() {
   <div class="bg-elevated/50 rounded-lg overflow-hidden">
     <div class="p-3 flex items-center gap-3">
       <!-- Date card -->
-      <div
-        class="shrink-0 w-11 h-14 rounded-lg flex flex-col items-center justify-center"
-        :class="status === 'cancelled' ? 'bg-error/10 text-error' : 'bg-primary/10 text-primary'"
-      >
-        <span class="text-[9px] font-medium uppercase tracking-wide opacity-70">{{ parsedDate.weekday }}</span>
-        <span class="text-lg font-bold leading-tight">{{ parsedDate.day }}</span>
-        <span class="text-[9px] font-medium uppercase tracking-wide">{{ parsedDate.month }}</span>
-      </div>
+      <DateBadge :date="date" :variant="dateBadgeVariant" />
 
       <!-- Content -->
       <div class="flex-1 min-w-0">

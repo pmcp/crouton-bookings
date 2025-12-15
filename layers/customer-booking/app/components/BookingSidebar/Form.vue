@@ -136,9 +136,17 @@ function dateValueToDate(dateValue: DateValue): Date {
   return dateValue.toDate(getLocalTimeZone())
 }
 
-// Check if date should be disabled (fully booked)
+// Check if date should be disabled (past or fully booked)
 function isDateDisabled(dateValue: DateValue): boolean {
-  return isDateFullyBooked(dateValueToDate(dateValue))
+  const date = dateValueToDate(dateValue)
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
+  date.setHours(0, 0, 0, 0)
+
+  // Disable past dates
+  if (date < now) return true
+
+  return isDateFullyBooked(date)
 }
 
 // Get booked slots for a DateValue (used in template)
@@ -350,19 +358,17 @@ async function handleSubmit() {
 
       <!-- Preview card - always visible, shows current selection -->
       <div
-        class="mt-4 rounded-lg overflow-hidden transition-colors duration-200"
-        :class="canAddToCart ? 'bg-primary/10 ring-1 ring-primary/30' : 'bg-elevated/50'"
+        class="mt-4 rounded-lg overflow-hidden transition-all duration-200"
+        :class="canAddToCart ? 'bg-accented' : 'bg-elevated'"
       >
-        <div class="p-3 flex items-center gap-3">
+        <div class="p-2 flex items-center gap-2">
           <!-- Date card -->
-          <div
-            class="shrink-0 w-11 h-14 rounded-lg flex flex-col items-center justify-center transition-colors duration-200"
-            :class="canAddToCart ? 'bg-primary/20 text-primary' : 'bg-muted/20 text-muted'"
-          >
-            <span class="text-[9px] font-medium uppercase tracking-wide opacity-70">{{ previewData.weekday }}</span>
-            <span class="text-lg font-bold leading-tight">{{ previewData.day }}</span>
-            <span class="text-[9px] font-medium uppercase tracking-wide">{{ previewData.month }}</span>
-          </div>
+          <DateBadge
+            v-if="formState.date"
+            :date="formState.date"
+            size="sm"
+            :variant="canAddToCart ? 'elevated' : 'muted'"
+          />
 
           <!-- Content -->
           <div class="flex-1 min-w-0">
