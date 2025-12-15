@@ -217,7 +217,7 @@ async function handleSubmit() {
 
       <!-- Loading state -->
       <div v-if="locationsStatus === 'pending'" class="grid grid-cols-2 gap-2">
-        <div v-for="i in 2" :key="i" class="h-20 bg-elevated rounded-lg animate-pulse" />
+        <div v-for="i in 2" :key="i" class="h-10 bg-elevated rounded-lg animate-pulse" />
       </div>
 
       <!-- Location cards -->
@@ -230,16 +230,13 @@ async function handleSubmit() {
         value-key="value"
         :ui="{
           fieldset: 'grid grid-cols-2 gap-2',
-          item: 'p-3 cursor-pointer',
+          item: 'p-2 cursor-pointer',
         }"
       >
         <template #label="{ item }">
-          <div class="flex flex-col gap-0.5">
-            <div class="flex items-center gap-1.5">
-              <UIcon name="i-lucide-map-pin" class="w-3.5 h-3.5 text-primary shrink-0" />
-              <span class="font-medium text-sm truncate">{{ item.label }}</span>
-            </div>
-            <span v-if="item.address" class="text-[11px] text-muted line-clamp-2 leading-tight">{{ item.address }}</span>
+          <div class="flex items-center gap-1.5">
+            <UIcon name="i-lucide-map-pin" class="w-3.5 h-3.5 text-primary shrink-0" />
+            <span class="font-medium text-sm truncate">{{ item.label }}</span>
           </div>
         </template>
       </URadioGroup>
