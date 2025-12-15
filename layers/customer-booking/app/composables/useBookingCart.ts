@@ -351,12 +351,6 @@ export function useBookingCart() {
     formState.slotId = null
     formState.groupId = null
 
-    toast.add({
-      title: 'Added to cart',
-      description: `${item.locationTitle} - ${item.slotLabel}`,
-      color: 'success',
-    })
-
     // Trigger pulse animation on cart button (don't auto-open)
     cartPulse.value++
   }
