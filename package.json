@@ -17,9 +17,9 @@
   "dependencies": {
     "@friendlyinternet/nuxt-crouton": "link:../nuxt-crouton/packages/nuxt-crouton",
     "@friendlyinternet/nuxt-crouton-supersaas": "link:../nuxt-crouton/packages/nuxt-crouton-supersaas",
-    "@friendlyinternet/nuxt-crouton-editor": "^1.3.0",
+    "@friendlyinternet/nuxt-crouton-editor": "link:../nuxt-crouton/packages/nuxt-crouton-editor",
     "@friendlyinternet/nuxt-crouton-i18n": "link:../nuxt-crouton/packages/nuxt-crouton-i18n",
-    "@friendlyinternet/nuxt-crouton-maps": "^0.3.1",
+    "@friendlyinternet/nuxt-crouton-maps": "link:../nuxt-crouton/packages/nuxt-crouton-maps",
     "@iconify-json/lucide": "^1.2.79",
     "@nuxt/eslint": "^1.11.0",
     "@nuxt/ui": "^4.2.1",
@@ -63,7 +63,10 @@
   "pnpm": {
     "overrides": {
       "@friendlyinternet/nuxt-crouton": "link:../nuxt-crouton/packages/nuxt-crouton",
-      "@friendlyinternet/nuxt-crouton-i18n": "link:../nuxt-crouton/packages/nuxt-crouton-i18n"
+      "@friendlyinternet/nuxt-crouton-supersaas": "link:../nuxt-crouton/packages/nuxt-crouton-supersaas",
+      "@friendlyinternet/nuxt-crouton-editor": "link:../nuxt-crouton/packages/nuxt-crouton-editor",
+      "@friendlyinternet/nuxt-crouton-i18n": "link:../nuxt-crouton/packages/nuxt-crouton-i18n",
+      "@friendlyinternet/nuxt-crouton-maps": "link:../nuxt-crouton/packages/nuxt-crouton-maps"
     }
   },
   "simple-git-hooks": {
