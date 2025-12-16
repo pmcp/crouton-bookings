@@ -9,8 +9,8 @@
     </div>
     <div class="space-y-4 rounded-md bg-neutral-100 p-4 dark:bg-neutral-950">
       <p class="text-sm text-neutral-500">
-        This action will delete the user from the platform and all associated
-        data. {{ user.name }} is a part of the following teams:
+        {{ $t('superAdmin.users.delete.warning') }}
+        {{ $t('superAdmin.users.delete.partOfTeams', { name: user.name }) }}
       </p>
       <div
         v-for="teamMember in user.teamMembers"
@@ -29,7 +29,7 @@
             {{
               teamMember.role === 'owner'
                 ? ''
-                : `(Owner: ${getTeamOwnerName(teamMember.team.ownerId)})`
+                : `(${$t('teams.owner')}: ${getTeamOwnerName(teamMember.team.ownerId)})`
             }}
           </p>
         </div>
@@ -40,13 +40,13 @@
       <UButton
         variant="soft"
         color="neutral"
-        label="Cancel"
+        :label="$t('common.cancel')"
         @click="$emit('cancel')"
       />
       <UButton
         variant="soft"
         color="error"
-        label="Delete User"
+        :label="$t('buttons.deleteUser')"
         :loading="loading"
         @click="deleteUser"
       />
@@ -57,6 +57,8 @@
 <script lang="ts" setup>
 import type { OAuthAccounts, User } from '@@/types/database'
 import type { SanitizedUser } from '@@/server/utils/auth'
+
+const { t } = useI18n()
 
 interface TeamMember {
   id: string
@@ -104,16 +106,16 @@ const deleteUser = async () => {
       body: { userId: props.user.id },
     })
     toast.add({
-      title: 'User deleted successfully',
-      description: 'The user has been deleted',
+      title: t('toast.userDeleted.title'),
+      description: t('toast.userDeleted.description'),
       color: 'success',
     })
     emit('user-deleted')
   } catch (error) {
     console.error(error)
     toast.add({
-      title: 'Error',
-      description: 'Failed to delete user',
+      title: t('toast.error.title'),
+      description: t('errors.generic'),
       color: 'error',
     })
   } finally {

@@ -1,12 +1,12 @@
 <template>
   <UForm :schema="schema" :state="state" class="space-y-6" @submit="onSubmit">
-    <UFormField label="Name" name="name" required>
+    <UFormField :label="$t('fields.name')" name="name" required>
       <UInput v-model="state.name" class="w-full" size="lg" />
     </UFormField>
-    <UFormField label="Email" name="email" required>
+    <UFormField :label="$t('fields.email')" name="email" required>
       <UInput v-model="state.email" class="w-full" size="lg" />
     </UFormField>
-    <UFormField label="Password" name="password" required>
+    <UFormField :label="$t('fields.password')" name="password" required>
       <UInput
         ref="passwordInput"
         v-model="state.password"
@@ -16,7 +16,7 @@
         :ui="{ trailing: 'pr-1' }"
       >
         <template #trailing>
-          <UTooltip text="Generate Password" :content="{ side: 'right' }">
+          <UTooltip :text="$t('superAdmin.users.form.generatePassword')" :content="{ side: 'right' }">
             <UButton
               color="neutral"
               variant="link"
@@ -28,15 +28,15 @@
         </template>
       </UInput>
     </UFormField>
-    <UFormField label="Phone Number" name="phoneNumber">
+    <UFormField :label="$t('fields.phoneNumber')" name="phoneNumber">
       <UInput
         v-model="state.phoneNumber"
         class="w-full"
         size="lg"
-        placeholder="+12123456789"
+        :placeholder="$t('placeholders.phoneNumber')"
       />
     </UFormField>
-    <UFormField label="Avatar" name="avatar">
+    <UFormField :label="$t('fields.avatar')" name="avatar">
       <AppAvatarUploader
         v-model="state.avatarUrl"
         :avatar-size="'md'"
@@ -46,10 +46,10 @@
     <UCheckbox
       v-model="state.emailVerified"
       size="lg"
-      label="Auto verify user"
-      description="If checked, the user will be automatically verified after registration."
+      :label="$t('messages.autoVerifyUser')"
+      :description="$t('superAdmin.users.form.autoVerifyDescription')"
     />
-    <UButton :loading="loading" type="submit" label="Invite User" />
+    <UButton :loading="loading" type="submit" :label="$t('buttons.inviteUser')" />
   </UForm>
 </template>
 
@@ -59,6 +59,7 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 import { useClipboard } from '@vueuse/core'
 import { FetchError } from 'ofetch'
 
+const { t } = useI18n()
 const emit = defineEmits(['user-created'])
 const loading = ref(false)
 const { copy, copied } = useClipboard({
@@ -109,8 +110,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       body: payload,
     })
     toast.add({
-      title: 'User Created Successfully',
-      description: `${state.name} has been added to the platform${!state.emailVerified ? ' and will receive a verification email' : ''}.`,
+      title: t('toast.userCreated.title'),
+      description: state.emailVerified
+        ? t('toast.userCreated.description', { name: state.name })
+        : t('toast.userCreated.descriptionWithVerification', { name: state.name }),
       color: 'success',
       duration: 5000,
     })
@@ -121,9 +124,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     // Emit event to notify parent component
     emit('user-created', response)
   } catch (error) {
-    const errorMessage = (error instanceof FetchError ? error.data?.message : null) || 'Failed to create user'
+    const errorMessage = (error instanceof FetchError ? error.data?.message : null) || t('errors.failedToCreateUser')
     toast.add({
-      title: 'Error',
+      title: t('toast.error.title'),
       description: errorMessage,
       color: 'error',
       duration: 5000,
@@ -149,8 +152,8 @@ async function generatePassword() {
   state.password = Math.random().toString(36).substring(2, 15)
   await copy(state.password)
   toast.add({
-    title: 'Password copied',
-    description: `The password has been copied to your clipboard. ${state.password}`,
+    title: t('toast.passwordCopied.title'),
+    description: t('toast.passwordCopied.description', { password: state.password }),
     color: 'success',
   })
 }

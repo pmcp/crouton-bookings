@@ -8,10 +8,10 @@
           <p class="text-sm text-neutral-500">{{ user.email }}</p>
         </div>
       </div>
-      <UFormField label="Reason" name="reason" required>
+      <UFormField :label="$t('fields.reason')" name="reason" required>
         <UTextarea v-model="state.reason" class="w-full" size="lg" />
       </UFormField>
-      <UFormField label="Banned Until" name="bannedUntil" required>
+      <UFormField :label="$t('fields.bannedUntil')" name="bannedUntil" required>
         <UInput v-model="state.bannedUntil" class="w-full" size="lg">
           <template #trailing>
             <UPopover>
@@ -34,7 +34,7 @@
       </UFormField>
       <UButton
         type="submit"
-        label="Ban User"
+        :label="$t('buttons.banUser')"
         color="neutral"
         :loading="loading"
       />
@@ -47,6 +47,8 @@ import { getLocalTimeZone, today } from '@internationalized/date'
 import { z } from 'zod'
 import type { User, OAuthAccounts } from '@@/types/database'
 import { useDateFormat } from '@vueuse/core'
+
+const { t } = useI18n()
 
 interface TeamMember {
   id: string
@@ -110,17 +112,17 @@ const onSubmit = async () => {
     })
 
     toast.add({
-      title: 'User Banned Successfully',
-      description: `${props.user.name} has been banned until ${useDateFormat(formData.bannedUntil, 'MMM D, YYYY').value}.`,
+      title: t('toast.userBanned.title'),
+      description: t('toast.userBanned.description', { name: props.user.name, date: useDateFormat(formData.bannedUntil, 'MMM D, YYYY').value }),
       color: 'success',
       duration: 5000,
     })
 
     emit('user-banned', props.user)
   } catch (error: any) {
-    const errorMessage = error?.data?.message || 'Failed to ban user'
+    const errorMessage = error?.data?.message || t('errors.generic')
     toast.add({
-      title: 'Error',
+      title: t('toast.error.title'),
       description: errorMessage,
       color: 'error',
       duration: 5000,
