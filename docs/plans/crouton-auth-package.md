@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 3 / 45 |
+| **Tasks Completed** | 3 / 54 |
 | **Current Phase** | Phase 1 - Complete ✅ |
 | **Estimated Total** | ~40-60 hours |
 
@@ -225,6 +225,35 @@ export default defineEventHandler(async (event) => {
   const auth = useAuth()
   return auth.handler(toWebRequest(event))
 })
+```
+
+### Task 2.8: nuxt-crouton Integration
+- [ ] Create Better Auth connector type for nuxt-crouton
+- [ ] Map Better Auth tables to crouton expected names (organization → teams, member → teamMembers)
+- [ ] Handle session format differences between SuperSaaS and Better Auth
+- [ ] Update `resolveTeamAndCheckMembership()` to work with Better Auth session format
+- [ ] Query `organization` table (aliased as teams) for team operations
+- [ ] Query `member` table (aliased as teamMembers) for membership checks
+- [ ] Test collection integration with Better Auth
+- [ ] Verify team-scoped CRUD operations work correctly
+- [ ] Verify owner-scoped operations work correctly
+
+**Implementation notes:**
+```typescript
+// nuxt-crouton connector configuration
+export const betterAuthConnector = {
+  tables: {
+    users: 'user',
+    teams: 'organization',
+    teamMembers: 'member',
+    sessions: 'session'
+  },
+  session: {
+    // Map Better Auth session to crouton expected format
+    getUserId: (session) => session.user.id,
+    getTeamId: (session) => session.activeOrganizationId,
+  }
+}
 ```
 
 ---
