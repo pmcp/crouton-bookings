@@ -182,6 +182,17 @@ watch(
   { immediate: true },
 )
 
+// Slots formatted for calendar indicator (excludes 'all-day')
+const calendarSlots = computed(() => {
+  return allSlots.value
+    .filter(s => s.id !== 'all-day')
+    .map(s => ({
+      id: s.id,
+      label: s.label || s.value || s.id,
+      color: s.color || getFallbackColor(s.id),
+    }))
+})
+
 // Preview card data for current selection
 const previewData = computed(() => {
   const slots = allSlots.value
@@ -271,14 +282,12 @@ async function handleSubmit() {
           <template #day="{ day }">
             <div class="flex flex-col items-center">
               <span>{{ day.day }}</span>
-              <div v-if="formState.locationId && getBookedSlotsForDateValue(day).length > 0" class="flex gap-px mt-px">
-                <span
-                  v-for="slot in getBookedSlotsForDateValue(day)"
-                  :key="slot.id"
-                  class="w-1 h-1 rounded-full"
-                  :style="{ backgroundColor: slot.color }"
-                />
-              </div>
+              <BookingsLocationsSlotIndicator
+                v-if="formState.locationId && calendarSlots.length > 0"
+                :slots="calendarSlots"
+                :booked-slot-ids="getBookedSlotsForDateValue(day).map(s => s.id)"
+                size="xs"
+              />
             </div>
           </template>
         </UCalendar>

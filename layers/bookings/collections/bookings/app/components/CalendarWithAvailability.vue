@@ -27,11 +27,22 @@ const locationSlotsRef = computed(() => props.locationSlots)
 const {
   loading,
   fetchAvailability,
-  hasBookingsOnDate,
   isDateFullyBooked,
-  getBookedSlotLabelsForDate,
+  getBookedSlotsForDate,
   getAvailableSlotsForDate
 } = useBookingAvailability(locationIdRef, locationSlotsRef)
+
+// Slots formatted for calendar indicator (excludes 'all-day')
+const calendarSlots = computed(() => {
+  if (!props.locationSlots) return []
+  return props.locationSlots
+    .filter(s => s.id !== 'all-day')
+    .map(s => ({
+      id: s.id,
+      label: s.label || s.id,
+      color: s.color || '#94a3b8',
+    }))
+})
 
 // Internal calendar value (DateValue format)
 const internalValue = computed({
@@ -71,22 +82,6 @@ watch([locationIdRef, currentPlaceholder], async () => {
 function isDateDisabled(date: DateValue): boolean {
   return isDateFullyBooked(date)
 }
-
-// Get chip color based on booking status
-function getChipColor(date: DateValue): 'warning' | 'error' | undefined {
-  if (!hasBookingsOnDate(date)) return undefined
-  if (isDateFullyBooked(date)) return 'error'
-  return 'warning'
-}
-
-// Format booked slots for tooltip
-function getTooltipText(date: DateValue): string {
-  const bookedSlots = getBookedSlotLabelsForDate(date)
-  if (bookedSlots.length === 0) return ''
-
-  const slotNames = bookedSlots.map(s => s.label).join(', ')
-  return `Booked: ${slotNames}`
-}
 </script>
 
 <template>
@@ -107,32 +102,27 @@ function getTooltipText(date: DateValue): string {
       @update:placeholder="currentPlaceholder = $event"
     >
       <template #day="{ day }">
-        <UTooltip
-          v-if="hasBookingsOnDate(day)"
-          :text="getTooltipText(day)"
-          :delay-duration="200"
-        >
-          <UChip
-            :color="getChipColor(day)"
-            size="2xs"
-            :show="hasBookingsOnDate(day)"
-          >
-            {{ day.day }}
-          </UChip>
-        </UTooltip>
-        <span v-else>{{ day.day }}</span>
+        <div class="flex flex-col items-center">
+          <span>{{ day.day }}</span>
+          <BookingsLocationsSlotIndicator
+            v-if="calendarSlots.length > 0"
+            :slots="calendarSlots"
+            :booked-slot-ids="getBookedSlotsForDate(day)"
+            size="xs"
+          />
+        </div>
       </template>
     </UCalendar>
 
     <!-- Legend -->
     <div class="flex items-center gap-4 mt-3 text-xs text-muted justify-center">
-      <div class="flex items-center gap-1">
-        <UChip color="warning" size="xs" standalone inset />
-        <span>Partially booked</span>
+      <div class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-primary" />
+        <span>Booked</span>
       </div>
-      <div class="flex items-center gap-1">
-        <UChip color="error" size="xs" standalone inset />
-        <span>Fully booked</span>
+      <div class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-gray-100 dark:bg-gray-800" />
+        <span>Available</span>
       </div>
     </div>
   </div>
