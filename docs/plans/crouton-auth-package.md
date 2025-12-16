@@ -6,8 +6,8 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 16 / 54 |
-| **Current Phase** | Phase 3 - Complete |
+| **Tasks Completed** | 17 / 54 |
+| **Current Phase** | Phase 4 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
 ---
@@ -336,12 +336,12 @@ session: {
 ## Phase 4: Composables & Utilities
 **Estimated: 6-8 hours**
 
-### Task 4.1: useAuth Composable
-- [ ] Create `composables/useAuth.ts`
-- [ ] Wrap Better Auth's client functionality
-- [ ] Provide reactive user state
-- [ ] Expose login/logout/register methods
-- [ ] Expose method availability flags
+### Task 4.1: useAuth Composable ✅
+- [x] Create `composables/useAuth.ts`
+- [x] Wrap Better Auth's client functionality
+- [x] Provide reactive user state
+- [x] Expose login/logout/register methods
+- [x] Expose method availability flags
 
 ```typescript
 export const useAuth = () => {
@@ -1488,6 +1488,46 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Phase 3 complete.
+
+### Day 4: 2024-12-16
+**Tasks completed:**
+- Task 4.1: useAuth Composable
+
+**Implementation details:**
+- Fully implemented `useAuth` composable with Better Auth client integration
+- Connected to `useSession()` for reactive user state
+- Implemented all auth methods:
+  - `login(credentials)` - Email/password sign in
+  - `loginWithOAuth(provider)` - OAuth provider sign in (GitHub, Google, Discord)
+  - `loginWithPasskey()` - WebAuthn passkey sign in
+  - `loginWithPasskeyAutofill()` - Conditional UI (autofill) passkey sign in
+  - `loginWithMagicLink(email)` - Magic link email sign in
+  - `register(data)` - User registration with email/password
+  - `logout()` - Sign out
+  - `forgotPassword(email)` - Password reset request
+  - `resetPassword(token, password)` - Password reset with token
+- Implemented passkey management methods:
+  - `addPasskey(options)` - Register new passkey
+  - `listPasskeys()` - List user's passkeys
+  - `deletePasskey(id)` - Delete passkey
+  - `isWebAuthnSupported()` - Browser support check
+  - `isConditionalUIAvailable()` - Autofill support check
+- Implemented 2FA methods:
+  - `enable2FA(password)` - Enable 2FA, returns TOTP URI
+  - `disable2FA(password)` - Disable 2FA
+  - `getTotpUri()` - Get TOTP URI for QR code
+  - `verifyTotp(options)` - Verify TOTP code
+  - `generateBackupCodes(password)` - Generate backup codes
+  - `viewBackupCodes(password)` - View backup codes with usage status
+  - `verifyBackupCode(code)` - Verify backup code
+  - `get2FAStatus()` - Get user's 2FA status
+- Exposed capability flags: `hasPassword`, `hasOAuth`, `hasPasskeys`, `has2FA`, `hasMagicLink`, `oauthProviders`
+- Added `refreshSession()` method for manual session refresh
+- Proper error handling with loading/error state
+- Uses `useAuthClient()` helper to get Better Auth client from plugin
+
+**Blockers:**
+- None. Task 4.1 complete.
 
 ---
 
