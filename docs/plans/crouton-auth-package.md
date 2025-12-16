@@ -6,8 +6,8 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 3 / 54 |
-| **Current Phase** | Phase 1 - Complete ✅ |
+| **Tasks Completed** | 4 / 54 |
+| **Current Phase** | Phase 2 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
 ---
@@ -142,12 +142,12 @@ interface CroutonAuthConfig {
 ## Phase 2: Better Auth Integration
 **Estimated: 8-12 hours**
 
-### Task 2.1: Core Better Auth Setup
-- [ ] Create `server/lib/auth.ts` - main auth instance factory
-- [ ] Configure Drizzle adapter for SQLite (NuxtHub)
+### Task 2.1: Core Better Auth Setup ✅
+- [x] Create `server/lib/auth.ts` - main auth instance factory
+- [x] Configure Drizzle adapter for SQLite (NuxtHub)
 - [ ] Configure Drizzle adapter for PostgreSQL (optional)
-- [ ] Set up session configuration
-- [ ] Implement base email/password authentication
+- [x] Set up session configuration
+- [x] Implement base email/password authentication
 
 **Core implementation:**
 ```typescript
@@ -731,6 +731,212 @@ const { items } = useBookings()
 
 ---
 
+## Key Architecture: "Always Teams"
+
+### Design Philosophy
+
+**Every app has teams, always.** The difference between modes is only how teams are created and resolved:
+
+| Mode | Teams | Resolution | UI |
+|------|-------|------------|-----|
+| **Multi-tenant** | User creates/joins many | From URL or picker | Full team management |
+| **Single-tenant** | One default team | Auto-resolved | Hidden team UI |
+| **Personal** | One per user (auto-created) | Auto-resolved | Hidden team UI |
+
+### Why This Matters
+
+**Collections stay simple:**
+```typescript
+// This works in ALL modes - no conditionals needed
+const bookings = await getAllBookings(teamId)
+// Always: WHERE teamId = ?
+```
+
+**No schema changes between modes:**
+```typescript
+// Every table always has teamId
+bookings.teamId   // Always present
+locations.teamId  // Always present
+settings.teamId   // Always present
+```
+
+### Mode-Aware Team Resolution
+
+#### Client-Side (useTeamContext)
+
+```typescript
+// @crouton/auth/app/composables/useTeamContext.ts
+export const useTeamContext = () => {
+  const config = useRuntimeConfig().public.crouton.auth
+  const route = useRoute()
+  const session = useSession()
+
+  const getTeamId = (): string => {
+    switch (config.mode) {
+      case 'single-tenant':
+        // Always return the default team
+        return config.defaultTeamId ?? 'default'
+
+      case 'personal':
+        // Return user's personal team from session
+        return session.value?.activeOrganizationId!
+
+      case 'multi-tenant':
+      default:
+        // From URL param or session
+        return (route.params.team as string) ?? session.value?.activeOrganizationId!
+    }
+  }
+
+  return { getTeamId, getTeamSlug: getTeamId }
+}
+```
+
+#### Server-Side (resolveTeamAndCheckMembership)
+
+```typescript
+// @crouton/auth/server/utils/team.ts
+export async function resolveTeamAndCheckMembership(event: H3Event) {
+  const config = useRuntimeConfig().crouton.auth
+  const session = await requireSession(event)
+
+  let teamId: string
+
+  switch (config.mode) {
+    case 'single-tenant':
+      teamId = config.defaultTeamId
+      break
+
+    case 'personal':
+      teamId = session.activeOrganizationId
+      break
+
+    case 'multi-tenant':
+    default:
+      // From URL param (API routes still use /teams/[id]/...)
+      teamId = getRouterParam(event, 'id') ?? session.activeOrganizationId
+      break
+  }
+
+  // Verify membership (same for all modes)
+  const team = await getTeamById(teamId)
+  const membership = await getMembership(teamId, session.user.id)
+
+  if (!membership) {
+    throw createError({ statusCode: 403, message: 'Not a team member' })
+  }
+
+  return { team, user: session.user, membership }
+}
+```
+
+### Auto-Team Creation Hooks
+
+#### Single-Tenant: App Startup
+
+```typescript
+// server/plugins/single-tenant-init.ts
+export default defineNitroPlugin(async () => {
+  const config = useRuntimeConfig().crouton.auth
+  if (config.mode !== 'single-tenant') return
+
+  // Ensure default team exists
+  const existing = await db.query.organization.findFirst({
+    where: eq(organization.isDefault, true)
+  })
+
+  if (!existing) {
+    await db.insert(organization).values({
+      id: 'default',
+      name: config.appName ?? 'Default Workspace',
+      slug: 'default',
+      isDefault: true
+    })
+    console.log('[crouton/auth] Created default team for single-tenant mode')
+  }
+})
+```
+
+#### Single-Tenant: User Registration
+
+```typescript
+// Better Auth hook
+hooks: {
+  after: {
+    signUp: async ({ user }) => {
+      const config = useRuntimeConfig().crouton.auth
+
+      if (config.mode === 'single-tenant') {
+        // Auto-add to default team
+        await auth.api.organization.addMember({
+          organizationId: config.defaultTeamId,
+          userId: user.id,
+          role: 'member'
+        })
+
+        // Set as active org
+        await auth.api.organization.setActive({
+          organizationId: config.defaultTeamId
+        })
+      }
+    }
+  }
+}
+```
+
+#### Personal: User Registration
+
+```typescript
+hooks: {
+  after: {
+    signUp: async ({ user }) => {
+      const config = useRuntimeConfig().crouton.auth
+
+      if (config.mode === 'personal') {
+        // Create personal team
+        const team = await auth.api.organization.create({
+          name: `${user.name}'s Workspace`,
+          slug: user.id,
+          metadata: { personal: true, ownerId: user.id }
+        })
+
+        // Set as active
+        await auth.api.organization.setActive({
+          organizationId: team.id
+        })
+      }
+    }
+  }
+}
+```
+
+### URL Patterns by Mode
+
+| Mode | Dashboard URL | API URL |
+|------|--------------|---------|
+| Multi-tenant | `/dashboard/[team]/bookings` | `/api/teams/[id]/bookings` |
+| Single-tenant | `/dashboard/bookings` | `/api/teams/default/bookings` |
+| Personal | `/dashboard/bookings` | `/api/teams/[userId]/bookings` |
+
+**Note:** API URLs still include team ID for consistency. The ID is just auto-resolved in single/personal modes.
+
+### What nuxt-crouton Sees
+
+nuxt-crouton's `useCollectionQuery()` and `resolveTeamAndCheckMembership()` always receive a valid `teamId`. They don't know or care about modes - that's @crouton/auth's job.
+
+```typescript
+// nuxt-crouton collection query (unchanged)
+const { items } = await useCollectionQuery('bookings', {
+  // teamId comes from useTeamContext() → always valid
+})
+
+// nuxt-crouton API handler (unchanged)
+const { team } = await resolveTeamAndCheckMembership(event)
+// team is always valid, resolution is @crouton/auth's responsibility
+```
+
+---
+
 ## Technical Specifications
 
 ### Environment Variables
@@ -977,6 +1183,23 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Phase 1 complete.
+
+### Day 2: 2024-12-16
+**Tasks completed:**
+- Task 2.1: Core Better Auth Setup
+
+**Notes:**
+- Created `server/lib/auth.ts` with Better Auth factory function (`createAuth`)
+- Configured Drizzle adapter for SQLite (NuxtHub D1)
+- Set up session configuration with sensible defaults (7 day expiry, cookie cache)
+- Implemented email/password authentication configuration
+- Created `server/utils/useServerAuth.ts` for lazy auth instance initialization
+- Updated API route handler `/api/auth/[...all].ts` to use Better Auth
+- Updated `server/utils/auth.ts` with `requireAuth` using Better Auth session
+- Team utilities (requireTeamMember, etc.) pending Task 2.2 (Organization plugin)
+
+**Blockers:**
+- None. Task 2.1 complete.
 
 ---
 
