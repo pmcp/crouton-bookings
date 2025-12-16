@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 17 / 54 |
+| **Tasks Completed** | 18 / 54 |
 | **Current Phase** | Phase 4 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
@@ -368,12 +368,12 @@ export const useAuth = () => {
 }
 ```
 
-### Task 4.2: useTeam Composable
-- [ ] Create `composables/useTeam.ts`
-- [ ] Wrap Better Auth organization client
-- [ ] Provide reactive team state
-- [ ] Handle team switching
-- [ ] Mode-aware behavior
+### Task 4.2: useTeam Composable ✅
+- [x] Create `composables/useTeam.ts`
+- [x] Wrap Better Auth organization client
+- [x] Provide reactive team state
+- [x] Handle team switching
+- [x] Mode-aware behavior
 
 ```typescript
 export const useTeam = () => {
@@ -1528,6 +1528,20 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Task 4.1 complete.
+
+**Task 4.2 completed:**
+- Verified `useTeam` composable was already implemented as part of Task 3.1
+- Full implementation includes:
+  - Reactive state: `currentTeam`, `teams`, `members`, `currentRole`
+  - Mode-aware flags: `showTeamSwitcher`, `showTeamManagement`, `canCreateTeam`, `canInviteMembers`, `canManageMembers`, `isOwner`, `isAdmin`
+  - Team methods: `switchTeam()`, `switchTeamBySlug()`, `createTeam()`, `updateTeam()`, `deleteTeam()`
+  - Member methods: `loadMembers()`, `inviteMember()`, `removeMember()`, `updateMemberRole()`, `leaveTeam()`
+  - Invitation methods: `getPendingInvitations()`, `cancelInvitation()`, `acceptInvitation()`, `rejectInvitation()`
+- Uses Better Auth's reactive hooks: `useListOrganizations()`, `useActiveOrganization()`
+- Typecheck passes for crouton-auth package (pre-existing errors in main app unrelated)
+
+**Blockers:**
+- None. Task 4.2 complete.
 
 ---
 
