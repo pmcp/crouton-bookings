@@ -21,12 +21,12 @@ const sizeClasses = {
 </script>
 
 <template>
-  <div class="flex gap-1 items-center">
+  <div class="flex gap-1 items-center justify-center">
     <template v-for="i in totalSlots" :key="i">
       <!-- Empty slot (not booked) -->
       <div
         v-if="i - 1 !== position"
-        class="rounded-full border bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-600"
+        class="rounded-full bg-elevated"
         :class="sizeClasses[size]"
       />
       <!-- Booked slot with popover -->

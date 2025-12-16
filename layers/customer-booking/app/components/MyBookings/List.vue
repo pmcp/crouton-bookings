@@ -469,10 +469,10 @@ onUnmounted(() => {
     </div>
 
     <!-- Bookings list -->
-    <div v-else class="space-y-6">
+    <div v-else class="space-y-8">
 
 
-
+      <div class="relative z-30 sticky top-0 space-y-8 mt-4">
       <!-- Filters -->
       <div class="flex flex-row gap-3">
         <!-- Status Filter Toggles -->
@@ -541,11 +541,11 @@ onUnmounted(() => {
           </template>
         </WeekCarousel>
       </UCard>
-
+      </div>
       <!-- Bookings List (scrollable container) -->
       <div
         ref="scrollAreaRef"
-        class="space-y-2 h-[500px] overflow-y-auto scroll-smooth"
+        class="px-2 space-y-2 h-[500px] overflow-y-auto scroll-smooth"
       >
         <div
           v-for="booking in filteredBookings"
