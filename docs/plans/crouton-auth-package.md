@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 7 / 54 |
+| **Tasks Completed** | 8 / 54 |
 | **Current Phase** | Phase 2 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
@@ -199,11 +199,11 @@ organization({
 - [x] Handle credential authentication
 - [x] Support conditional UI (autofill)
 
-### Task 2.5: Two-Factor Authentication
-- [ ] Configure 2FA plugin
-- [ ] Set up TOTP support
-- [ ] Implement backup codes
-- [ ] Add trusted device management
+### Task 2.5: Two-Factor Authentication ✅
+- [x] Configure 2FA plugin
+- [x] Set up TOTP support
+- [x] Implement backup codes
+- [x] Add trusted device management
 
 ### Task 2.6: Stripe Billing Plugin
 - [ ] Configure Stripe plugin
@@ -1269,6 +1269,38 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Task 2.4 complete.
+
+**Task 2.5 completed:**
+- Imported `twoFactor` plugin from `better-auth/plugins`
+- Created `buildTwoFactorConfig()` function with:
+  - TOTP support (6 digits, 30 second period)
+  - Backup codes configuration (amount, length)
+  - Issuer name from appName or config
+  - skipVerificationOnEnable option
+- Added `twoFactor` plugin to `buildPlugins()` conditionally based on config
+- Added utility functions:
+  - `isTwoFactorEnabled()` - Check if 2FA is configured
+  - `getTwoFactorInfo()` - Get 2FA config details for UI
+- Updated `app/plugins/auth-client.ts`:
+  - Imports and conditionally adds `twoFactorClient()` plugin
+  - Added `isTwoFactorEnabled()` helper function
+- Updated `app/composables/useAuth.ts` with 2FA methods:
+  - `enable2FA(password)` - Enable 2FA, returns TOTP URI
+  - `disable2FA(password)` - Disable 2FA
+  - `getTotpUri()` - Get TOTP URI for QR code
+  - `verifyTotp(options)` - Verify TOTP code with trustDevice option
+  - `generateBackupCodes(password)` - Generate new backup codes
+  - `viewBackupCodes(password)` - View backup codes with usage status
+  - `verifyBackupCode(code)` - Verify backup code for recovery
+  - `get2FAStatus()` - Get user's 2FA status
+- Added TypeScript interfaces:
+  - `TwoFactorStatus` - 2FA enabled state
+  - `TotpSetupData` - TOTP URI and secret for setup
+  - `VerifyTotpOptions` - Code and trustDevice
+  - `BackupCodeInfo` - Code and used status
+
+**Blockers:**
+- None. Task 2.5 complete.
 
 ---
 
