@@ -452,6 +452,8 @@ function setBookingRef(id: string, el: HTMLElement | null) {
 
 // Flag to prevent infinite loops during sync
 const isSyncing = ref(false)
+// Flag to prevent hover-initiated scroll from re-enabling week highlighting
+const isHoverScroll = ref(false)
 
 // Scroll to first booking on a specific date (positions at 40% of viewport)
 function scrollToDateBooking(date: Date) {
@@ -464,6 +466,7 @@ function scrollToDateBooking(date: Date) {
     const el = bookingRefs.get(booking.id)
     if (el) {
       isSyncing.value = true
+      isHoverScroll.value = true
       const rect = el.getBoundingClientRect()
       const targetY = windowHeight.value * 0.4
       const scrollOffset = rect.top - targetY + scrollContainer.value.scrollTop
@@ -471,6 +474,10 @@ function scrollToDateBooking(date: Date) {
       setTimeout(() => {
         isSyncing.value = false
       }, 500)
+      // Keep isHoverScroll true longer to prevent residual scroll from re-enabling highlights
+      setTimeout(() => {
+        isHoverScroll.value = false
+      }, 1000)
     }
   }
 }
@@ -527,8 +534,10 @@ function syncCalendarToScroll() {
     const bookingDate = new Date(year, month - 1, day)
     isSyncing.value = true
 
-    // Re-enable week highlighting when scrolling resumes
-    suppressWeekHighlight.value = false
+    // Re-enable week highlighting only on user-initiated scroll (not hover scroll)
+    if (!isHoverScroll.value) {
+      suppressWeekHighlight.value = false
+    }
 
     // Always update selectedDate for highlighting bookings
     selectedDate.value = bookingDate
