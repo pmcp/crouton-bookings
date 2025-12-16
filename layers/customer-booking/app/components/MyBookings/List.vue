@@ -360,11 +360,12 @@ const hoveredDate = ref<Date | null>(null)
 // Suppress week highlighting after hover ends (until scroll resumes)
 const suppressWeekHighlight = ref(false)
 
-// Handle hover from week carousel
+// Handle hover from week carousel (also scrolls to booking)
 function onDayHover(date: Date | null) {
   if (date) {
     hoveredDate.value = date
     suppressWeekHighlight.value = true
+    scrollToDateBooking(date)
   } else {
     // Clear hover but keep week highlight suppressed until scroll
     hoveredDate.value = null
