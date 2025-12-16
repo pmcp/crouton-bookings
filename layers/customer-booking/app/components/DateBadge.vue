@@ -4,12 +4,14 @@ interface Props {
   size?: 'sm' | 'md'
   variant?: 'primary' | 'error' | 'muted' | 'elevated'
   highlighted?: boolean
+  highlightColor?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   size: 'md',
   variant: 'primary',
   highlighted: false,
+  highlightColor: undefined,
 })
 
 const parsed = computed(() => {
@@ -19,6 +21,14 @@ const parsed = computed(() => {
     month: d.toLocaleDateString('en-US', { month: 'short' }),
     weekday: d.toLocaleDateString('en-US', { weekday: 'short' }),
   }
+})
+
+// Compute highlight style for custom color
+const highlightStyle = computed(() => {
+  if (props.highlighted && props.highlightColor) {
+    return { backgroundColor: props.highlightColor }
+  }
+  return undefined
 })
 </script>
 
@@ -31,10 +41,12 @@ const parsed = computed(() => {
         'bg-error/10 text-error': props.variant === 'error',
         'bg-muted text-muted': props.variant === 'muted',
         'bg-elevated': props.variant === 'elevated',
-        'bg-primary text-neutral-900': props.highlighted,
+        'bg-primary text-neutral-900': props.highlighted && !props.highlightColor,
+        'text-neutral-900': props.highlighted && props.highlightColor,
         'bg-elevated text-muted': props.variant === 'primary' && !props.highlighted
       }
     ]"
+    :style="highlightStyle"
   >
     <span class="text-[9px] font-medium uppercase tracking-wide">{{ parsed.weekday }}</span>
     <span class="text-2xl font-bold leading-tight">{{ parsed.day }}</span>
