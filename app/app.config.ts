@@ -28,6 +28,11 @@ export default defineAppConfig({
         base: 'cursor-pointer',
       },
     },
+    calendar: {
+      slots: {
+        cellTrigger: 'rounded-lg',
+      },
+    },
     colors: {
       primary: 'emerald',
       neutral: 'neutral',

@@ -1,5 +1,5 @@
 // Customer-facing endpoint - returns only bookings created by the current user
-import { eq, and, desc } from 'drizzle-orm'
+import { eq, and, asc } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/sqlite-core'
 import { bookingsBookings } from '~~/layers/bookings/collections/bookings/server/database/schema'
 import { bookingsLocations } from '~~/layers/bookings/collections/locations/server/database/schema'
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
         eq(bookingsBookings.createdBy, user.id),
       ),
     )
-    .orderBy(desc(bookingsBookings.date))
+    .orderBy(asc(bookingsBookings.date))
 
   return bookings
 })
