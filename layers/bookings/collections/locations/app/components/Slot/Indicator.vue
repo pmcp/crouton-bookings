@@ -24,7 +24,7 @@ const sizeClasses = {
 }
 
 const gapClasses = {
-  xs: 'gap-px',
+  xs: 'gap-1px',
   sm: 'gap-1',
   md: 'gap-1',
   lg: 'gap-1'
@@ -36,18 +36,14 @@ function isBooked(slotId: string): boolean {
 </script>
 
 <template>
-  <div class="flex items-center bg-gray-100" :class="gapClasses[size]">
+  <div class="flex items-center" :class="gapClasses[size]">
     <div
       v-for="slot in slots"
       :key="slot.id"
       class="rounded-full transition-colors"
       :class="[
         sizeClasses[size],
-        isBooked(slot.id)
-          ? ''
-          : size === 'xs'
-            ? 'bg-gray-100'
-            : 'border bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-600'
+        isBooked(slot.id) ? '' : 'bg-elevated'
       ]"
       :style="isBooked(slot.id) ? { backgroundColor: slot.color || '#94a3b8' } : undefined"
       :title="slot.label"

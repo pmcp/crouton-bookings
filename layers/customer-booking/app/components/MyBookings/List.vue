@@ -10,6 +10,20 @@ interface SlotItem {
   color?: string
 }
 
+interface UserInfo {
+  id: string
+  name: string
+  email: string
+  avatarUrl?: string | null
+}
+
+interface EmailStats {
+  total: number
+  sent: number
+  pending: number
+  failed: number
+}
+
 interface Booking {
   id: string
   location: string
@@ -25,6 +39,9 @@ interface Booking {
     city?: string
     slots?: SlotItem[] | string
   }
+  ownerUser?: UserInfo | null
+  createdByUser?: UserInfo | null
+  emailStats?: EmailStats | null
 }
 
 interface StatusItem {
@@ -332,6 +349,97 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
   const group = groupOptions.value.find(g => g.id === groupId)
   return group?.label || groupId
 }
+
+// ===== Bidirectional Sync: Week Carousel <-> Bookings List =====
+
+// Refs
+const weekCarousel = useTemplateRef('weekCarousel')
+const scrollAreaRef = useTemplateRef<HTMLElement>('scrollAreaRef')
+const bookingRefs = new Map<string, HTMLElement>()
+
+function setBookingRef(id: string, el: HTMLElement | null) {
+  if (el) {
+    bookingRefs.set(id, el)
+  } else {
+    bookingRefs.delete(id)
+  }
+}
+
+// Flag to prevent infinite loops during sync
+const isSyncing = ref(false)
+
+// When week carousel changes, scroll to first booking in that week
+function onWeekChange(weekStart: Date, weekEnd: Date) {
+  if (isSyncing.value) return
+
+  // Find first booking index in this week
+  const firstBookingIndex = filteredBookings.value.findIndex((booking) => {
+    const bookingDate = new Date(booking.date)
+    return bookingDate >= weekStart && bookingDate <= weekEnd
+  })
+
+  if (firstBookingIndex !== -1 && scrollAreaRef.value) {
+    isSyncing.value = true
+    // Use scrollToIndex if virtualized, otherwise scroll element into view
+    const el = bookingRefs.get(filteredBookings.value[firstBookingIndex]!.id)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+    setTimeout(() => {
+      isSyncing.value = false
+    }, 500)
+  }
+}
+
+// Watch for scroll in bookings list and sync carousel
+let scrollTimeout: ReturnType<typeof setTimeout> | null = null
+
+function onBookingsScroll() {
+  if (isSyncing.value) return
+
+  // Debounce the scroll handler
+  if (scrollTimeout) clearTimeout(scrollTimeout)
+  scrollTimeout = setTimeout(() => {
+    const container = scrollAreaRef.value
+    if (!container) return
+
+    // Find which booking is currently most visible in the container
+    const containerRect = container.getBoundingClientRect()
+    let mostVisibleDate: string | null = null
+    let maxVisibility = 0
+
+    bookingRefs.forEach((el) => {
+      const rect = el.getBoundingClientRect()
+      const visibleTop = Math.max(rect.top, containerRect.top)
+      const visibleBottom = Math.min(rect.bottom, containerRect.bottom)
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop)
+
+      if (visibleHeight > maxVisibility) {
+        maxVisibility = visibleHeight
+        mostVisibleDate = el.getAttribute('data-booking-date')
+      }
+    })
+
+    if (mostVisibleDate && weekCarousel.value) {
+      const bookingDate = new Date(mostVisibleDate)
+      isSyncing.value = true
+      weekCarousel.value.scrollToDate(bookingDate)
+      setTimeout(() => {
+        isSyncing.value = false
+      }, 500)
+    }
+  }, 150)
+}
+
+// Set up scroll listener
+onMounted(() => {
+  scrollAreaRef.value?.addEventListener('scroll', onBookingsScroll, { passive: true })
+})
+
+onUnmounted(() => {
+  scrollAreaRef.value?.removeEventListener('scroll', onBookingsScroll)
+  if (scrollTimeout) clearTimeout(scrollTimeout)
+})
 </script>
 
 <template>
@@ -413,62 +521,70 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
 
       </div>
 
-      <!-- Calendar -->
+      <!-- Week Calendar with Swipeable Weeks -->
       <UCard>
-        <CroutonCalendar
-          v-model:date="selectedDate"
-          :number-of-months="3"
-          size="xs"
-          color="primary"
+        <WeekCarousel
+          ref="weekCarousel"
+          v-model="selectedDate"
+          @week-change="onWeekChange"
         >
           <template #day="{ day }">
-            <div class="flex flex-col items-center">
-              <span>{{ day.day }}</span>
-              <div v-if="hasBookingOnDate(day)" class="flex flex-col gap-0.5 mt-0.5">
-                <BookingsLocationsSlotIndicator
-                  v-for="lb in getLocationBookingsForDate(day)"
-                  :key="lb.locationId"
-                  :slots="lb.slots"
-                  :booked-slot-ids="lb.bookedSlotIds"
-                  size="xs"
-                />
-              </div>
+            <div v-if="hasBookingOnDate(day)" class="flex flex-col gap-1">
+              <BookingsLocationsSlotIndicator
+                v-for="lb in getLocationBookingsForDate(day)"
+                :key="lb.locationId"
+                :slots="lb.slots"
+                :booked-slot-ids="lb.bookedSlotIds"
+                size="md"
+              />
             </div>
           </template>
-        </CroutonCalendar>
+        </WeekCarousel>
       </UCard>
 
-      <!-- Bookings List -->
-      <div class="space-y-2">
-        <BookingSidebarBookingItem
+      <!-- Bookings List (scrollable container) -->
+      <div
+        ref="scrollAreaRef"
+        class="space-y-2 h-[500px] overflow-y-auto scroll-smooth"
+      >
+        <div
           v-for="booking in filteredBookings"
           :key="booking.id"
-          :id="booking.id"
-          :location-title="booking.locationData?.title || 'Unknown Location'"
-          :slot-label="getSlotLabel(booking)"
-          :slot-color="getSlotPositionInfo(booking)?.color"
-          :date="booking.date"
-          :group-label="getGroupLabel(booking.group)"
-          :status="booking.status"
-          show-status
-          :total-slots="getSlotPositionInfo(booking)?.totalSlots || 0"
-          :slot-position="getSlotPositionInfo(booking)?.position ?? -1"
-        />
+          :ref="(el) => setBookingRef(booking.id, el as HTMLElement)"
+          :data-booking-id="booking.id"
+          :data-booking-date="toLocalDateStr(new Date(booking.date))"
+        >
+          <BookingSidebarBookingItem
+            :id="booking.id"
+            :location-title="booking.locationData?.title || 'Unknown Location'"
+            :slot-label="getSlotLabel(booking)"
+            :slot-color="getSlotPositionInfo(booking)?.color"
+            :date="booking.date"
+            :group-label="getGroupLabel(booking.group)"
+            :status="booking.status"
+            :total-slots="getSlotPositionInfo(booking)?.totalSlots || 0"
+            :slot-position="getSlotPositionInfo(booking)?.position ?? -1"
+            :user-name="booking.ownerUser?.name || booking.createdByUser?.name"
+            :user-avatar="booking.ownerUser?.avatarUrl || booking.createdByUser?.avatarUrl"
+            :created-at="booking.createdAt"
+            :email-stats="booking.emailStats"
+          />
+        </div>
 
-          <!-- Empty state when filtered -->
-          <div v-if="filteredBookings.length === 0" class="text-center py-8">
-            <UIcon name="i-lucide-filter-x" class="w-12 h-12 text-muted mx-auto mb-3" />
-            <p class="text-sm text-muted">{{ t('bookings.list.noFilterMatch') }}</p>
-            <UButton
-              variant="link"
-              size="sm"
-              class="mt-2"
-              @click="statusOverrides = {}; locationOverrides = {}"
-            >
-              {{ t('bookings.list.showAllBookings') }}
-            </UButton>
-          </div>
+        <!-- Empty state when filtered -->
+        <div v-if="filteredBookings.length === 0" class="text-center py-8">
+          <UIcon name="i-lucide-filter-x" class="w-12 h-12 text-muted mx-auto mb-3" />
+          <p class="text-sm text-muted">{{ t('bookings.list.noFilterMatch') }}</p>
+          <UButton
+            variant="link"
+            size="sm"
+            class="mt-2"
+            @click="statusOverrides = {}; locationOverrides = {}"
+          >
+            {{ t('bookings.list.showAllBookings') }}
+          </UButton>
         </div>
       </div>
     </div>
+  </div>
 </template>
