@@ -37,6 +37,8 @@ const {
   groupOptions,
 } = useBookingCart()
 
+const { t } = useI18n()
+
 // Alias for template usage
 const refresh = refreshMyBookings
 
@@ -154,7 +156,7 @@ function getSlotLabel(booking: Booking): string {
   if (!Array.isArray(bookingSlotIds) || bookingSlotIds.length === 0) return '-'
 
   // Check for all-day first
-  if (bookingSlotIds.includes('all-day')) return 'All Day'
+  if (bookingSlotIds.includes('all-day')) return t('bookings.slots.allDay')
 
   const slot = locationSlots.find(s => bookingSlotIds.includes(s.id))
   return slot?.label || slot?.value || '-'
@@ -379,7 +381,7 @@ const filteredBookings = computed(() => {
     <div v-if="status === 'pending'" class="flex-1 flex flex-col items-center justify-center py-8">
       <UIcon name="i-lucide-loader-2" class="w-6 h-6 text-muted animate-spin mb-2" />
       <p class="text-sm text-muted">
-        Loading...
+        {{ $t('common.loading') }}
       </p>
     </div>
 
@@ -387,10 +389,10 @@ const filteredBookings = computed(() => {
     <div v-else-if="!hasBookings" class="flex-1 flex flex-col items-center justify-center text-center py-8">
       <UIcon name="i-lucide-calendar-x" class="w-12 h-12 text-muted mb-3" />
       <h3 class="text-sm font-medium mb-1">
-        No bookings yet
+        {{ $t('bookings.empty.title') }}
       </h3>
       <p class="text-xs text-muted mb-4">
-        Create your first booking to get started
+        {{ $t('bookings.empty.description') }}
       </p>
       <UButton
         variant="soft"
@@ -398,7 +400,7 @@ const filteredBookings = computed(() => {
         icon="i-lucide-plus"
         @click="goToBooking"
       >
-        Book Now
+        {{ $t('bookings.buttons.bookNow') }}
       </UButton>
     </div>
 
@@ -447,12 +449,12 @@ const filteredBookings = computed(() => {
 
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-medium">
-          {{ hasActiveRange ? filteredBookings.length : activeUpcomingCount }} {{ hasActiveRange ? (isMultiDayRange ? 'in range' : 'on this date') : 'upcoming' }}
+          {{ hasActiveRange ? filteredBookings.length : activeUpcomingCount }} {{ hasActiveRange ? (isMultiDayRange ? $t('bookings.filter.inRange') : $t('bookings.filter.onDate')) : $t('bookings.filter.upcoming') }}
         </h3>
         <div class="flex items-center gap-2">
           <label class="flex items-center gap-1.5 text-xs text-muted cursor-pointer">
             <USwitch v-model="showCancelled" size="xs" />
-            <span>Cancelled</span>
+            <span>{{ $t('bookings.filter.cancelled') }}</span>
           </label>
           <UButton
             variant="ghost"
@@ -470,7 +472,7 @@ const filteredBookings = computed(() => {
           v-for="booking in filteredBookings"
           :key="booking.id"
           :id="booking.id"
-          :location-title="booking.locationData?.title || 'Unknown Location'"
+          :location-title="booking.locationData?.title || $t('bookings.list.unknownLocation')"
           :slot-label="getSlotLabel(booking)"
           :slot-color="getBookingSlotColor(booking)"
           :date="booking.date"
@@ -491,7 +493,7 @@ const filteredBookings = computed(() => {
         <!-- Show message if no bookings match filter -->
         <div v-if="filteredBookings.length === 0" class="text-center py-4">
           <p class="text-xs text-muted">
-            {{ hasActiveRange ? (isMultiDayRange ? 'No bookings in this range' : 'No bookings on this date') : 'No upcoming bookings' }}
+            {{ hasActiveRange ? (isMultiDayRange ? $t('bookings.filter.noInRange') : $t('bookings.filter.noOnDate')) : $t('bookings.filter.noUpcoming') }}
           </p>
           <UButton
             variant="link"
@@ -499,7 +501,7 @@ const filteredBookings = computed(() => {
             class="mt-2"
             @click="hasActiveRange ? clearDateFilter() : goToBooking()"
           >
-            {{ hasActiveRange ? 'Clear filter' : 'Book a new slot' }}
+            {{ hasActiveRange ? $t('bookings.filter.clear') : $t('bookings.buttons.bookNew') }}
           </UButton>
         </div>
       </div>

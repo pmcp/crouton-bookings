@@ -17,15 +17,18 @@
       "status": "Status",
       "timeSlot": "Time Slot",
       "selectLocation": "Select a location",
+      "selectLocationFirst": "Select a location first",
       "loadingAvailability": "Loading availability...",
       "noTimeSlotsConfigured": "No time slots configured",
-      "addToCart": "Add to Cart"
+      "addToCart": "Add to Cart",
+      "addButton": "Add"
     },
     "status": {
       "confirmed": "Confirmed",
       "pending": "Pending",
       "cancelled": "Cancelled",
-      "booked": "Booked"
+      "booked": "Booked",
+      "completed": "Completed"
     },
     "list": {
       "loading": "Loading your bookings...",
@@ -39,6 +42,54 @@
     },
     "common": {
       "at": "at"
+    },
+    "cart": {
+      "title": "Cart",
+      "empty": "Your cart is empty",
+      "emptyDescription": "Add bookings to your cart to book multiple slots at once",
+      "addBooking": "Add Booking",
+      "itemCount": "{count} booking | {count} bookings",
+      "clearAll": "Clear all",
+      "booking": "Booking...",
+      "bookSlots": "Book {count} Slot | Book {count} Slots",
+      "submitNote": "All bookings will be submitted together"
+    },
+    "tabs": {
+      "book": "Book",
+      "myBookings": "My Bookings"
+    },
+    "buttons": {
+      "bookNow": "Book Now",
+      "book": "Book",
+      "bookNew": "Book a new slot",
+      "collapse": "Collapse",
+      "keep": "Keep"
+    },
+    "filter": {
+      "upcoming": "upcoming",
+      "inRange": "in range",
+      "onDate": "on this date",
+      "noInRange": "No bookings in this range",
+      "noOnDate": "No bookings on this date",
+      "noUpcoming": "No upcoming bookings",
+      "clear": "Clear filter",
+      "cancelled": "Cancelled"
+    },
+    "location": {
+      "selectToView": "Select a location to view details",
+      "noLocation": "No location set",
+      "noInfo": "No additional information available."
+    },
+    "slots": {
+      "allDay": "All Day"
+    },
+    "confirm": {
+      "delete": "Delete permanently?",
+      "cancel": "Cancel this booking?"
+    },
+    "empty": {
+      "title": "No bookings yet",
+      "description": "Create your first booking to get started"
     }
   }
 }
