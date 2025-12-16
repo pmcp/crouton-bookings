@@ -86,12 +86,11 @@ function confirmAction() {
       <DateBadge :date="date" :variant="dateBadgeVariant" />
 
       <!-- Content -->
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium truncate flex items-center gap-1">
-          <UIcon name="i-lucide-map-pin" class="w-3.5 h-3.5 text-muted shrink-0" />
-          {{ locationTitle }}
+      <div class="flex-1 flex flex-col gap-1">
+        <p class="text-sm font-medium truncate flex items-center gap-1.5">
+          <span class="truncate capitalize">{{ locationTitle }}</span>
         </p>
-        <p class="text-xs text-muted mt-0.5 flex items-center gap-1.5">
+        <div class="mt-1 flex items-center">
           <!-- Position indicator or single dot -->
           <BookingsLocationsSlotSingleIndicator
             v-if="hasPositionInfo"
@@ -106,14 +105,12 @@ function confirmAction() {
             class="w-2 h-2 rounded-full shrink-0 inline-block"
             :style="{ backgroundColor: slotColor || '#22c55e' }"
           />
-          <UIcon name="i-lucide-clock" class="w-3 h-3" />
-          <span>{{ slotLabel }}</span>
-          <template v-if="groupLabel">
-            <span class="mx-1" />
-            <UIcon name="i-lucide-users" class="w-3 h-3" />
-            <span>{{ groupLabel }}</span>
-          </template>
-        </p>
+        </div>
+        <div class="relative" style="left:-0.07em;margin-top: 0.15em">
+          <UBadge v-if="groupLabel" color="neutral" variant="subtle" size="md" >
+            {{ groupLabel }}
+          </UBadge>
+        </div>
       </div>
 
       <!-- Status + Action -->
