@@ -363,6 +363,14 @@ function onDayHover(date: Date | null) {
   hoveredDate.value = date
 }
 
+// Handle hover from month calendar (also scrolls to booking)
+function onMonthDayHover(date: Date | null) {
+  hoveredDate.value = date
+  if (date) {
+    scrollToDateBooking(date)
+  }
+}
+
 // Check if a booking should be highlighted
 // When hovering: only exact date matches
 // When not hovering: all bookings in the selected week
@@ -427,6 +435,25 @@ function setBookingRef(id: string, el: HTMLElement | null) {
 
 // Flag to prevent infinite loops during sync
 const isSyncing = ref(false)
+
+// Scroll to first booking on a specific date
+function scrollToDateBooking(date: Date) {
+  const dateStr = toLocalDateStr(date)
+  const booking = filteredBookings.value.find((b) => {
+    return toLocalDateStr(new Date(b.date)) === dateStr
+  })
+
+  if (booking) {
+    const el = bookingRefs.get(booking.id)
+    if (el) {
+      isSyncing.value = true
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      setTimeout(() => {
+        isSyncing.value = false
+      }, 500)
+    }
+  }
+}
 
 // When week carousel changes, scroll to first booking in that week
 function onWeekChange(weekStart: Date, weekEnd: Date) {
@@ -639,8 +666,8 @@ useEventListener(scrollContainer, 'scroll', onBookingsScroll, { passive: true })
           <template #day="{ day }">
             <div
               class="flex flex-col items-center"
-              @mouseenter="hoveredDate = day.toDate(getLocalTimeZone())"
-              @mouseleave="hoveredDate = null"
+              @mouseenter="onMonthDayHover(day.toDate(getLocalTimeZone()))"
+              @mouseleave="onMonthDayHover(null)"
             >
               <span>{{ day.day }}</span>
               <div v-if="hasBookingOnDate(day)" class="flex flex-col gap-0.5 mt-0.5">
