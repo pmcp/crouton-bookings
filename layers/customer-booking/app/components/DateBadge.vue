@@ -29,11 +29,11 @@ const parsed = computed(() => {
         'bg-error/10 text-error': props.variant === 'error',
         'bg-muted text-muted': props.variant === 'muted',
         'bg-elevated': props.variant === 'elevated',
-        'bg-primary/10 text-primary': props.variant === 'primary'
+        'bg-elevated text-muted bg-neutral': props.variant === 'primary'
       }
     ]"
   >
-    <span class="text-[9px] font-medium uppercase tracking-wide opacity-70">{{ parsed.weekday }}</span>
+    <span class="bg-neutral text-[9px] font-medium uppercase tracking-wide">{{ parsed.weekday }}</span>
     <span class="text-2xl font-bold leading-tight">{{ parsed.day }}</span>
     <span class="text-[9px] font-medium uppercase tracking-wide">{{ parsed.month }}</span>
   </div>
