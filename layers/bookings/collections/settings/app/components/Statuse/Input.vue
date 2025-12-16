@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { nanoid } from 'nanoid'
 
+const { t } = useI18n()
+
 interface BookingsSettingsStatuseItem {
   id: string
   label: string
@@ -38,25 +40,25 @@ watch(() => model.value?.label, (newLabel) => {
 
 <template>
   <div class="flex gap-2 items-end">
-    <UFormField label="Label" class="flex-1">
+    <UFormField :label="t('common.label')" class="flex-1">
       <UInput
         v-model="model.label"
         class="w-full"
-        placeholder="e.g., Confirmed"
+        :placeholder="t('placeholders.exampleConfirmed')"
       />
     </UFormField>
-    <UFormField label="Value" class="flex-1">
+    <UFormField :label="t('common.value')" class="flex-1">
       <UInput
         v-model="model.value"
         class="w-full"
-        placeholder="e.g., confirmed"
+        :placeholder="t('placeholders.exampleValueConfirmed')"
       />
     </UFormField>
-    <UFormField label="Color" class="w-40">
+    <UFormField :label="t('common.color')" class="w-40">
       <USelect
         v-model="model.color"
         :items="colorOptions"
-        placeholder="Select color"
+        :placeholder="t('placeholders.selectColor')"
       />
     </UFormField>
   </div>

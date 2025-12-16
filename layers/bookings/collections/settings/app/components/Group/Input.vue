@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { nanoid } from 'nanoid'
 
+const { t } = useI18n()
+
 // TODO: Define your item interface
 interface BookingsSettingsGroupItem {
   id: string
@@ -23,7 +25,7 @@ if (model.value && !model.value.id) {
       v-model="model.label"
       class="w-full"
       size="xl"
-      placeholder="Enter label"
+      :placeholder="t('placeholders.enterLabel')"
     />
   </UFormField>
 </template>

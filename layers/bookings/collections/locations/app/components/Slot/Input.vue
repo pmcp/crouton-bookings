@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { nanoid } from 'nanoid'
 
+const { t } = useI18n()
+
 interface BookingsLocationsSlotItem {
   id: string
   label?: string
@@ -32,12 +34,12 @@ const colorOptions = [
       v-model="model.label"
       class="flex-1"
       size="xl"
-      placeholder="Enter label"
+      :placeholder="t('placeholders.enterLabel')"
     />
     <USelect
       v-model="model.color"
       :items="colorOptions"
-      placeholder="Color"
+      :placeholder="t('placeholders.color')"
       class="w-32"
       size="xl"
     >
