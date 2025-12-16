@@ -59,7 +59,7 @@ function generateWeekDays(weekStart: DateValue) {
     days.push({
       date,
       day: date.day,
-      weekday: new Intl.DateTimeFormat('en', { weekday: 'narrow' }).format(date.toDate(getLocalTimeZone())),
+      weekday: new Intl.DateTimeFormat('en', { weekday: 'long' }).format(date.toDate(getLocalTimeZone())),
       jsDate: date.toDate(getLocalTimeZone()),
     })
   }
