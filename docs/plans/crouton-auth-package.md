@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 26 / 54 |
+| **Tasks Completed** | 27 / 54 |
 | **Current Phase** | Phase 5 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
@@ -583,13 +583,13 @@ const handleSubmit = async () => {
 - [x] Create `components/Billing/PortalButton.vue`
 - [x] Create `components/Billing/UsageDisplay.vue` (optional)
 
-### Task 5.6: Dashboard Pages
-- [ ] Create `pages/dashboard/index.vue` (redirect or overview)
-- [ ] Create `pages/dashboard/settings/index.vue` (account)
-- [ ] Create `pages/dashboard/settings/security.vue`
-- [ ] Create `pages/dashboard/settings/team.vue` (if multi-tenant)
-- [ ] Create `pages/dashboard/settings/members.vue` (if multi-tenant)
-- [ ] Create `pages/dashboard/settings/billing.vue` (if billing enabled)
+### Task 5.6: Dashboard Pages ✅
+- [x] Create `pages/dashboard/index.vue` (redirect or overview)
+- [x] Create `pages/dashboard/settings/index.vue` (account)
+- [x] Create `pages/dashboard/settings/security.vue`
+- [x] Create `pages/dashboard/settings/team.vue` (if multi-tenant)
+- [x] Create `pages/dashboard/settings/members.vue` (if multi-tenant)
+- [x] Create `pages/dashboard/settings/billing.vue` (if billing enabled)
 
 ### Task 5.7: Layout Components
 - [ ] Create `components/Sidebar/AuthSidebar.vue`
@@ -1704,6 +1704,25 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Task 5.5 complete.
+
+**Task 5.6 completed:**
+- Created 6 dashboard pages under `pages/dashboard/[team]/`:
+  - `index.vue` - Dashboard landing page with welcome message, quick links, and subscription status
+  - `settings/index.vue` - Account settings page using AccountSettings component
+  - `settings/security.vue` - Security settings (2FA, passkeys, password) in dedicated view
+  - `settings/team.vue` - Team settings page (name, slug, logo) with delete confirmation
+  - `settings/members.vue` - Team members management with invite modal
+  - `settings/billing.vue` - Billing page with subscription management and plan selection
+- All pages:
+  - Use `auth` middleware and `dashboard` layout
+  - Compose existing components (Account*, Team*, Billing*)
+  - Are mode-aware (hide team management in single/personal modes)
+  - Include back navigation to main settings
+  - Follow Nuxt UI v4 patterns
+- Pages support multi-tenant mode via `[team]` dynamic segment (route transformation handles single/personal modes)
+
+**Blockers:**
+- None. Task 5.6 complete.
 
 ---
 
