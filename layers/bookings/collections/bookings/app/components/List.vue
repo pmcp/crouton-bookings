@@ -155,13 +155,16 @@ const filteredBookings = computed(() => {
 
     // Date range filter
     let dateMatch = true
-    if (hasActiveRange.value) {
+    if (hasActiveRange.value && selectedFilterRange.value.start) {
       const bookingDate = new Date(b.date)
       bookingDate.setHours(0, 0, 0, 0)
-      const rangeStart = selectedFilterRange.value.start!
+
+      const rangeStart = new Date(selectedFilterRange.value.start)
       rangeStart.setHours(0, 0, 0, 0)
-      const rangeEnd = selectedFilterRange.value.end || selectedFilterRange.value.start!
+
+      const rangeEnd = new Date(selectedFilterRange.value.end || selectedFilterRange.value.start)
       rangeEnd.setHours(23, 59, 59, 999)
+
       dateMatch = bookingDate >= rangeStart && bookingDate <= rangeEnd
     }
 
