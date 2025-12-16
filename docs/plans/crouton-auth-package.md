@@ -6,8 +6,8 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 15 / 54 |
-| **Current Phase** | Phase 3 - In Progress |
+| **Tasks Completed** | 16 / 54 |
+| **Current Phase** | Phase 3 - Complete |
 | **Estimated Total** | ~40-60 hours |
 
 ---
@@ -325,10 +325,11 @@ session: {
 - [x] Single/Personal: from session (auto-selected)
 - [x] Inject team into `event.context` and `useState`
 
-### Task 3.5: Route Generation by Mode
-- [ ] Multi-tenant: generate `/dashboard/[team]/...` routes
-- [ ] Single/Personal: generate `/dashboard/...` routes
-- [ ] Use Nuxt hooks to transform page routes based on mode
+### Task 3.5: Route Generation by Mode ✅
+- [x] Multi-tenant: generate `/dashboard/[team]/...` routes
+- [x] Single/Personal: generate `/dashboard/...` routes (remove [team] param)
+- [x] Use Nuxt `pages:extend` hook to transform page routes based on mode
+- [x] Updated `isTeamRoute` computed to be mode-aware
 
 ---
 
@@ -1469,6 +1470,24 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Task 3.4 complete.
+
+**Task 3.5 completed:**
+- Implemented route generation by mode using Nuxt's `pages:extend` hook
+- Added `transformTeamRoutes()` function in `module.ts` that:
+  - For multi-tenant mode: keeps routes as-is (`/dashboard/:team/...`)
+  - For single/personal modes: removes `:team` dynamic segment (`/dashboard/...`)
+  - Recursively transforms nested routes
+  - Cleans up route names (removes `-team-` segments)
+- Updated `isTeamRoute` computed in `useTeamContext.ts`:
+  - Multi-tenant: checks for team param in URL
+  - Single/Personal: all dashboard routes are team-scoped (team auto-resolved)
+- Route transformation preserves file structure (files still in `[team]/` folder)
+- URL patterns now match the mode documentation:
+  - Multi-tenant: `/dashboard/acme-corp/bookings`
+  - Single/Personal: `/dashboard/bookings`
+
+**Blockers:**
+- None. Phase 3 complete.
 
 ---
 
