@@ -6,8 +6,8 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 10 / 54 |
-| **Current Phase** | Phase 2 - In Progress |
+| **Tasks Completed** | 11 / 54 |
+| **Current Phase** | Phase 2 - Complete |
 | **Estimated Total** | ~40-60 hours |
 
 ---
@@ -227,16 +227,16 @@ export default defineEventHandler(async (event) => {
 })
 ```
 
-### Task 2.8: nuxt-crouton Integration
-- [ ] Create Better Auth connector type for nuxt-crouton
-- [ ] Map Better Auth tables to crouton expected names (organization → teams, member → teamMembers)
-- [ ] Handle session format differences between SuperSaaS and Better Auth
-- [ ] Update `resolveTeamAndCheckMembership()` to work with Better Auth session format
-- [ ] Query `organization` table (aliased as teams) for team operations
-- [ ] Query `member` table (aliased as teamMembers) for membership checks
-- [ ] Test collection integration with Better Auth
-- [ ] Verify team-scoped CRUD operations work correctly
-- [ ] Verify owner-scoped operations work correctly
+### Task 2.8: nuxt-crouton Integration ✅
+- [x] Create Better Auth connector type for nuxt-crouton
+- [x] Map Better Auth tables to crouton expected names (organization → teams, member → teamMembers)
+- [x] Handle session format differences between SuperSaaS and Better Auth
+- [x] Update `resolveTeamAndCheckMembership()` to work with Better Auth session format
+- [x] Query `organization` table (aliased as teams) for team operations
+- [x] Query `member` table (aliased as teamMembers) for membership checks
+- [ ] Test collection integration with Better Auth (deferred - requires runtime testing)
+- [ ] Verify team-scoped CRUD operations work correctly (deferred - requires runtime testing)
+- [ ] Verify owner-scoped operations work correctly (deferred - requires runtime testing)
 
 **Implementation notes:**
 ```typescript
@@ -1351,6 +1351,29 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Task 2.7 complete.
+
+**Task 2.8 completed:**
+- Created Better Auth connector type definition (`types/connector.ts`)
+- Defined `BetterAuthConnector` interface with table mappings:
+  - `organization` → `teams`
+  - `member` → `teamMembers`
+  - `user` → `users`
+  - `session` → `sessions`
+- Created session format mapping functions (`getUserId`, `getTeamId`, `getUser`)
+- Created `server/utils/team-auth.ts` export file for nuxt-crouton compatibility
+- Added `#crouton/team-auth` Nitro alias override in crouton-auth nuxt.config.ts
+- Extended main project to include crouton-auth layer (after nuxt-crouton to override alias)
+- Created type declaration file `crouton-team-auth.d.ts` with full type definitions
+- Exported connector types from `types/index.ts`
+
+**Implementation details:**
+- The connector allows nuxt-crouton collections to use Better Auth via the `#crouton/team-auth` alias
+- `resolveTeamAndCheckMembership()` is mode-aware (multi-tenant, single-tenant, personal)
+- Session format differences handled via `BetterAuthSession` interface
+- Runtime testing deferred to Phase 3 when mode implementations are complete
+
+**Blockers:**
+- None. Phase 2 complete.
 
 ---
 

@@ -3,11 +3,16 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineNuxtConfig({
   extends: [
+    // External nuxt-crouton packages
     '@friendlyinternet/nuxt-crouton',
     '@friendlyinternet/nuxt-crouton-supersaas',
     '@friendlyinternet/nuxt-crouton-editor',
     '@friendlyinternet/nuxt-crouton-maps',
     '@friendlyinternet/nuxt-crouton-i18n',
+    // Local crouton-auth layer (Better Auth integration)
+    // NOTE: Must come AFTER nuxt-crouton to override #crouton/team-auth alias
+    './packages/crouton-auth',
+    // Application layers
     './layers/bookings',
     './layers/customer-booking',
     './layers/public',
