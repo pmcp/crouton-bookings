@@ -357,17 +357,40 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
 
 // Hovered date from calendar (for exact day highlighting)
 const hoveredDate = ref<Date | null>(null)
+let hoverClearTimeout: ReturnType<typeof setTimeout> | null = null
 
 // Handle hover from week carousel
 function onDayHover(date: Date | null) {
-  hoveredDate.value = date
+  if (hoverClearTimeout) {
+    clearTimeout(hoverClearTimeout)
+    hoverClearTimeout = null
+  }
+
+  if (date) {
+    hoveredDate.value = date
+  } else {
+    // Delay clearing hover to smooth transition back to week highlight
+    hoverClearTimeout = setTimeout(() => {
+      hoveredDate.value = null
+    }, 600)
+  }
 }
 
 // Handle hover from month calendar (also scrolls to booking)
 function onMonthDayHover(date: Date | null) {
-  hoveredDate.value = date
+  if (hoverClearTimeout) {
+    clearTimeout(hoverClearTimeout)
+    hoverClearTimeout = null
+  }
+
   if (date) {
+    hoveredDate.value = date
     scrollToDateBooking(date)
+  } else {
+    // Delay clearing hover to smooth transition back to week highlight
+    hoverClearTimeout = setTimeout(() => {
+      hoveredDate.value = null
+    }, 600)
   }
 }
 
