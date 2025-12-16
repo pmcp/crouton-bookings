@@ -107,6 +107,7 @@ interface UserWithOAuthAccounts extends User {
   teamMembers?: TeamMember[]
 }
 const { fetch: refreshUserSession } = useUserSession()
+const { t } = useI18n()
 const newUserModal = ref(false)
 const banUserModal = ref(false)
 const loadingUserId = ref<string | null>(null)
@@ -195,14 +196,13 @@ const sendForgotPasswordEmail = async (user: User) => {
       body: { email: user.email },
     })
     toast.add({
-      title: 'Password reset email sent',
-      description: 'The password reset email has been sent to the user',
+      title: t('toast.passwordResetEmailSent.title'),
       color: 'success',
     })
   } catch {
     toast.add({
-      title: 'Error',
-      description: 'Failed to send password reset email',
+      title: t('toast.error.title'),
+      description: t('toast.passwordResetEmailFailed.description'),
       color: 'error',
     })
   } finally {
@@ -218,16 +218,15 @@ const liftBan = async (user: User) => {
       body: { userId: user.id, banned: false },
     })
     toast.add({
-      title: 'User unbanned successfully',
-      description: 'The user has been unbanned',
+      title: t('toast.userUnbanned.title'),
       color: 'success',
     })
     await refresh()
   } catch (error) {
     console.error(error)
     toast.add({
-      title: 'Error',
-      description: 'Failed to lift ban',
+      title: t('toast.error.title'),
+      description: t('toast.liftBanFailed.description'),
       color: 'error',
     })
   } finally {

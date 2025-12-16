@@ -39,6 +39,7 @@ import type { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 import { emailSchema } from '@@/shared/validations/auth'
 
+const { t } = useI18n()
 const toast = useToast()
 const { fetch: refreshSession } = useUserSession()
 const { authenticateWithPasskey } = usePasskeys()
@@ -55,7 +56,7 @@ const onSubmit = async (event: FormSubmitEvent<LoginSchema>): Promise<void> => {
   if (success) {
     await refreshSession()
     toast.add({
-      title: 'Logged in successfully',
+      title: t('toast.loggedInSuccessfully.title'),
       color: 'success',
     })
     await navigateTo('/dashboard')

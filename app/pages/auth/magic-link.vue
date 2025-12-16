@@ -79,6 +79,7 @@ import { emailSchema, otpLoginSchema } from '@@/shared/validations/auth'
 type LoginSchema = z.output<typeof emailSchema>
 type OtpSchema = z.output<typeof otpLoginSchema>
 
+const { t } = useI18n()
 const toast = useToast()
 const { fetch: refreshSession } = useUserSession()
 
@@ -112,7 +113,7 @@ async function onLoginSubmit(event: FormSubmitEvent<LoginSchema>) {
     otpState.email = event.data.email
   } catch (error) {
     toast.add({
-      title: 'Failed to send verification code',
+      title: t('toast.failedToSendVerificationCode.title'),
       description: (error as any).data.message,
       color: 'error',
     })
@@ -132,7 +133,7 @@ async function onOtpSubmit(event: FormSubmitEvent<OtpSchema>) {
     await navigateTo('/dashboard')
   } catch (error) {
     toast.add({
-      title: 'Failed to verify code',
+      title: t('toast.failedToVerifyCode.title'),
       description: (error as any).data.message,
       color: 'error',
     })

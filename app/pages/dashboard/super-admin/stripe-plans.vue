@@ -80,6 +80,7 @@
 </template>
 
 <script lang="ts" setup>
+const { t } = useI18n()
 const loading = ref(false)
 const toast = useToast()
 const { data: plans, refresh: refreshPlans }
@@ -120,15 +121,15 @@ const syncStripeData = async () => {
     await $fetch('/api/super-admin/stripe/sync-products')
     await refreshPlans()
     toast.add({
-      title: 'Stripe data synced successfully',
+      title: t('toast.stripeSyncSuccess.title'),
       icon: 'i-lucide-check-circle',
       color: 'success',
     })
   } catch (error) {
     toast.add({
-      title: 'Failed to sync Stripe data',
+      title: t('toast.stripeSyncFailed.title'),
       description:
-        error instanceof Error ? error.message : 'An unexpected error occurred',
+        error instanceof Error ? error.message : t('errors.unexpectedError'),
       icon: 'i-lucide-alert-circle',
       color: 'error',
     })
@@ -145,16 +146,16 @@ const deleteProduct = async (productId: string) => {
     })
     await refreshPlans()
     toast.add({
-      title: 'Product deleted successfully',
+      title: t('toast.stripeProductDeleted.title'),
       icon: 'i-lucide-check-circle',
       color: 'success',
     })
   } catch (error) {
     console.error(error)
     toast.add({
-      title: 'Failed to delete product',
+      title: t('toast.stripeDeleteFailed.title'),
       description:
-        error instanceof Error ? error.message : 'An unexpected error occurred',
+        error instanceof Error ? error.message : t('errors.unexpectedError'),
       icon: 'i-lucide-alert-circle',
       color: 'error',
     })

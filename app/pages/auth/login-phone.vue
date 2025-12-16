@@ -83,6 +83,7 @@ import type { FormSubmitEvent } from '#ui/types'
 
 import { phoneSchema } from '@@/shared/validations/auth'
 
+const { t } = useI18n()
 const toast = useToast()
 const { fetch: refreshSession } = useUserSession()
 
@@ -124,7 +125,7 @@ async function onPhoneSubmit(event: FormSubmitEvent<PhoneSchema>) {
     otpState.phoneNumber = event.data.phoneNumber
   } catch (error) {
     toast.add({
-      title: 'Failed to send verification code',
+      title: t('toast.failedToSendVerificationCode.title'),
       description: (error as any).data.message,
       color: 'error',
     })
@@ -144,7 +145,7 @@ async function onOtpSubmit(event: FormSubmitEvent<OtpSchema>) {
     await navigateTo('/dashboard')
   } catch (error) {
     toast.add({
-      title: 'Failed to verify code',
+      title: t('toast.failedToVerifyCode.title'),
       description: (error as any).data.message,
       color: 'error',
     })

@@ -221,6 +221,7 @@ interface Feedback {
 const { data: feedback, refresh } = await useFetch<Feedback[]>(
   '/api/super-admin/feedback',
 )
+const { t } = useI18n()
 const toast = useToast()
 
 const columns = ['User', 'Email', 'Status', 'Message', 'Date', '']
@@ -293,8 +294,8 @@ const handleReply = async () => {
       },
     })
     toast.add({
-      title: 'Reply sent',
-      description: 'Your response has been sent to the user',
+      title: t('superAdmin.feedback.replySent'),
+      description: t('superAdmin.feedback.replySentDescription'),
       color: 'success',
     })
     replyModal.value = false
@@ -302,8 +303,8 @@ const handleReply = async () => {
     await refresh()
   } catch {
     toast.add({
-      title: 'Error',
-      description: 'Failed to send reply',
+      title: t('toast.error.title'),
+      description: t('superAdmin.feedback.failedToSendReply'),
       color: 'error',
     })
   } finally {
@@ -321,15 +322,14 @@ const handleMarkAsClosed = async (feedbackItem: Feedback) => {
       },
     })
     toast.add({
-      title: 'Feedback marked as closed',
-      description: 'The feedback has been marked as closed',
+      title: t('superAdmin.feedback.feedbackMarkedClosed'),
       color: 'success',
     })
     await refresh()
   } catch {
     toast.add({
-      title: 'Error',
-      description: 'Failed to mark feedback as closed',
+      title: t('toast.error.title'),
+      description: t('superAdmin.feedback.failedToMarkClosed'),
       color: 'error',
     })
   } finally {
@@ -346,16 +346,16 @@ const handleDelete = async () => {
       method: 'DELETE',
     })
     toast.add({
-      title: 'Feedback deleted',
-      description: 'The feedback has been deleted',
+      title: t('superAdmin.feedback.feedbackDeleted'),
+      description: t('superAdmin.feedback.feedbackDeletedDescription'),
       color: 'success',
     })
     showDeleteConfirmation.value = false
     await refresh()
   } catch {
     toast.add({
-      title: 'Error',
-      description: 'Failed to delete feedback',
+      title: t('toast.error.title'),
+      description: t('superAdmin.feedback.failedToDeleteFeedback'),
       color: 'error',
     })
   } finally {

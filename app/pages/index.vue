@@ -105,6 +105,7 @@ const state = reactive<Partial<Schema>>({
   email: undefined,
 })
 const isSubmitting = ref(false)
+const { t } = useI18n()
 const toast = useToast()
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   try {
@@ -116,18 +117,18 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       },
     })
     toast.add({
-      title: 'Success',
-      description: 'The form has been submitted.',
+      title: t('messages.success'),
+      description: t('newsletter.submitSuccess'),
       color: 'success',
     })
   } catch (error) {
     const msg = (error as { data: { message: string } }).data.message.includes(
       'D1_ERROR: UNIQUE constraint failed: subscribers.email: SQLITE_CONSTRAINT',
     )
-      ? 'You are already subscribed to our newsletter.'
-      : 'An unexpected error occurred'
+      ? t('newsletter.alreadySubscribed')
+      : t('errors.unexpectedError')
     toast.add({
-      title: 'Error',
+      title: t('messages.error'),
       description: msg,
       color: 'error',
     })
