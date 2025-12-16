@@ -17,15 +17,18 @@
       "status": "Statut",
       "timeSlot": "Creneau horaire",
       "selectLocation": "Selectionnez un emplacement",
+      "selectLocationFirst": "Selectionnez d'abord un emplacement",
       "loadingAvailability": "Chargement des disponibilites...",
       "noTimeSlotsConfigured": "Aucun creneau horaire configure",
-      "addToCart": "Ajouter au panier"
+      "addToCart": "Ajouter au panier",
+      "addButton": "Ajouter"
     },
     "status": {
       "confirmed": "Confirme",
       "pending": "En attente",
       "cancelled": "Annule",
-      "booked": "Reserve"
+      "booked": "Reserve",
+      "completed": "Termine"
     },
     "list": {
       "loading": "Chargement de vos reservations...",
@@ -39,6 +42,54 @@
     },
     "common": {
       "at": "a"
+    },
+    "cart": {
+      "title": "Panier",
+      "empty": "Votre panier est vide",
+      "emptyDescription": "Ajoutez des reservations a votre panier pour reserver plusieurs creneaux a la fois",
+      "addBooking": "Ajouter une reservation",
+      "itemCount": "{count} reservation | {count} reservations",
+      "clearAll": "Tout effacer",
+      "booking": "Reservation en cours...",
+      "bookSlots": "Reserver {count} creneau | Reserver {count} creneaux",
+      "submitNote": "Toutes les reservations seront soumises ensemble"
+    },
+    "tabs": {
+      "book": "Reserver",
+      "myBookings": "Mes Reservations"
+    },
+    "buttons": {
+      "bookNow": "Reserver maintenant",
+      "book": "Reserver",
+      "bookNew": "Reserver un nouveau creneau",
+      "collapse": "Reduire",
+      "keep": "Garder"
+    },
+    "filter": {
+      "upcoming": "a venir",
+      "inRange": "dans la periode",
+      "onDate": "a cette date",
+      "noInRange": "Aucune reservation dans cette periode",
+      "noOnDate": "Aucune reservation a cette date",
+      "noUpcoming": "Aucune reservation a venir",
+      "clear": "Effacer le filtre",
+      "cancelled": "Annule"
+    },
+    "location": {
+      "selectToView": "Selectionnez un emplacement pour voir les details",
+      "noLocation": "Aucun emplacement defini",
+      "noInfo": "Aucune information supplementaire disponible."
+    },
+    "slots": {
+      "allDay": "Toute la journee"
+    },
+    "confirm": {
+      "delete": "Supprimer definitivement?",
+      "cancel": "Annuler cette reservation?"
+    },
+    "empty": {
+      "title": "Pas encore de reservations",
+      "description": "Creez votre premiere reservation pour commencer"
     }
   }
 }

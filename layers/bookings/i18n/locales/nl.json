@@ -17,15 +17,18 @@
       "status": "Status",
       "timeSlot": "Tijdslot",
       "selectLocation": "Selecteer een locatie",
+      "selectLocationFirst": "Selecteer eerst een locatie",
       "loadingAvailability": "Beschikbaarheid laden...",
       "noTimeSlotsConfigured": "Geen tijdslots geconfigureerd",
-      "addToCart": "Toevoegen aan winkelwagen"
+      "addToCart": "Toevoegen aan winkelwagen",
+      "addButton": "Toevoegen"
     },
     "status": {
       "confirmed": "Bevestigd",
       "pending": "In afwachting",
       "cancelled": "Geannuleerd",
-      "booked": "Geboekt"
+      "booked": "Geboekt",
+      "completed": "Voltooid"
     },
     "list": {
       "loading": "Je boekingen laden...",
@@ -39,6 +42,54 @@
     },
     "common": {
       "at": "om"
+    },
+    "cart": {
+      "title": "Winkelwagen",
+      "empty": "Je winkelwagen is leeg",
+      "emptyDescription": "Voeg boekingen toe aan je winkelwagen om meerdere slots tegelijk te boeken",
+      "addBooking": "Boeking toevoegen",
+      "itemCount": "{count} boeking | {count} boekingen",
+      "clearAll": "Alles wissen",
+      "booking": "Boeken...",
+      "bookSlots": "{count} Slot boeken | {count} Slots boeken",
+      "submitNote": "Alle boekingen worden samen ingediend"
+    },
+    "tabs": {
+      "book": "Boeken",
+      "myBookings": "Mijn Boekingen"
+    },
+    "buttons": {
+      "bookNow": "Nu boeken",
+      "book": "Boeken",
+      "bookNew": "Nieuw slot boeken",
+      "collapse": "Inklappen",
+      "keep": "Behouden"
+    },
+    "filter": {
+      "upcoming": "aankomend",
+      "inRange": "in bereik",
+      "onDate": "op deze datum",
+      "noInRange": "Geen boekingen in dit bereik",
+      "noOnDate": "Geen boekingen op deze datum",
+      "noUpcoming": "Geen aankomende boekingen",
+      "clear": "Filter wissen",
+      "cancelled": "Geannuleerd"
+    },
+    "location": {
+      "selectToView": "Selecteer een locatie om details te bekijken",
+      "noLocation": "Geen locatie ingesteld",
+      "noInfo": "Geen aanvullende informatie beschikbaar."
+    },
+    "slots": {
+      "allDay": "Hele dag"
+    },
+    "confirm": {
+      "delete": "Permanent verwijderen?",
+      "cancel": "Deze boeking annuleren?"
+    },
+    "empty": {
+      "title": "Nog geen boekingen",
+      "description": "Maak je eerste boeking om te beginnen"
     }
   }
 }
