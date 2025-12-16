@@ -11,7 +11,7 @@ const { loggedIn, clear: logout, user } = useUserSession()
 const { isOpen, isExpanded, cartCount } = useBookingCart()
 const { isAdmin } = useUserRole()
 const router = useRouter()
-const { locale, locales, setLocale } = useI18n()
+const { t, locale, locales, setLocale } = useI18n()
 
 // Locale items for language switcher
 const localeItems = computed<DropdownMenuItem[][]>(() => {
@@ -28,28 +28,28 @@ const accountItems = computed<DropdownMenuItem[][]>(() => {
   const items: DropdownMenuItem[][] = [
     [
       {
-        label: user.value?.name || user.value?.email || 'Account',
+        label: user.value?.name || user.value?.email || t('navigation.account'),
         type: 'label',
         icon: 'i-lucide-user',
       },
     ],
     [
       {
-        label: 'My Bookings',
+        label: t('bookings.tabs.myBookings'),
         icon: 'i-lucide-calendar',
         onSelect: () => {
           isOpen.value = true
         },
       },
       {
-        label: 'Account Settings',
+        label: t('navigation.accountSettings'),
         icon: 'i-lucide-settings',
         to: '/dashboard/account',
       },
     ],
     [
       {
-        label: 'Logout',
+        label: t('auth.logout'),
         icon: 'i-lucide-log-out',
         color: 'error',
         onSelect: async () => {
@@ -127,7 +127,7 @@ function toggleBookingSidebar() {
         <UButton
           color="primary"
           icon="i-lucide-calendar-plus"
-          label="Book"
+          :label="$t('bookings.buttons.book')"
           @click="toggleBookingSidebar"
         >
           <template v-if="cartCount > 0" #trailing>

@@ -60,7 +60,7 @@ const markerColor = useMarkerColor()
     >
       <div class="text-center text-muted">
         <UIcon name="i-lucide-map" class="w-12 h-12 mb-2 opacity-50" />
-        <p class="text-sm">No location set</p>
+        <p class="text-sm">{{ $t('bookings.location.noLocation') }}</p>
       </div>
     </div>
   </div>

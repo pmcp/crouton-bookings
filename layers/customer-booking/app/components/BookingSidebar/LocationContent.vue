@@ -43,7 +43,7 @@ const hasContent = computed(() => {
             v-html="location.content"
           />
           <p v-else class="text-sm text-neutral-400 dark:text-neutral-500 italic">
-            No additional information available.
+            {{ $t('bookings.location.noInfo') }}
           </p>
         </div>
       </div>
@@ -51,7 +51,7 @@ const hasContent = computed(() => {
 
     <!-- No location selected -->
     <div v-else class="px-6 py-8 text-center text-neutral-400">
-      <p>Select a location to view details</p>
+      <p>{{ $t('bookings.location.selectToView') }}</p>
     </div>
 
     <!-- SSR fallback: skeleton -->
