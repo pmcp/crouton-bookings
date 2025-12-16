@@ -6,8 +6,8 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 28 / 54 |
-| **Current Phase** | Phase 5 - Complete |
+| **Tasks Completed** | 29 / 54 |
+| **Current Phase** | Phase 6 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
 ---
@@ -603,16 +603,19 @@ const handleSubmit = async () => {
 ## Phase 6: Database & Migrations
 **Estimated: 4-6 hours**
 
-### Task 6.1: Schema Integration
-- [ ] Export Better Auth schema for Drizzle
-- [ ] Create `server/database/schema/auth.ts`
-- [ ] Include users table
-- [ ] Include sessions table
-- [ ] Include accounts table (OAuth)
-- [ ] Include organizations table
-- [ ] Include members table
-- [ ] Include invitations table
-- [ ] Include subscriptions table (if billing)
+### Task 6.1: Schema Integration ✅
+- [x] ✅ Export Better Auth schema for Drizzle
+- [x] ✅ Create `server/database/schema/auth.ts`
+- [x] ✅ Include user table
+- [x] ✅ Include session table (with activeOrganizationId extension)
+- [x] ✅ Include account table (OAuth)
+- [x] ✅ Include verification table
+- [x] ✅ Include organization table
+- [x] ✅ Include member table
+- [x] ✅ Include invitation table
+- [x] ✅ Include passkey table (WebAuthn)
+- [x] ✅ Include twoFactor table (2FA)
+- [x] ✅ Include subscription table (Stripe billing)
 
 ### Task 6.2: Schema Extensions
 - [ ] Add custom fields to users table (if needed)
@@ -1740,6 +1743,38 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Phase 5 complete!
+
+### Day 7: 2024-12-16
+**Tasks completed:**
+- Task 6.1: Schema Integration
+
+**Implementation details:**
+- Created comprehensive Better Auth Drizzle schema at `server/database/schema/auth.ts`
+- Implemented all 10 required tables:
+  1. **user** - Core user identity with stripeCustomerId extension
+  2. **session** - User sessions with activeOrganizationId for team context
+  3. **account** - OAuth and credential accounts
+  4. **verification** - Email verification and password reset tokens
+  5. **organization** - Teams/workspaces for all modes
+  6. **member** - Organization membership with roles
+  7. **invitation** - Pending organization invitations
+  8. **passkey** - WebAuthn credentials for passwordless auth
+  9. **twoFactor** - TOTP secrets and backup codes for 2FA
+  10. **subscription** - Stripe subscription tracking
+- Added proper indexes for all tables (user_email, session_token, etc.)
+- Defined all Drizzle relations between tables
+- Exported TypeScript types for all tables (User, Session, etc.)
+- Created index.ts for clean re-exports
+
+**Schema highlights:**
+- All tables use SQLite types for NuxtHub D1 compatibility
+- Relations enable efficient query building with Drizzle
+- Types exported for both select and insert operations
+- Session table extended with activeOrganizationId for team context
+- User table extended with stripeCustomerId for billing
+
+**Blockers:**
+- None. Task 6.1 complete.
 
 ---
 
