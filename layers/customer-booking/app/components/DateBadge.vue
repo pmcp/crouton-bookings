@@ -3,11 +3,13 @@ interface Props {
   date: Date | string
   size?: 'sm' | 'md'
   variant?: 'primary' | 'error' | 'muted' | 'elevated'
+  highlighted?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   size: 'md',
   variant: 'primary',
+  highlighted: false,
 })
 
 const parsed = computed(() => {
@@ -29,11 +31,12 @@ const parsed = computed(() => {
         'bg-error/10 text-error': props.variant === 'error',
         'bg-muted text-muted': props.variant === 'muted',
         'bg-elevated': props.variant === 'elevated',
-        'bg-elevated text-muted bg-neutral': props.variant === 'primary'
+        'bg-primary text-neutral-900': props.highlighted,
+        'bg-elevated text-muted': props.variant === 'primary' && !props.highlighted
       }
     ]"
   >
-    <span class="bg-neutral text-[9px] font-medium uppercase tracking-wide">{{ parsed.weekday }}</span>
+    <span class="text-[9px] font-medium uppercase tracking-wide">{{ parsed.weekday }}</span>
     <span class="text-2xl font-bold leading-tight">{{ parsed.day }}</span>
     <span class="text-[9px] font-medium uppercase tracking-wide">{{ parsed.month }}</span>
   </div>

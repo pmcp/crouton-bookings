@@ -26,6 +26,8 @@ interface Props {
   userAvatar?: string | null
   createdAt?: string | Date | null
   emailStats?: EmailStats | null
+  // Highlight when date matches selected calendar date
+  highlighted?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -40,6 +42,7 @@ const props = withDefaults(defineProps<Props>(), {
   userAvatar: null,
   createdAt: null,
   emailStats: null,
+  highlighted: false,
 })
 
 const emit = defineEmits<{
@@ -139,7 +142,7 @@ function confirmAction() {
   <div class="bg-elevated/50 rounded-lg overflow-hidden group">
     <div class="p-3 flex items-center gap-3">
       <!-- Date card -->
-      <DateBadge :date="date" :variant="dateBadgeVariant" />
+      <DateBadge :date="date" :variant="dateBadgeVariant" :highlighted="highlighted" />
 
       <!-- Content -->
       <div class="flex-1 flex flex-col gap-1">

@@ -355,6 +355,14 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
   return group?.label || groupId
 }
 
+// Check if a booking date matches the selected calendar date
+function isBookingHighlighted(bookingDate: string | Date): boolean {
+  if (!selectedDate.value) return false
+  const bookingStr = toLocalDateStr(new Date(bookingDate))
+  const selectedStr = toLocalDateStr(selectedDate.value)
+  return bookingStr === selectedStr
+}
+
 // ===== Bidirectional Sync: Week Carousel <-> Bookings List =====
 
 // Refs
@@ -413,72 +421,61 @@ function onWeekChange(weekStart: Date, weekEnd: Date) {
   }
 }
 
-// Watch for scroll in bookings list and sync carousel
-let scrollTimeout: ReturnType<typeof setTimeout> | null = null
+// Watch for scroll in bookings list and sync carousel (using VueUse)
+const { height: windowHeight } = useWindowSize()
 
-function onBookingsScroll() {
+// Find booking closest to 40% of viewport and sync calendar
+function syncCalendarToScroll() {
   if (isSyncing.value) return
 
-  // Debounce the scroll handler
-  if (scrollTimeout) clearTimeout(scrollTimeout)
-  scrollTimeout = setTimeout(() => {
-    // Use viewport for visibility calculation
-    const viewportTop = 0
-    const viewportBottom = window.innerHeight
-    let mostVisibleDate: string | null = null
-    let maxVisibility = 0
+  // Trigger point at 40% of viewport height
+  const triggerPoint = windowHeight.value * 0.4
+  let closestDate: string | null = null
+  let closestDistance = Infinity
 
-    bookingRefs.forEach((el) => {
-      const rect = el.getBoundingClientRect()
-      const visibleTop = Math.max(rect.top, viewportTop)
-      const visibleBottom = Math.min(rect.bottom, viewportBottom)
-      const visibleHeight = Math.max(0, visibleBottom - visibleTop)
+  bookingRefs.forEach((el) => {
+    const rect = el.getBoundingClientRect()
+    const elementCenter = rect.top + rect.height / 2
+    const distance = Math.abs(elementCenter - triggerPoint)
 
-      if (visibleHeight > maxVisibility) {
-        maxVisibility = visibleHeight
-        mostVisibleDate = el.getAttribute('data-booking-date')
-      }
-    })
-
-    if (mostVisibleDate) {
-      // Parse YYYY-MM-DD as local date (not UTC)
-      const [year, month, day] = mostVisibleDate.split('-').map(Number)
-      const bookingDate = new Date(year, month - 1, day)
-      isSyncing.value = true
-
-      if (calendarViewMode.value === 'week' && weekCarousel.value) {
-        // Week view: scroll carousel to the week
-        weekCarousel.value.scrollToDate(bookingDate)
-      } else if (calendarViewMode.value === 'month') {
-        // Month view: update selected date to highlight in calendar
-        selectedDate.value = bookingDate
-      }
-
-      setTimeout(() => {
-        isSyncing.value = false
-      }, 500)
+    if (distance < closestDistance) {
+      closestDistance = distance
+      closestDate = el.getAttribute('data-booking-date')
     }
-  }, 150)
+  })
+
+  if (closestDate) {
+    // Parse YYYY-MM-DD as local date (not UTC)
+    const [year, month, day] = closestDate.split('-').map(Number)
+    const bookingDate = new Date(year, month - 1, day)
+    isSyncing.value = true
+
+    // Always update selectedDate for highlighting bookings
+    selectedDate.value = bookingDate
+
+    // Also sync the calendar view
+    if (calendarViewMode.value === 'week' && weekCarousel.value) {
+      weekCarousel.value.scrollToDate(bookingDate)
+    }
+
+    useTimeoutFn(() => {
+      isSyncing.value = false
+    }, 500)
+  }
 }
 
-// Find the actual scrolling container (parent div with overflow-y-auto)
-let scrollContainer: HTMLElement | null = null
+// Debounced scroll handler
+const onBookingsScroll = useDebounceFn(syncCalendarToScroll, 150)
+
+// Set up scroll listener on the main content container
+const scrollContainer = ref<HTMLElement | null>(null)
 
 onMounted(() => {
-  // The scroll container is the main content div with w-full and overflow-y-auto in [team].vue
-  scrollContainer = document.querySelector('.w-full.flex-1.overflow-y-auto')
-  if (scrollContainer) {
-    scrollContainer.addEventListener('scroll', onBookingsScroll, { passive: true })
-  }
+  scrollContainer.value = document.querySelector('.w-full.flex-1.overflow-y-auto')
 })
 
-// Clean up on unmount
-onUnmounted(() => {
-  if (scrollContainer) {
-    scrollContainer.removeEventListener('scroll', onBookingsScroll)
-  }
-  if (scrollTimeout) clearTimeout(scrollTimeout)
-})
+// Use VueUse's useEventListener for automatic cleanup
+useEventListener(scrollContainer, 'scroll', onBookingsScroll, { passive: true })
 </script>
 
 <template>
@@ -651,6 +648,7 @@ onUnmounted(() => {
             :user-avatar="booking.ownerUser?.avatarUrl || booking.createdByUser?.avatarUrl"
             :created-at="booking.createdAt"
             :email-stats="booking.emailStats"
+            :highlighted="isBookingHighlighted(booking.date)"
           />
         </div>
 
