@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 23 / 54 |
+| **Tasks Completed** | 24 / 54 |
 | **Current Phase** | Phase 5 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
@@ -556,15 +556,15 @@ const handleSubmit = async () => {
 </template>
 ```
 
-### Task 5.3: Team Components
-- [ ] Create `components/Team/Switcher.vue`
-- [ ] Create `components/Team/CreateForm.vue`
-- [ ] Create `components/Team/Settings.vue`
-- [ ] Create `components/Team/Members.vue`
-- [ ] Create `components/Team/MemberInviteForm.vue`
-- [ ] Create `components/Team/MemberRow.vue`
-- [ ] Create `components/Team/Invitations.vue`
-- [ ] Create `components/Team/DeleteConfirm.vue`
+### Task 5.3: Team Components ✅
+- [x] Create `components/Team/Switcher.vue`
+- [x] Create `components/Team/CreateForm.vue`
+- [x] Create `components/Team/Settings.vue`
+- [x] Create `components/Team/Members.vue`
+- [x] Create `components/Team/MemberInviteForm.vue`
+- [x] Create `components/Team/MemberRow.vue`
+- [x] Create `components/Team/Invitations.vue`
+- [x] Create `components/Team/DeleteConfirm.vue`
 
 ### Task 5.4: Account Components
 - [ ] Create `components/Account/Settings.vue`
@@ -1627,6 +1627,27 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Task 5.2 complete.
+
+**Task 5.3 completed:**
+- Created 8 Team management components:
+  - `Team/Switcher.vue` - Dropdown to switch between teams (multi-tenant only)
+  - `Team/CreateForm.vue` - Form to create new teams with auto-slug generation
+  - `Team/Settings.vue` - Team settings form (name, slug, logo) with validation
+  - `Team/Members.vue` - Members list with role management and removal
+  - `Team/MemberRow.vue` - Individual member display with role badge and actions
+  - `Team/MemberInviteForm.vue` - Invite form with role selection
+  - `Team/Invitations.vue` - Pending invitations list with cancel/accept/reject
+  - `Team/DeleteConfirm.vue` - Delete confirmation modal with type-to-confirm
+- All components:
+  - Use `useTeam()` composable for team operations
+  - Follow Nuxt UI v4 patterns (UForm, UFormField, UDropdownMenu, etc.)
+  - Include proper validation and error handling
+  - Are mode-aware (show/hide based on multi-tenant vs single/personal)
+  - Emit appropriate events for parent handling
+- Typecheck passes for crouton-auth package components
+
+**Blockers:**
+- None. Task 5.3 complete.
 
 ---
 
