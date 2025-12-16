@@ -357,46 +357,36 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
 
 // Hovered date from calendar (for exact day highlighting)
 const hoveredDate = ref<Date | null>(null)
-let hoverClearTimeout: ReturnType<typeof setTimeout> | null = null
+// Suppress week highlighting after hover ends (until scroll resumes)
+const suppressWeekHighlight = ref(false)
 
 // Handle hover from week carousel
 function onDayHover(date: Date | null) {
-  if (hoverClearTimeout) {
-    clearTimeout(hoverClearTimeout)
-    hoverClearTimeout = null
-  }
-
   if (date) {
     hoveredDate.value = date
+    suppressWeekHighlight.value = true
   } else {
-    // Delay clearing hover to smooth transition back to week highlight
-    hoverClearTimeout = setTimeout(() => {
-      hoveredDate.value = null
-    }, 600)
+    // Clear hover but keep week highlight suppressed until scroll
+    hoveredDate.value = null
   }
 }
 
 // Handle hover from month calendar (also scrolls to booking)
 function onMonthDayHover(date: Date | null) {
-  if (hoverClearTimeout) {
-    clearTimeout(hoverClearTimeout)
-    hoverClearTimeout = null
-  }
-
   if (date) {
     hoveredDate.value = date
+    suppressWeekHighlight.value = true
     scrollToDateBooking(date)
   } else {
-    // Delay clearing hover to smooth transition back to week highlight
-    hoverClearTimeout = setTimeout(() => {
-      hoveredDate.value = null
-    }, 600)
+    // Clear hover but keep week highlight suppressed until scroll
+    hoveredDate.value = null
   }
 }
 
 // Check if a booking should be highlighted
 // When hovering: only exact date matches
-// When not hovering: all bookings in the selected week
+// After hover ends: no highlights until scroll resumes
+// When scrolling: all bookings in the selected week
 function isBookingHighlighted(bookingDate: string | Date): boolean {
   const booking = new Date(bookingDate)
   const bookingStr = toLocalDateStr(booking)
@@ -406,6 +396,9 @@ function isBookingHighlighted(bookingDate: string | Date): boolean {
     const hoveredStr = toLocalDateStr(hoveredDate.value)
     return bookingStr === hoveredStr
   }
+
+  // After hover ends, suppress week highlighting until scroll resumes
+  if (suppressWeekHighlight.value) return false
 
   // Otherwise, highlight by week (existing behavior)
   if (!selectedDate.value) return false
@@ -532,6 +525,9 @@ function syncCalendarToScroll() {
     const [year, month, day] = closestDate.split('-').map(Number)
     const bookingDate = new Date(year, month - 1, day)
     isSyncing.value = true
+
+    // Re-enable week highlighting when scrolling resumes
+    suppressWeekHighlight.value = false
 
     // Always update selectedDate for highlighting bookings
     selectedDate.value = bookingDate
