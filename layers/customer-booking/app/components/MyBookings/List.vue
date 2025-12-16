@@ -105,20 +105,29 @@ function toggleStatus(key: string) {
   statusOverrides.value[key] = !statusFilters.value[key]
 }
 
-// Get unique locations from bookings
-interface LocationItem {
+// Get unique locations from bookings with their slots
+interface LocationWithSlots {
   id: string
   title: string
+  slots: SlotItem[]
 }
-const availableLocations = computed<LocationItem[]>(() => {
+const availableLocations = computed<LocationWithSlots[]>(() => {
   if (!bookings.value) return []
-  const locationMap = new Map<string, string>()
+  const locationMap = new Map<string, { title: string, slots: SlotItem[] }>()
   bookings.value.forEach((b) => {
-    if (b.location && b.locationData?.title) {
-      locationMap.set(b.location, b.locationData.title)
+    if (b.location && b.locationData?.title && !locationMap.has(b.location)) {
+      const slots = parseLocationSlots(b)
+      locationMap.set(b.location, {
+        title: b.locationData.title,
+        slots: slots.filter(s => s.id !== 'all-day'),
+      })
     }
   })
-  return Array.from(locationMap.entries()).map(([id, title]) => ({ id, title }))
+  return Array.from(locationMap.entries()).map(([id, data]) => ({
+    id,
+    title: data.title,
+    slots: data.slots,
+  }))
 })
 
 
@@ -617,23 +626,25 @@ useEventListener(scrollContainer, 'scroll', onBookingsScroll, { passive: true })
           </UButton>
         </div>
 
-        <!-- Location Filter Toggles -->
+        <!-- Location Filter Cards -->
         <div v-if="availableLocations.length > 1" class="flex flex-wrap gap-2">
-          <UButton
+          <button
             v-for="loc in availableLocations"
             :key="loc.id"
-            size="xs"
-            :variant="locationFilters[loc.id] ? 'solid' : 'outline'"
-            color="neutral"
+            type="button"
+            class="px-3 py-2 rounded-lg transition-all"
+            :class="[
+              locationFilters[loc.id]
+                ? 'bg-elevated ring-1 ring-primary'
+                : 'bg-elevated/50 opacity-50 hover:opacity-75'
+            ]"
             @click="toggleLocation(loc.id)"
           >
-
-            <UIcon
-              :name="locationFilters[loc.id] ? 'i-lucide-check' : 'i-lucide-x'"
-              class="w-3 h-3 mr-1"
+            <BookingsLocationsLocationCardMini
+              :title="loc.title"
+              :slots="loc.slots"
             />
-            {{ loc.title }}
-          </UButton>
+          </button>
         </div>
         <!-- Header with count, view toggle, and refresh -->
         <div class="flex items-center justify-between">
