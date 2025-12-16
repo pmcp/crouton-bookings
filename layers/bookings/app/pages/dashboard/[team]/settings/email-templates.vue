@@ -4,10 +4,12 @@ import BookingsEmailTemplatesList from '~~/layers/bookings/collections/emailtemp
 definePageMeta({
   middleware: 'auth',
 })
+
+const { t } = useI18n()
 </script>
 
 <template>
-  <AppContainer title="Email Templates">
+  <AppContainer :title="t('navigation.emailTemplates')">
     <BookingsEmailTemplatesList />
   </AppContainer>
 </template>

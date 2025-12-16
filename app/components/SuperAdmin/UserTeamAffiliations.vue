@@ -21,7 +21,7 @@
               <div class="flex items-center gap-2">
 
                 <UIcon name="i-fluent-arrow-enter-24-filled" class="flex-shrink-0 scale-x-[-1] text-sm" />
-                <p class="text-neutral-500 text-xs">{{ $t('superAdmin.users.ownedBy') }}</p>
+                <p class="text-neutral-500 text-xs">{{ t('superAdmin.users.ownedBy') }}</p>
                 <UAvatar :src="getTeamOwner(teamMember.team.ownerId).avatarUrl || undefined" size="3xs"
                   :alt="getTeamOwner(teamMember.team.ownerId).name" />
                 <p class="text-xs font-medium">{{ getTeamOwner(teamMember.team.ownerId).name }}</p>
@@ -37,6 +37,8 @@
 
 <script lang="ts" setup>
 import type { User } from '@@/types/database'
+
+const { t } = useI18n()
 
 interface TeamMember {
   id: string

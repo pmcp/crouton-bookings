@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Pending Invitations Table -->
-    <p class="text-sm font-semibold">{{ $t('teams.invites.pendingInvitations') }}</p>
+    <p class="text-sm font-semibold">{{ t('teams.invites.pendingInvitations') }}</p>
     <div
       class="mt-2 overflow-x-auto rounded-lg border border-neutral-200 dark:divide-white/10 dark:border-white/10"
     >
@@ -73,12 +73,12 @@
       </table>
       <div v-else class="flex h-32 flex-col items-center justify-center gap-3">
         <UIcon name="i-lucide-inbox" class="size-8" />
-        <p class="text-sm text-neutral-500">{{ $t('teams.invites.noPendingInvitations') }}</p>
+        <p class="text-sm text-neutral-500">{{ t('teams.invites.noPendingInvitations') }}</p>
       </div>
     </div>
 
     <!-- Accepted Invitations Table -->
-    <p v-if="acceptedInvites.length" class="mt-8 text-sm font-semibold">{{ $t('teams.invites.acceptedInvitations') }}</p>
+    <p v-if="acceptedInvites.length" class="mt-8 text-sm font-semibold">{{ t('teams.invites.acceptedInvitations') }}</p>
     <div
       v-if="acceptedInvites.length"
       class="mt-2 overflow-x-auto rounded-lg border border-neutral-200 dark:divide-white/10 dark:border-white/10"

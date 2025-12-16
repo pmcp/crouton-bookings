@@ -6,7 +6,7 @@
     @submit="onSubmit as any"
   >
     <UFormField
-      :label="`${$t('teams.teamLogo')} (${$t('teams.teamLogoHelp')})`"
+      :label="`${t('teams.teamLogo')} (${t('teams.teamLogoHelp')})`"
       name="logo"
     >
       <AppAvatarUploader
@@ -15,24 +15,24 @@
       />
     </UFormField>
 
-    <UFormField required :label="$t('teams.teamName')" name="name">
+    <UFormField required :label="t('teams.teamName')" name="name">
       <UInput
         v-model="state.name"
-        :placeholder="$t('placeholders.personalOrCompanyName')"
+        :placeholder="t('placeholders.personalOrCompanyName')"
         class="w-full"
         size="lg"
       />
     </UFormField>
 
     <UFormField
-      :label="$t('teams.teamUrl')"
+      :label="t('teams.teamUrl')"
       name="slug"
       required
       :help="`${host}/dashboard/${state.slug}`"
     >
       <UInput
         v-model="state.slug"
-        :placeholder="$t('placeholders.myAwesomeTeam')"
+        :placeholder="t('placeholders.myAwesomeTeam')"
         class="w-full"
         size="lg"
       />
@@ -47,7 +47,7 @@
       :loading="loading"
       :disabled="loading"
     >
-      {{ $t('teams.createTeam') }}
+      {{ t('teams.createTeam') }}
     </UButton>
   </UForm>
 </template>

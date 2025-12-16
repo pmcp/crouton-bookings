@@ -1,7 +1,7 @@
 <template>
   <AppContainer
-    title="Billing"
-    description="Manage your billing information and subscription plans."
+    :title="t('billing.title')"
+    :description="t('billing.description')"
   >
     <div
       class="flex h-full flex-col rounded-xl border border-neutral-200 bg-neutral-50 p-6 dark:border-neutral-800 dark:bg-neutral-900"
@@ -13,15 +13,15 @@
           <div class="space-y-2">
             <template v-if="activeSubscription">
               <h3 class="text-lg font-medium">
-                You are on
-                <span class="font-bold">{{ currentPlan.name }}</span> plan
+                {{ t('billing.youAreOn') }}
+                <span class="font-bold">{{ currentPlan.name }}</span> {{ t('billing.plan') }}
               </h3>
               <div class="flex flex-wrap items-center gap-3">
                 <div class="flex items-center gap-2">
                   <span class="text-xl font-semibold">{{
                     formatPrice(currentPlan.amount)
                   }}</span>
-                  <span class="text-neutral-500">every {{ currentPlan.interval }}</span>
+                  <span class="text-neutral-500">{{ t('billing.every', { interval: currentPlan.interval }) }}</span>
                 </div>
                 <UBadge
                   :label="currentPlan.status"
@@ -32,21 +32,19 @@
                 <span class="text-sm text-neutral-500">
                   {{ getSubscriptionMessage(currentPlan) }}
                   {{
-                    useDateFormat(
-                      currentPlan.cancelAt || currentPlan.currentPeriodEnd,
-                      'MMM DD, YYYY',
-                    )
+                    currentPlan.cancelAt || currentPlan.currentPeriodEnd
+                      ? new Date(currentPlan.cancelAt || currentPlan.currentPeriodEnd).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
+                      : ''
                   }}
                 </span>
               </div>
             </template>
             <template v-else>
               <h3 class="text-lg font-medium">
-                You are on the <span class="font-bold">Free</span> plan
+                {{ t('billing.youAreOnThe') }} <span class="font-bold">{{ t('billing.freePlan') }}</span> {{ t('billing.plan') }}
               </h3>
               <p class="text-sm text-neutral-500">
-                Upgrade to a paid plan to unlock more features and higher usage
-                limits.
+                {{ t('billing.upgradeToPaid') }}
               </p>
             </template>
           </div>
@@ -54,7 +52,7 @@
             v-if="activeSubscription"
             color="neutral"
             variant="outline"
-            label="Manage Subscription"
+            :label="t('buttons.manageSubscription')"
             :loading="loadingPortal"
             :disabled="loadingPortal"
             @click="handleManageSubscription"
@@ -86,6 +84,7 @@
 <script lang="ts" setup>
 import type { Subscription, Price } from '@@/types/database'
 
+const { t } = useI18n()
 const { data: plans } = await useFetch('/api/stripe/plans')
 interface ExpandedSubscription extends Subscription {
   expand: {
@@ -181,9 +180,9 @@ const handleSubscribe = async (priceId: string) => {
     window.location.href = checkoutUrl
   } catch (error) {
     toast.add({
-      title: 'Failed to create checkout session',
+      title: t('toast.billingCheckoutFailed.title'),
       description:
-        error instanceof Error ? error.message : 'An unexpected error occurred',
+        error instanceof Error ? error.message : t('errors.unexpectedError'),
       color: 'error',
     })
     console.error('Stripe checkout error:', error)
@@ -215,9 +214,9 @@ const handleManageSubscription = async () => {
     window.location.href = portalUrl
   } catch (error) {
     toast.add({
-      title: 'Failed to access billing portal',
+      title: t('toast.billingPortalFailed.title'),
       description:
-        error instanceof Error ? error.message : 'An unexpected error occurred',
+        error instanceof Error ? error.message : t('errors.unexpectedError'),
       color: 'error',
     })
     console.error('Billing portal error:', error)
@@ -255,12 +254,12 @@ const getStatusColor = (status?: string) => {
 
 const getSubscriptionMessage = (plan: BillingPlan) => {
   if (plan.cancelAt) {
-    return 'Cancels on'
+    return t('billing.cancelsOn')
   }
   if (plan.status === 'trialing') {
-    return 'Trial ends on'
+    return t('billing.trialEndsOn')
   }
-  return 'Renews on'
+  return t('billing.renewsOn')
 }
 
 onMounted(async () => {

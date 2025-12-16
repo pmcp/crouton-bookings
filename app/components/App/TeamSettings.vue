@@ -1,7 +1,7 @@
 <template>
   <UCard>
     <template #header>
-      <h3 class="text-sm font-medium">{{ $t('teams.generalSettings') }}</h3>
+      <h3 class="text-sm font-medium">{{ t('teams.generalSettings') }}</h3>
     </template>
 
     <UForm
@@ -11,7 +11,7 @@
       @submit="onSubmit as any"
     >
       <UFormField
-        :label="`${$t('teams.teamLogo')} (${$t('teams.teamLogoHelp')})`"
+        :label="`${t('teams.teamLogo')} (${t('teams.teamLogoHelp')})`"
         name="logo"
       >
         <AppAvatarUploader
@@ -20,15 +20,15 @@
         />
       </UFormField>
 
-      <UFormField required :label="$t('teams.teamName')" name="name">
+      <UFormField required :label="t('teams.teamName')" name="name">
         <UInput v-model="state.name" class="w-full" />
       </UFormField>
 
-      <UFormField :label="$t('teams.teamUrl')" :help="`${host}/dashboard/${state.slug}`">
+      <UFormField :label="t('teams.teamUrl')" :help="`${host}/dashboard/${state.slug}`">
         <UInput v-model="state.slug" variant="subtle" class="w-full" disabled />
       </UFormField>
 
-      <UFormField :label="$t('teams.teamId')">
+      <UFormField :label="t('teams.teamId')">
         <UInput
           :value="currentTeam?.id || ''"
           variant="subtle"
@@ -43,7 +43,7 @@
         :loading="loading"
         :disabled="loading"
       >
-        {{ $t('common.saveChanges') }}
+        {{ t('common.saveChanges') }}
       </UButton>
     </UForm>
   </UCard>

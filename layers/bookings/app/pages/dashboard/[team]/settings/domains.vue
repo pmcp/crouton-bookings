@@ -1,9 +1,9 @@
 <template>
-  <AppContainer title="Custom Domains">
+  <AppContainer :title="t('pages.domains.title')">
     <template #actions>
       <UButton
         color="neutral"
-        label="Add Domain"
+        :label="t('pages.domains.addDomain')"
         icon="i-lucide-plus"
         @click="showAddModal = true"
       />
@@ -12,8 +12,8 @@
     <!-- Add Domain Modal -->
     <UModal
       v-model:open="showAddModal"
-      title="Add Custom Domain"
-      description="Connect your own domain to your workspace. You'll need to add a DNS record to verify ownership."
+      :title="t('pages.domains.modal.title')"
+      :description="t('pages.domains.modal.description')"
     >
       <template #body>
         <UForm
@@ -22,7 +22,7 @@
           class="space-y-4"
           @submit="addDomain"
         >
-          <UFormField label="Domain" name="domain" required>
+          <UFormField :label="t('pages.domains.domain')" name="domain" required>
             <UInput
               v-model="newDomainState.domain"
               placeholder="mybusiness.com"
@@ -37,7 +37,7 @@
             block
             size="lg"
             :loading="adding"
-            label="Add Domain"
+            :label="t('pages.domains.addDomain')"
           />
         </UForm>
       </template>
@@ -52,8 +52,8 @@
       <!-- Empty State -->
       <UAlert
         v-else-if="!domains?.length"
-        title="No custom domains"
-        description="Add a custom domain to give your workspace a professional URL. Your pages will be accessible at your own domain."
+        :title="t('pages.domains.empty.title')"
+        :description="t('pages.domains.empty.description')"
         icon="i-lucide-globe"
         color="neutral"
         variant="subtle"
@@ -75,7 +75,7 @@
                   color="primary"
                   variant="soft"
                   size="xs"
-                  label="Primary"
+                  :label="t('pages.domains.primary')"
                 />
                 <UBadge
                   :color="getStatusColor(domain.status)"
@@ -88,20 +88,20 @@
               <!-- Verification Instructions -->
               <div v-if="domain.status !== 'verified'" class="mt-3 space-y-2">
                 <p class="text-muted text-sm">
-                  Add the following DNS TXT record to verify ownership:
+                  {{ t('pages.domains.verification.instructions') }}
                 </p>
                 <div class="bg-elevated rounded-md p-3 font-mono text-sm">
                   <div class="flex items-center justify-between gap-2">
                     <div class="min-w-0 flex-1 space-y-1">
-                      <div class="text-muted text-xs">Type</div>
+                      <div class="text-muted text-xs">{{ t('pages.domains.verification.type') }}</div>
                       <div>TXT</div>
                     </div>
                     <div class="min-w-0 flex-[2] space-y-1">
-                      <div class="text-muted text-xs">Name</div>
+                      <div class="text-muted text-xs">{{ t('pages.domains.verification.name') }}</div>
                       <div class="truncate">_crouton-verification</div>
                     </div>
                     <div class="min-w-0 flex-[3] space-y-1">
-                      <div class="text-muted text-xs">Value</div>
+                      <div class="text-muted text-xs">{{ t('pages.domains.verification.value') }}</div>
                       <div class="flex items-center gap-2">
                         <span class="truncate">{{ domain.verificationToken }}</span>
                         <UButton
@@ -116,7 +116,7 @@
                   </div>
                 </div>
                 <p class="text-muted text-xs">
-                  DNS changes can take up to 48 hours to propagate, but usually complete within minutes.
+                  {{ t('pages.domains.verification.dnsNote') }}
                 </p>
               </div>
 
@@ -124,9 +124,9 @@
               <div v-else class="mt-2">
                 <p class="text-muted text-sm">
                   <UIcon name="i-lucide-check-circle" class="text-success mr-1 inline-block size-4" />
-                  Domain verified
+                  {{ t('pages.domains.verified') }}
                   <span v-if="domain.verifiedAt" class="text-muted">
-                    on {{ formatDate(domain.verifiedAt) }}
+                    {{ t('pages.domains.verifiedOn', { date: formatDate(domain.verifiedAt) }) }}
                   </span>
                 </p>
               </div>
@@ -139,7 +139,7 @@
                 color="primary"
                 variant="soft"
                 size="sm"
-                label="Verify"
+                :label="t('buttons.verify')"
                 :loading="verifying === domain.id"
                 @click="verifyDomain(domain.id)"
               />
@@ -148,7 +148,7 @@
                 color="neutral"
                 variant="ghost"
                 size="sm"
-                label="Set Primary"
+                :label="t('pages.domains.setPrimary')"
                 :loading="settingPrimary === domain.id"
                 @click="setPrimary(domain.id)"
               />
@@ -171,6 +171,8 @@
 <script setup lang="ts">
 import { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
+
+const { t } = useI18n()
 
 interface Domain {
   id: string
@@ -198,12 +200,12 @@ const newDomainState = reactive({
   domain: '',
 })
 
-const addDomainSchema = z.object({
+const addDomainSchema = computed(() => z.object({
   domain: z
     .string()
-    .min(1, 'Domain is required')
-    .regex(/^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i, 'Invalid domain format'),
-})
+    .min(1, t('pages.domains.validation.required'))
+    .regex(/^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i, t('pages.domains.validation.invalidFormat')),
+}))
 
 // Fetch domains
 const {
@@ -231,11 +233,11 @@ const getStatusColor = (status: string) => {
 const getStatusLabel = (status: string) => {
   switch (status) {
     case 'verified':
-      return 'Verified'
+      return t('pages.domains.status.verified')
     case 'pending':
-      return 'Pending'
+      return t('pages.domains.status.pending')
     case 'failed':
-      return 'Failed'
+      return t('pages.domains.status.failed')
     default:
       return status
   }
@@ -252,12 +254,12 @@ const formatDate = (date: Date | string) => {
 const copyToken = async (token: string) => {
   await navigator.clipboard.writeText(token)
   toast.add({
-    title: 'Copied to clipboard',
+    title: t('success.copied'),
     color: 'success',
   })
 }
 
-const addDomain = async (event: FormSubmitEvent<z.infer<typeof addDomainSchema>>) => {
+const addDomain = async (event: FormSubmitEvent<z.infer<typeof addDomainSchema.value>>) => {
   adding.value = true
   try {
     await $fetch(`/api/teams/${currentTeam.value.id}/domains`, {
@@ -266,8 +268,8 @@ const addDomain = async (event: FormSubmitEvent<z.infer<typeof addDomainSchema>>
     })
 
     toast.add({
-      title: 'Domain added',
-      description: 'Add the DNS record to verify ownership.',
+      title: t('pages.domains.toast.added.title'),
+      description: t('pages.domains.toast.added.description'),
       color: 'success',
     })
 
@@ -276,7 +278,7 @@ const addDomain = async (event: FormSubmitEvent<z.infer<typeof addDomainSchema>>
     await refresh()
   } catch (error: any) {
     toast.add({
-      title: 'Failed to add domain',
+      title: t('pages.domains.toast.addFailed'),
       description: error.data?.statusMessage || error.message,
       color: 'error',
     })
@@ -295,13 +297,13 @@ const verifyDomain = async (domainId: string) => {
 
     if (result.verified) {
       toast.add({
-        title: 'Domain verified',
-        description: 'Your domain is now active.',
+        title: t('pages.domains.toast.verified.title'),
+        description: t('pages.domains.toast.verified.description'),
         color: 'success',
       })
     } else {
       toast.add({
-        title: 'Verification failed',
+        title: t('pages.domains.toast.verificationFailed'),
         description: result.message,
         color: 'warning',
       })
@@ -310,7 +312,7 @@ const verifyDomain = async (domainId: string) => {
     await refresh()
   } catch (error: any) {
     toast.add({
-      title: 'Verification error',
+      title: t('pages.domains.toast.verificationError'),
       description: error.data?.statusMessage || error.message,
       color: 'error',
     })
@@ -327,14 +329,14 @@ const setPrimary = async (domainId: string) => {
     })
 
     toast.add({
-      title: 'Primary domain updated',
+      title: t('pages.domains.toast.primaryUpdated'),
       color: 'success',
     })
 
     await refresh()
   } catch (error: any) {
     toast.add({
-      title: 'Failed to set primary',
+      title: t('pages.domains.toast.setPrimaryFailed'),
       description: error.data?.statusMessage || error.message,
       color: 'error',
     })
@@ -351,14 +353,14 @@ const deleteDomain = async (domainId: string) => {
     })
 
     toast.add({
-      title: 'Domain removed',
+      title: t('pages.domains.toast.removed'),
       color: 'success',
     })
 
     await refresh()
   } catch (error: any) {
     toast.add({
-      title: 'Failed to remove domain',
+      title: t('pages.domains.toast.removeFailed'),
       description: error.data?.statusMessage || error.message,
       color: 'error',
     })

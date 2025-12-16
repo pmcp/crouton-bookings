@@ -1,12 +1,12 @@
 <template>
   <div v-if="user.banned" class="flex items-center gap-0.5">
-    <span class="text-xs text-rose-500">{{ $t('common.yes') }}</span>
+    <span class="text-xs text-rose-500">{{ t('common.yes') }}</span>
     <UPopover mode="hover">
       <UButton variant="ghost" size="xs" color="error" icon="i-lucide-info" />
       <template #content>
         <div class="w-64 p-4">
           <p class="text-xs font-bold text-neutral-500 dark:text-neutral-400">
-            {{ $t('fields.bannedUntil') }}
+            {{ t('fields.bannedUntil') }}
           </p>
           <p class="mt-1 text-sm">
             {{ formatDate(user.bannedUntil ?? undefined) }}
@@ -14,11 +14,11 @@
           <p
             class="mt-4 text-xs font-bold text-neutral-600 dark:text-neutral-400"
           >
-            {{ $t('fields.reason') }}
+            {{ t('fields.reason') }}
           </p>
           <p class="mt-1 text-sm">{{ user.bannedReason }}</p>
           <UButton
-            :label="$t('buttons.liftBan')"
+            :label="t('buttons.liftBan')"
             block
             variant="soft"
             color="neutral"
@@ -30,12 +30,14 @@
       </template>
     </UPopover>
   </div>
-  <div v-else>{{ $t('common.no') }}</div>
+  <div v-else>{{ t('common.no') }}</div>
 </template>
 
 <script lang="ts" setup>
 import { useDateFormat } from '@vueuse/core'
 import type { User } from '@@/types/database'
+
+const { t } = useI18n()
 
 defineProps<{
   user: User

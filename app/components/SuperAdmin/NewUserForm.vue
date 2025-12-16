@@ -1,12 +1,12 @@
 <template>
   <UForm :schema="schema" :state="state" class="space-y-6" @submit="onSubmit">
-    <UFormField :label="$t('fields.name')" name="name" required>
+    <UFormField :label="t('fields.name')" name="name" required>
       <UInput v-model="state.name" class="w-full" size="lg" />
     </UFormField>
-    <UFormField :label="$t('fields.email')" name="email" required>
+    <UFormField :label="t('fields.email')" name="email" required>
       <UInput v-model="state.email" class="w-full" size="lg" />
     </UFormField>
-    <UFormField :label="$t('fields.password')" name="password" required>
+    <UFormField :label="t('fields.password')" name="password" required>
       <UInput
         ref="passwordInput"
         v-model="state.password"
@@ -16,7 +16,7 @@
         :ui="{ trailing: 'pr-1' }"
       >
         <template #trailing>
-          <UTooltip :text="$t('superAdmin.users.form.generatePassword')" :content="{ side: 'right' }">
+          <UTooltip :text="t('superAdmin.users.form.generatePassword')" :content="{ side: 'right' }">
             <UButton
               color="neutral"
               variant="link"
@@ -28,15 +28,15 @@
         </template>
       </UInput>
     </UFormField>
-    <UFormField :label="$t('fields.phoneNumber')" name="phoneNumber">
+    <UFormField :label="t('fields.phoneNumber')" name="phoneNumber">
       <UInput
         v-model="state.phoneNumber"
         class="w-full"
         size="lg"
-        :placeholder="$t('placeholders.phoneNumber')"
+        :placeholder="t('placeholders.phoneNumber')"
       />
     </UFormField>
-    <UFormField :label="$t('fields.avatar')" name="avatar">
+    <UFormField :label="t('fields.avatar')" name="avatar">
       <AppAvatarUploader
         v-model="state.avatarUrl"
         :avatar-size="'md'"
@@ -46,10 +46,10 @@
     <UCheckbox
       v-model="state.emailVerified"
       size="lg"
-      :label="$t('messages.autoVerifyUser')"
-      :description="$t('superAdmin.users.form.autoVerifyDescription')"
+      :label="t('messages.autoVerifyUser')"
+      :description="t('superAdmin.users.form.autoVerifyDescription')"
     />
-    <UButton :loading="loading" type="submit" :label="$t('buttons.inviteUser')" />
+    <UButton :loading="loading" type="submit" :label="t('buttons.inviteUser')" />
   </UForm>
 </template>
 

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p class="text-sm font-semibold">{{ $t('teams.activeMembers') }}</p>
+    <p class="text-sm font-semibold">{{ t('teams.activeMembers') }}</p>
     <div
       class="mt-2 overflow-x-auto rounded-lg border border-neutral-200 dark:divide-white/10 dark:border-white/10"
     >
@@ -59,7 +59,7 @@
                 member.lastLoginAt
                   ? useDateFormat(member.lastLoginAt, 'MMM D, YYYY hh:mm a')
                     .value
-                  : $t('teams.neverLoggedIn')
+                  : t('teams.neverLoggedIn')
               }}
             </td>
             <td class="px-4 py-3">

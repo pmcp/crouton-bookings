@@ -1,5 +1,5 @@
 <template>
-  <AppContainer title="Team Settings">
+  <AppContainer :title="t('teams.teamSettings')">
     <div class="space-y-8">
       <AppTeamSettings />
       <AppTeamDelete />
@@ -7,4 +7,6 @@
   </AppContainer>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+const { t } = useI18n()
+</script>

@@ -8,10 +8,10 @@
           <p class="text-sm text-neutral-500">{{ user.email }}</p>
         </div>
       </div>
-      <UFormField :label="$t('fields.reason')" name="reason" required>
+      <UFormField :label="t('fields.reason')" name="reason" required>
         <UTextarea v-model="state.reason" class="w-full" size="lg" />
       </UFormField>
-      <UFormField :label="$t('fields.bannedUntil')" name="bannedUntil" required>
+      <UFormField :label="t('fields.bannedUntil')" name="bannedUntil" required>
         <UInput v-model="state.bannedUntil" class="w-full" size="lg">
           <template #trailing>
             <UPopover>
@@ -34,7 +34,7 @@
       </UFormField>
       <UButton
         type="submit"
-        :label="$t('buttons.banUser')"
+        :label="t('buttons.banUser')"
         color="neutral"
         :loading="loading"
       />

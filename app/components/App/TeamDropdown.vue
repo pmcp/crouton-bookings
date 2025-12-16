@@ -21,8 +21,8 @@
   <UDrawer
     v-model:open="newTeamModal"
     :ui="{ container: 'max-w-xl mx-auto' }"
-    :title="$t('teams.createNewTeam')"
-    :description="$t('teams.teamWorkspaceDescription')"
+    :title="t('teams.createNewTeam')"
+    :description="t('teams.teamWorkspaceDescription')"
   >
     <template #body>
       <AppNewTeamForm @success="onTeamCreated" />

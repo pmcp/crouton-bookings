@@ -1,7 +1,7 @@
 <template>
   <UCard>
     <template #header>
-      <h3 class="text-sm font-medium">{{ $t('accountSettings.dangerZone.title') }}</h3>
+      <h3 class="text-sm font-medium">{{ t('accountSettings.dangerZone.title') }}</h3>
     </template>
     <div class="flex items-start gap-2 md:items-center">
       <div
@@ -10,17 +10,17 @@
         <UIcon name="i-lucide-trash-2" class="h-5 w-5 text-red-500" />
       </div>
       <div class="flex-1">
-        <h4 class="font-medium">{{ $t('teams.deleteTeam') }}</h4>
+        <h4 class="font-medium">{{ t('teams.deleteTeam') }}</h4>
         <p class="text-xs text-neutral-500 dark:text-neutral-400">
-          {{ $t('teams.deleteTeamDescription') }}
+          {{ t('teams.deleteTeamDescription') }}
         </p>
       </div>
       <UModal
-        :title="`${$t('common.delete')} ${currentTeam?.name}`"
-        :description="$t('accountSettings.dangerZone.irreversible')"
+        :title="`${t('common.delete')} ${currentTeam?.name}`"
+        :description="t('accountSettings.dangerZone.irreversible')"
         close-icon="i-lucide-x"
       >
-        <UButton color="error" size="lg">{{ $t('teams.deletePermanently') }}</UButton>
+        <UButton color="error" size="lg">{{ t('teams.deletePermanently') }}</UButton>
 
         <template #body>
           <UForm
@@ -30,13 +30,13 @@
             @submit="handleSubmit"
           >
             <UFormField
-              :label="$t('teams.teamName')"
+              :label="t('teams.teamName')"
               name="teamName"
-              :help="$t('teams.confirmDeleteHelp', { teamName: currentTeam?.name })"
+              :help="t('teams.confirmDeleteHelp', { teamName: currentTeam?.name })"
             >
               <UInput
                 v-model="formState.teamName"
-                :placeholder="$t('placeholders.enterTeamName')"
+                :placeholder="t('placeholders.enterTeamName')"
                 class="w-full"
               />
             </UFormField>
@@ -48,7 +48,7 @@
               :loading="loading"
               :disabled="formState.teamName !== currentTeam?.name"
             >
-              {{ $t('teams.deletePermanently') }}
+              {{ t('teams.deletePermanently') }}
             </UButton>
           </UForm>
         </template>

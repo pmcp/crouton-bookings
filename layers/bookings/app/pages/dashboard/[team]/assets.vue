@@ -2,10 +2,12 @@
 definePageMeta({
   middleware: 'auth',
 })
+
+const { t } = useI18n()
 </script>
 
 <template>
-  <AppContainer title="Assets">
+  <AppContainer :title="t('navigation.assets')">
     <BookingsAssetsList />
   </AppContainer>
 </template>

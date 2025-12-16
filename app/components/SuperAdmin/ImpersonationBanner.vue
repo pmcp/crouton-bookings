@@ -3,17 +3,17 @@
     class="sticky top-0 z-40 flex h-8 w-full animate-pulse items-center justify-between border-b border-white/10 bg-black px-4 text-sm text-white dark:border-neutral-700 dark:bg-neutral-300 dark:text-neutral-950"
   >
     <div class="flex items-center gap-2">
-      {{ $t('superAdmin.impersonation.banner') }}
+      {{ t('superAdmin.impersonation.banner') }}
       <div class="flex items-center gap-2">
         <UAvatar :src="user?.avatarUrl" size="3xs" :alt="user?.name" />
         <span class="font-bold"> {{ user?.email }} </span>
       </div>
-      {{ $t('superAdmin.impersonation.asSuperAdmin') }}
+      {{ t('superAdmin.impersonation.asSuperAdmin') }}
     </div>
     <UButton
       size="xs"
       color="neutral"
-      :label="$t('buttons.stopSession')"
+      :label="t('buttons.stopSession')"
       @click="stopImpersonation()"
     />
   </div>
@@ -21,6 +21,8 @@
 
 <script lang="ts" setup>
 import type { User } from '@@/types/database'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   user: User

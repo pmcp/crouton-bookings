@@ -9,8 +9,8 @@
     </div>
     <div class="space-y-4 rounded-md bg-neutral-100 p-4 dark:bg-neutral-950">
       <p class="text-sm text-neutral-500">
-        {{ $t('superAdmin.users.delete.warning') }}
-        {{ $t('superAdmin.users.delete.partOfTeams', { name: user.name }) }}
+        {{ t('superAdmin.users.delete.warning') }}
+        {{ t('superAdmin.users.delete.partOfTeams', { name: user.name }) }}
       </p>
       <div
         v-for="teamMember in user.teamMembers"
@@ -29,7 +29,7 @@
             {{
               teamMember.role === 'owner'
                 ? ''
-                : `(${$t('teams.owner')}: ${getTeamOwnerName(teamMember.team.ownerId)})`
+                : `(${t('teams.owner')}: ${getTeamOwnerName(teamMember.team.ownerId)})`
             }}
           </p>
         </div>
@@ -40,13 +40,13 @@
       <UButton
         variant="soft"
         color="neutral"
-        :label="$t('common.cancel')"
+        :label="t('common.cancel')"
         @click="$emit('cancel')"
       />
       <UButton
         variant="soft"
         color="error"
-        :label="$t('buttons.deleteUser')"
+        :label="t('buttons.deleteUser')"
         :loading="loading"
         @click="deleteUser"
       />

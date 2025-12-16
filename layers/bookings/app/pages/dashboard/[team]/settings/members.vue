@@ -1,9 +1,9 @@
 <template>
-  <AppContainer title="Workspace Members">
+  <AppContainer :title="t('navigation.workspaceMembers')">
     <template #actions>
       <UButton
         color="neutral"
-        label="Invite Member"
+        :label="t('teams.inviteMember')"
         @click="newMemberModal = true"
       />
     </template>
@@ -11,8 +11,8 @@
       v-model:open="newMemberModal"
       size="xl"
       prevent-close
-      :title="`Invite a new member to ${currentTeam?.name}`"
-      description="We will email them a link to join your team. Invitations are valid for 7 days."
+      :title="t('pages.members.modal.title', { team: currentTeam?.name })"
+      :description="t('pages.members.modal.description')"
     >
       <template #body>
         <UForm
@@ -21,7 +21,7 @@
           :schema="schema"
           @submit="onSubmit as any"
         >
-          <UFormField required label="Member email" name="email">
+          <UFormField required :label="t('fields.memberEmail')" name="email">
             <UInput
               v-model="state.email"
               placeholder="john@doe.com"
@@ -29,7 +29,7 @@
               size="lg"
             />
           </UFormField>
-          <UFormField required label="Role" name="role">
+          <UFormField required :label="t('fields.role')" name="role">
             <USelectMenu
               v-model="state.role"
               :items="roleOptions"
@@ -45,7 +45,7 @@
             type="submit"
             block
             size="lg"
-            label="Send invitation"
+            :label="t('buttons.sendInvitation')"
           />
         </UForm>
       </template>
@@ -64,6 +64,7 @@ import { inviteTeamMemberSchema } from '@@/shared/validations/team'
 import { UserRole } from '@@/constants'
 import type { FetchError } from 'ofetch'
 
+const { t } = useI18n()
 const { currentTeam, inviteMember, loading } = useTeam()
 const toast = useToast()
 
@@ -75,15 +76,15 @@ const state = reactive({
 })
 
 const roleOptions = [
-  { label: 'Member', id: UserRole.MEMBER },
-  { label: 'Admin', id: UserRole.ADMIN },
-  { label: 'Owner', id: UserRole.OWNER },
+  { label: t('teams.member'), id: UserRole.MEMBER },
+  { label: t('teams.admin'), id: UserRole.ADMIN },
+  { label: t('teams.owner'), id: UserRole.OWNER },
 ]
 
 const schema = inviteTeamMemberSchema.refine(
   (data) => data.email !== user.value?.email,
   {
-    message: 'You cannot invite yourself',
+    message: t('pages.members.validation.cannotInviteSelf'),
   },
 )
 
@@ -92,15 +93,15 @@ const onSubmit = async (event: FormSubmitEvent<z.infer<typeof schema>>) => {
   try {
     await inviteMember(event.data.email, event.data.role)
     toast.add({
-      title: 'Member invited successfully',
-      description: `We have sent an invitation to ${event.data.email}`,
+      title: t('toast.memberInvited.title'),
+      description: t('pages.members.toast.inviteSent', { email: event.data.email }),
       color: 'success',
     })
     newMemberModal.value = false
     await refreshNuxtData('team-invites')
   } catch (error) {
     toast.add({
-      title: 'Failed to invite member',
+      title: t('toast.failedToInviteMember.title'),
       description: (error as FetchError).data.message,
       color: 'error',
     })
