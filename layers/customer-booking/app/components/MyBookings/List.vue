@@ -637,7 +637,11 @@ useEventListener(scrollContainer, 'scroll', onBookingsScroll, { passive: true })
           :ui="{ root: 'w-full', header: 'justify-between', gridRow: 'grid grid-cols-7 mb-1' }"
         >
           <template #day="{ day }">
-            <div class="flex flex-col items-center">
+            <div
+              class="flex flex-col items-center"
+              @mouseenter="hoveredDate = day.toDate(getLocalTimeZone())"
+              @mouseleave="hoveredDate = null"
+            >
               <span>{{ day.day }}</span>
               <div v-if="hasBookingOnDate(day)" class="flex flex-col gap-0.5 mt-0.5">
                 <BookingsLocationsSlotIndicator
