@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 29 / 54 |
+| **Tasks Completed** | 30 / 54 |
 | **Current Phase** | Phase 6 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
@@ -617,11 +617,15 @@ const handleSubmit = async () => {
 - [x] ✅ Include twoFactor table (2FA)
 - [x] ✅ Include subscription table (Stripe billing)
 
-### Task 6.2: Schema Extensions
-- [ ] Add custom fields to users table (if needed)
-- [ ] Add `personal` flag to organizations
-- [ ] Add `isDefault` flag for single-tenant mode
-- [ ] Create index for common queries
+### Task 6.2: Schema Extensions ✅
+- [x] ✅ Add `personal` flag column to organization table
+- [x] ✅ Add `isDefault` flag column for single-tenant mode
+- [x] ✅ Add `ownerId` column for personal workspaces
+- [x] ✅ Create indexes: `organization_owner_idx`, `organization_default_idx`, `organization_personal_idx`
+- [x] ✅ Update auth.ts to use new columns instead of metadata
+- [x] ✅ Update team.ts utilities for backward compatibility
+- [x] ✅ Update composables (useSession, useTeam) to check columns with metadata fallback
+- [x] ✅ Update Team type to include ownerId field
 
 ### Task 6.3: Migration Support
 - [ ] Document migration command: `npx @better-auth/cli migrate`
@@ -1747,8 +1751,25 @@ const team = getTeamContext(event)
 ### Day 7: 2024-12-16
 **Tasks completed:**
 - Task 6.1: Schema Integration
+- Task 6.2: Schema Extensions
 
-**Implementation details:**
+**Task 6.2 Implementation details:**
+- Added new columns to organization table:
+  - `personal` (boolean) - Marks personal workspaces
+  - `isDefault` (boolean) - Marks default organization for single-tenant mode
+  - `ownerId` (text) - Links personal workspace to owner user
+- Added indexes for efficient queries:
+  - `organization_owner_idx` - Find personal workspace by owner
+  - `organization_default_idx` - Find default organization
+  - `organization_personal_idx` - Filter personal workspaces
+- Updated `ensureDefaultOrgExists()` to use `isDefault` column instead of metadata
+- Updated `createPersonalOrg()` to use `personal` and `ownerId` columns
+- Updated `getUserPersonalOrgId()` to query by `ownerId` (indexed, more efficient)
+- Updated `mapOrganizationToTeam()` in team.ts with backward compatibility
+- Updated composables (useSession, useTeam) to check both columns and metadata
+- Updated Team type in types/auth.ts to include `ownerId` field
+
+**Task 6.1 Implementation details:**
 - Created comprehensive Better Auth Drizzle schema at `server/database/schema/auth.ts`
 - Implemented all 10 required tables:
   1. **user** - Core user identity with stripeCustomerId extension
