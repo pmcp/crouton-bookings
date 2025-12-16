@@ -1,7 +1,7 @@
 <template>
   <div>
     <header class="px-2">
-      <p class="font-bold">Super Admin</p>
+      <p class="font-bold">{{ t('navigation.superAdmin') }}</p>
     </header>
     <AppSidebarContent class="mt-2">
       <AppSidebarGroup>
@@ -12,41 +12,43 @@
 </template>
 
 <script lang="ts" setup>
-const links = [
+const { t } = useI18n()
+
+const links = computed(() => [
   {
-    label: 'Back to Dashboard',
+    label: t('navigation.backToDashboard'),
     icon: 'i-lucide-chevron-left',
     to: '/dashboard',
   },
   {
-    label: 'Users',
+    label: t('navigation.users'),
     icon: 'i-lucide-users',
     to: '/dashboard/super-admin',
   },
   {
-    label: 'Teams',
+    label: t('navigation.teams'),
     icon: 'i-lucide-users',
     to: '/dashboard/super-admin/teams',
   },
   {
-    label: 'Translations',
+    label: t('navigation.translations'),
     icon: 'i-lucide-languages',
     to: '/dashboard/super-admin/translations',
   },
   {
-    label: 'Stripe Plans',
+    label: t('navigation.stripePlans'),
     icon: 'i-lucide-credit-card',
     to: '/dashboard/super-admin/stripe-plans',
   },
   {
-    label: 'Feedback Submissions',
+    label: t('navigation.feedbackSubmissions'),
     icon: 'i-lucide-message-circle',
     to: '/dashboard/super-admin/feedback-submissions',
   },
   {
-    label: 'Newsletter Subscribers',
+    label: t('navigation.newsletterSubscribers'),
     icon: 'i-lucide-mail',
     to: '/dashboard/super-admin/newsletter-subscribers',
   },
-]
+])
 </script>

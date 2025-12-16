@@ -5,21 +5,23 @@
         <AppSidebarLink
           to="/dashboard"
           icon="i-lucide-chevron-left"
-          label="Dashboard"
+          :label="t('navigation.dashboard')"
         />
         <AppSidebarLink
           to="/dashboard/account-settings"
           icon="i-lucide-user"
-          label="Account"
+          :label="t('navigation.account')"
         />
         <AppSidebarLink
           to="/dashboard/account-security"
           icon="i-lucide-lock"
-          label="Security"
+          :label="t('navigation.security')"
         />
       </AppSidebarGroup>
     </AppSidebarContent>
   </div>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+const { t } = useI18n()
+</script>

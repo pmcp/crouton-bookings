@@ -11,7 +11,7 @@
       </li>
       <USeparator class="my-4" />
       <li class="px-2 py-1">
-        <span class="text-xs font-medium text-gray-400 uppercase tracking-wider">Bookings</span>
+        <span class="text-xs font-medium text-gray-400 uppercase tracking-wider">{{ t('navigation.sections.bookings') }}</span>
       </li>
       <li v-for="link in bookingsLinks" :key="link.to">
         <AppSidebarLink v-bind="link" />
@@ -25,27 +25,29 @@
 </template>
 
 <script lang="ts" setup>
+const { t } = useI18n()
+
 const props = defineProps<{
   isAccountSettings: boolean
   teamSlug?: string
 }>()
 
-const accountLinks = [
+const accountLinks = computed(() => [
   {
-    label: 'Account Settings',
+    label: t('navigation.accountSettings'),
     icon: 'i-lucide-settings',
     to: '/dashboard/account-settings',
   },
-]
+])
 
 const teamNavLinks = computed(() => [
   {
-    label: 'Home',
+    label: t('navigation.home'),
     icon: 'i-lucide-home',
     to: `/dashboard/${props.teamSlug}`,
   },
   {
-    label: 'Posts',
+    label: t('navigation.posts'),
     icon: 'i-lucide-file-text',
     to: `/dashboard/${props.teamSlug}/posts`,
   },
@@ -53,12 +55,12 @@ const teamNavLinks = computed(() => [
 
 const bookingsLinks = computed(() => [
   {
-    label: 'Book Now',
+    label: t('navigation.bookNow'),
     icon: 'i-lucide-calendar-plus',
     to: `/dashboard/${props.teamSlug}/bookings/new`,
   },
   {
-    label: 'My Bookings',
+    label: t('navigation.myBookings'),
     icon: 'i-lucide-calendar-check',
     to: `/dashboard/${props.teamSlug}/bookings`,
   },
@@ -66,27 +68,27 @@ const bookingsLinks = computed(() => [
 
 const teamSettingsLinks = computed(() => [
   {
-    label: 'Workspace Settings',
+    label: t('navigation.workspaceSettings'),
     icon: 'i-lucide-settings',
     to: `/dashboard/${props.teamSlug}/settings`,
   },
   {
-    label: 'Workspace Members',
+    label: t('navigation.workspaceMembers'),
     icon: 'i-lucide-users',
     to: `/dashboard/${props.teamSlug}/settings/members`,
   },
   {
-    label: 'Domains',
+    label: t('navigation.domains'),
     icon: 'i-lucide-globe',
     to: `/dashboard/${props.teamSlug}/settings/domains`,
   },
   {
-    label: 'Email Templates',
+    label: t('navigation.emailTemplates'),
     icon: 'i-lucide-mail',
     to: `/dashboard/${props.teamSlug}/settings/email-templates`,
   },
   {
-    label: 'Billing',
+    label: t('navigation.billing'),
     icon: 'i-lucide-credit-card',
     to: `/dashboard/${props.teamSlug}/settings/billing`,
   },

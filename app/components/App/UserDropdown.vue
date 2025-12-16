@@ -46,8 +46,8 @@
   </UDropdownMenu>
   <UModal
     v-model:open="feedbackModal"
-    title="Need help?"
-    description="Have a question or need assistance? We're here to help!"
+    :title="t('feedback.needHelp')"
+    :description="t('feedback.helpDescription')"
   >
     <template #body>
       <AppFeedbackForm @close="feedbackModal = false" />
@@ -58,6 +58,7 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
 
+const { t } = useI18n()
 const { user } = useUserSession()
 const { logout } = useAuth()
 const mobileMenu = useState('mobileMenu')
@@ -67,7 +68,14 @@ async function signOut() {
   await logout()
   await navigateTo('/')
 }
-const items = ref([
+
+const colorMode = useColorMode()
+
+function setColorMode(mode: string) {
+  colorMode.preference = mode
+}
+
+const items = computed(() => [
   [
     {
       slot: 'profile',
@@ -84,7 +92,7 @@ const items = ref([
   ],
   [
     {
-      label: 'Account Settings',
+      label: t('navigation.accountSettings'),
       icon: 'i-lucide-user-cog',
       to: '/dashboard/account-settings',
       onSelect: () => {
@@ -94,12 +102,12 @@ const items = ref([
   ],
   [
     {
-      label: 'Theme',
+      label: t('settings.theme'),
       icon: 'i-lucide-moon',
       children: [
         [
           {
-            label: 'Light',
+            label: t('settings.lightMode'),
             icon: 'i-lucide-sun',
             onSelect: () => {
               setColorMode('light')
@@ -107,7 +115,7 @@ const items = ref([
             },
           },
           {
-            label: 'Dark',
+            label: t('settings.darkMode'),
             icon: 'i-lucide-moon',
             onSelect: () => {
               setColorMode('dark')
@@ -117,7 +125,7 @@ const items = ref([
         ],
         [
           {
-            label: 'System',
+            label: t('settings.autoMode'),
             icon: 'i-lucide-monitor',
             onSelect: () => {
               setColorMode('system')
@@ -130,7 +138,7 @@ const items = ref([
   ],
   [
     {
-      label: 'Support',
+      label: t('navigation.support'),
       icon: 'i-lucide-life-buoy',
       onSelect: () => {
         feedbackModal.value = true
@@ -138,7 +146,7 @@ const items = ref([
       },
     },
     {
-      label: 'Docs',
+      label: t('buttons.docs'),
       icon: 'i-lucide-cloud',
     },
   ],
@@ -146,7 +154,7 @@ const items = ref([
     ? [
         [
           {
-            label: 'Super Admin',
+            label: t('navigation.superAdmin'),
             icon: 'i-lucide-shield',
             to: '/dashboard/super-admin',
           },
@@ -155,17 +163,11 @@ const items = ref([
     : []),
   [
     {
-      label: 'Logout',
+      label: t('auth.logout'),
       icon: 'i-lucide-log-out',
       onSelect: signOut,
       color: 'error' as const,
     },
   ],
 ])
-
-const colorMode = useColorMode()
-
-function setColorMode(mode: string) {
-  colorMode.preference = mode
-}
 </script>
