@@ -2,26 +2,25 @@
   <div
     class="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-950 dark:bg-red-950/20"
   >
-    <h3 class="font-medium text-red-950 dark:text-red-50">Danger Zone</h3>
+    <h3 class="font-medium text-red-950 dark:text-red-50">{{ t('accountSettings.dangerZone.title') }}</h3>
     <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-      Delete your account. This action is irreversible and cannot be undone. All
-      data associated including images will be deleted.
+      {{ t('accountSettings.dangerZone.fullDescription') }}
     </p>
     <UButton
       class="mt-4"
       color="error"
-      label="Proceed"
+      :label="t('accountSettings.dangerZone.proceed')"
       @click="deleteAccountModal = true"
     />
   </div>
   <UModal
     v-model:open="deleteAccountModal"
-    title="Delete Account"
-    description="Please confirm your intent to delete your account."
+    :title="t('accountSettings.dangerZone.deleteAccount')"
+    :description="t('accountSettings.dangerZone.description')"
   >
     <template #body>
       <UForm :schema="schema" :state="state" class="mb-4" @submit="onSubmit">
-        <UFormField label="Please type 'delete' to confirm" name="confirmation">
+        <UFormField :label="t('accountSettings.dangerZone.confirmationLabel')" name="confirmation">
           <UInput
             v-model="state.confirmation"
             class="w-full"
@@ -32,7 +31,7 @@
 
         <div class="mt-6 flex justify-end gap-2">
           <UButton
-            label="Cancel"
+            :label="t('accountSettings.dangerZone.cancel')"
             variant="ghost"
             color="neutral"
             :loading="isDeleting"
@@ -40,7 +39,7 @@
           />
           <UButton
             type="submit"
-            label="Proceed"
+            :label="t('accountSettings.dangerZone.proceed')"
             color="error"
             :loading="isDeleting"
           />
@@ -54,6 +53,7 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
+const { t } = useI18n()
 const { logout } = useAuth()
 const deleteAccountModal = ref(false)
 const isDeleting = ref(false)
@@ -78,16 +78,16 @@ async function onSubmit(_event: FormSubmitEvent<Schema>) {
       method: 'DELETE',
     })
     toast.add({
-      title: 'Account Deleted',
-      description: 'Your account has been successfully deleted.',
+      title: t('accountSettings.dangerZone.accountDeleted'),
+      description: t('accountSettings.dangerZone.accountDeletedDescription'),
       color: 'success',
     })
     await logout()
     await navigateTo('/')
   } catch {
     toast.add({
-      title: 'Error',
-      description: 'Failed to delete account. Please try again.',
+      title: t('toast.error.title'),
+      description: t('accountSettings.dangerZone.failedToDelete'),
       color: 'error',
     })
   } finally {

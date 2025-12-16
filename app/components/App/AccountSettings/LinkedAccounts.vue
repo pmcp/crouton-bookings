@@ -2,16 +2,16 @@
   <UCard>
     <template #header>
       <div class="flex items-center justify-between">
-        <h3 class="font-medium">Linked Accounts</h3>
+        <h3 class="font-medium">{{ t('accountSettings.linkedAccounts.title') }}</h3>
         <UButton
-          label="Link Account"
+          :label="t('accountSettings.linkedAccounts.linkAccount')"
           variant="subtle"
           color="neutral"
           @click="linkAccountModal = true"
         />
       </div>
       <p class="mt-1 text-sm text-neutral-500">
-        Link a new OAuth provider to your account.
+        {{ t('accountSettings.linkedAccounts.linkNewProvider') }}
       </p>
     </template>
     <ul
@@ -31,11 +31,11 @@
         <div class="flex-1">
           <p>{{ getProviderName(account.provider) }}</p>
           <p class="text-xs text-neutral-500">
-            Connected on
+            {{ t('accountSettings.linkedAccounts.connectedOn') }}
             {{
               account.createdAt
                 ? useDateFormat(account.createdAt, 'MMM D, YYYY').value
-                : 'Unknown date'
+                : t('accountSettings.linkedAccounts.unknownDate')
             }}
           </p>
         </div>
@@ -51,8 +51,8 @@
   </UCard>
   <UModal
     v-model:open="linkAccountModal"
-    title="Link Account"
-    description="Link an account to your account."
+    :title="t('accountSettings.linkedAccounts.linkAccount')"
+    :description="t('accountSettings.linkedAccounts.description')"
   >
     <template #body>
       <div class="space-y-2">
@@ -72,6 +72,7 @@
 import { useDateFormat } from '@vueuse/core'
 import type { OAuthAccounts } from '@@/types/database'
 
+const { t } = useI18n()
 const linkAccountModal = ref(false)
 const toast = useToast()
 const loading = ref(false)
@@ -127,14 +128,14 @@ const unlinkAccount = async (account: OAuthAccounts) => {
     // Refresh the linked accounts list
     await refreshNuxtData('linked-accounts')
     toast.add({
-      title: 'Account unlinked',
-      description: `Your ${account.provider} account has been successfully unlinked`,
+      title: t('accountSettings.linkedAccounts.accountUnlinked'),
+      description: t('accountSettings.linkedAccounts.accountUnlinkedDescription', { provider: account.provider }),
       color: 'success',
     })
   } catch (error: any) {
-    const errorMessage = error.data?.statusMessage || 'Failed to unlink account'
+    const errorMessage = error.data?.statusMessage || t('accountSettings.linkedAccounts.failedToUnlink')
     toast.add({
-      title: 'Error',
+      title: t('toast.error.title'),
       description: errorMessage,
       color: 'error',
     })

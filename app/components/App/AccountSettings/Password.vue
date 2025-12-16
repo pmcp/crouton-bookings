@@ -1,9 +1,9 @@
 <template>
   <UCard>
     <template #header>
-      <h3 class="font-medium">Security</h3>
+      <h3 class="font-medium">{{ t('accountSettings.password.title') }}</h3>
       <p class="mt-1 text-sm text-neutral-500">
-        Your credentials are encrypted and stored securely.
+        {{ t('accountSettings.password.description') }}
       </p>
     </template>
     <UForm
@@ -12,11 +12,11 @@
       class="space-y-4"
       @submit="onSubmit"
     >
-      <UFormField label="New Password" name="password">
+      <UFormField :label="t('accountSettings.password.newPassword')" name="password">
         <UInput
           v-model="state.password"
           type="password"
-          placeholder="Enter new password"
+          :placeholder="t('placeholders.enterNewPassword')"
           class="w-full"
           size="lg"
         />
@@ -26,13 +26,14 @@
         :loading="loading"
         :disabled="loading"
         type="submit"
-        label="Update Password"
+        :label="t('accountSettings.password.updatePassword')"
       />
     </UForm>
   </UCard>
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 const { loading, updatePassword, passwordSchema } = useUserAccount()
 const state = ref({ password: '' })
 

@@ -1,20 +1,20 @@
 <template>
   <UCard>
     <template #header>
-      <h3 class="font-medium">Phone Number</h3>
+      <h3 class="font-medium">{{ t('accountSettings.phoneNumber.title') }}</h3>
       <p class="mt-1 text-sm text-neutral-500">
-        Your phone number is not shared with anyone.
+        {{ t('accountSettings.phoneNumber.privacyNotice') }}
       </p>
     </template>
 
     <div v-if="mode === 'input'" class="max-w-md space-y-4">
       <UFormField
-        label="Phone Number"
-        help="Enter your phone number in E.164 format (e.g. +12125551234)"
+        :label="t('accountSettings.phoneNumber.phoneNumber')"
+        :help="t('accountSettings.phoneNumber.help')"
       >
         <UInput
           v-model="phoneNumber"
-          placeholder="+1234567890"
+          :placeholder="t('placeholders.phoneNumber')"
           class="w-full"
           size="lg"
           type="tel"
@@ -25,7 +25,7 @@
           color="neutral"
           :loading="loading"
           :disabled="loading || !isValidPhoneNumber"
-          label="Verify Phone Number"
+          :label="t('accountSettings.phoneNumber.verify')"
           @click="sendVerificationCode"
         />
 
@@ -35,7 +35,7 @@
           variant="ghost"
           :loading="loading"
           :disabled="loading"
-          label="Remove"
+          :label="t('accountSettings.phoneNumber.remove')"
           @click="removePhoneNumber"
         />
       </div>
@@ -43,18 +43,18 @@
 
     <div v-else-if="mode === 'verify'" class="max-w-md space-y-4">
       <p class="text-sm">
-        We've sent a verification code to
+        {{ t('accountSettings.phoneNumber.sentCodeTo') }}
         <span class="font-medium">{{ phoneNumber }}</span>
       </p>
 
-      <UFormField label="Verification Code">
+      <UFormField :label="t('accountSettings.phoneNumber.verificationCode')">
         <UPinInput
           v-model="otpCode"
           :length="6"
           size="lg"
           otp
           type="number"
-          placeholder="○"
+          :placeholder="t('placeholders.verificationCode')"
         />
       </UFormField>
 
@@ -63,7 +63,7 @@
           color="neutral"
           :loading="loading"
           :disabled="loading || otpCode.length !== 6"
-          label="Verify"
+          :label="t('accountSettings.phoneNumber.verifyButton')"
           @click="verifyCode"
         />
 
@@ -75,7 +75,7 @@
           @click="sendVerificationCode"
         >
           {{
-            resendCountdown > 0 ? `Resend (${resendCountdown}s)` : 'Resend Code'
+            resendCountdown > 0 ? t('accountSettings.phoneNumber.resendCountdown', { seconds: resendCountdown }) : t('accountSettings.phoneNumber.resend')
           }}
         </UButton>
 
@@ -83,14 +83,14 @@
           color="neutral"
           variant="ghost"
           :disabled="loading"
-          label="Cancel"
+          :label="t('accountSettings.phoneNumber.cancel')"
           @click="mode = 'input'"
         />
       </div>
     </div>
 
     <div v-else-if="mode === 'display'" class="max-w-md space-y-4">
-      <UFormField label="Phone Number">
+      <UFormField :label="t('accountSettings.phoneNumber.phoneNumber')">
         <UInput
           :value="user?.phoneNumber"
           class="w-full"
@@ -102,7 +102,7 @@
 
       <UButton
         color="neutral"
-        label="Change Phone Number"
+        :label="t('accountSettings.phoneNumber.changeNumber')"
         @click="mode = 'input'"
       />
     </div>
@@ -112,6 +112,7 @@
 <script lang="ts" setup>
 import { phoneSchema } from '@@/shared/validations/auth'
 
+const { t } = useI18n()
 const { user, fetch: refreshSession } = useUserSession()
 const toast = useToast()
 const loading = ref(false)
@@ -144,9 +145,8 @@ const sendVerificationCode = async () => {
   try {
     if (!isValidPhoneNumber.value) {
       toast.add({
-        title: 'Invalid phone number',
-        description:
-          'Please enter a valid phone number in E.164 format (e.g. +12125551234)',
+        title: t('accountSettings.phoneNumber.invalidPhoneNumber'),
+        description: t('accountSettings.phoneNumber.invalidPhoneNumberDescription'),
         color: 'error',
       })
       return
@@ -162,15 +162,15 @@ const sendVerificationCode = async () => {
     startResendCountdown()
 
     toast.add({
-      title: 'Verification code sent',
-      description: 'Please check your phone for the verification code',
+      title: t('accountSettings.phoneNumber.verificationCodeSent'),
+      description: t('accountSettings.phoneNumber.verificationCodeSentDescription'),
       color: 'success',
     })
   } catch (error) {
     console.error(error)
     toast.add({
-      title: 'Failed to send verification code',
-      description: (error as any)?.data?.message || 'An error occurred',
+      title: t('toast.failedToSendVerificationCode.title'),
+      description: (error as any)?.data?.message || t('errors.generic'),
       color: 'error',
     })
   } finally {
@@ -194,15 +194,15 @@ const verifyCode = async () => {
     mode.value = 'display'
 
     toast.add({
-      title: 'Phone number verified',
-      description: 'Your phone number has been successfully verified',
+      title: t('accountSettings.phoneNumber.phoneNumberVerified'),
+      description: t('accountSettings.phoneNumber.phoneNumberVerifiedDescription'),
       color: 'success',
     })
   } catch (error) {
     console.error(error)
     toast.add({
-      title: 'Failed to verify code',
-      description: (error as any)?.data?.message || 'An error occurred',
+      title: t('toast.failedToVerifyCode.title'),
+      description: (error as any)?.data?.message || t('errors.generic'),
       color: 'error',
     })
   } finally {
@@ -223,15 +223,15 @@ const removePhoneNumber = async () => {
     mode.value = 'input'
 
     toast.add({
-      title: 'Phone number removed',
-      description: 'Your phone number has been successfully removed',
+      title: t('accountSettings.phoneNumber.phoneNumberRemoved'),
+      description: t('accountSettings.phoneNumber.phoneNumberRemovedDescription'),
       color: 'success',
     })
   } catch (error) {
     console.error(error)
     toast.add({
-      title: 'Failed to remove phone number',
-      description: (error as any)?.data?.message || 'An error occurred',
+      title: t('toast.failedToRemovePhoneNumber.title'),
+      description: (error as any)?.data?.message || t('errors.generic'),
       color: 'error',
     })
   } finally {
