@@ -471,8 +471,8 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
             </div>
           </div>
         </template>
-        <CroutonCalendarYear
-          v-model="selectedDate"
+        <CroutonCalendar
+          v-model:date="selectedDate"
           :year="currentYear"
           size="xs"
           color="primary"
@@ -497,7 +497,7 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
             </UTooltip>
             <span v-else>{{ day.day }}</span>
           </template>
-        </CroutonCalendarYear>
+        </CroutonCalendar>
       </UCard>
 
       <!-- Bookings List -->
