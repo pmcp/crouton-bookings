@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 6 / 54 |
+| **Tasks Completed** | 7 / 54 |
 | **Current Phase** | Phase 2 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
@@ -192,12 +192,12 @@ organization({
 - [x] Add support for additional providers (configurable)
 - [x] Handle OAuth callback URLs
 
-### Task 2.4: Passkey Plugin
-- [ ] Configure passkey/WebAuthn plugin
-- [ ] Set up rpID and rpName from config
-- [ ] Handle credential registration
-- [ ] Handle credential authentication
-- [ ] Support conditional UI (autofill)
+### Task 2.4: Passkey Plugin ✅
+- [x] Configure passkey/WebAuthn plugin
+- [x] Set up rpID and rpName from config
+- [x] Handle credential registration
+- [x] Handle credential authentication
+- [x] Support conditional UI (autofill)
 
 ### Task 2.5: Two-Factor Authentication
 - [ ] Configure 2FA plugin
@@ -1240,6 +1240,35 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Task 2.3 complete.
+
+**Task 2.4 completed:**
+- Added `@better-auth/passkey` dependency to package.json
+- Imported passkey plugin from `@better-auth/passkey`
+- Created `buildPlugins()` function to dynamically build plugins array
+- Implemented `buildPasskeyConfig()` with:
+  - rpID auto-detection from baseURL hostname
+  - rpName from config or default "Application"
+  - origin from baseURL
+  - authenticatorSelection options (residentKey: 'preferred', userVerification: 'preferred')
+- Added passkey utility functions:
+  - `isPasskeyEnabled()` - Check if passkeys are configured
+  - `getPasskeyInfo()` - Get passkey config for UI display
+  - `isWebAuthnSupported()` - Check browser WebAuthn support
+  - `isConditionalUIAvailable()` - Check autofill support
+- Updated `app/plugins/auth-client.ts`:
+  - Imports and conditionally adds `passkeyClient()` plugin
+- Updated `app/composables/useAuth.ts` with passkey methods:
+  - `loginWithPasskey()` - Sign in with passkey
+  - `loginWithPasskeyAutofill()` - Conditional UI (autofill) support
+  - `addPasskey()` - Register new passkey
+  - `listPasskeys()` - List user's passkeys
+  - `deletePasskey()` - Remove passkey
+  - `updatePasskey()` - Update passkey name
+  - `isWebAuthnSupported()` - Browser support check
+  - `isConditionalUIAvailable()` - Autofill support check
+
+**Blockers:**
+- None. Task 2.4 complete.
 
 ---
 
