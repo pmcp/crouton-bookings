@@ -436,18 +436,21 @@ function setBookingRef(id: string, el: HTMLElement | null) {
 // Flag to prevent infinite loops during sync
 const isSyncing = ref(false)
 
-// Scroll to first booking on a specific date
+// Scroll to first booking on a specific date (positions at 40% of viewport)
 function scrollToDateBooking(date: Date) {
   const dateStr = toLocalDateStr(date)
   const booking = filteredBookings.value.find((b) => {
     return toLocalDateStr(new Date(b.date)) === dateStr
   })
 
-  if (booking) {
+  if (booking && scrollContainer.value) {
     const el = bookingRefs.get(booking.id)
     if (el) {
       isSyncing.value = true
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      const rect = el.getBoundingClientRect()
+      const targetY = windowHeight.value * 0.4
+      const scrollOffset = rect.top - targetY + scrollContainer.value.scrollTop
+      scrollContainer.value.scrollTo({ top: scrollOffset, behavior: 'smooth' })
       setTimeout(() => {
         isSyncing.value = false
       }, 500)
