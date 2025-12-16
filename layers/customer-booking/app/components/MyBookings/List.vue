@@ -355,12 +355,42 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
   return group?.label || groupId
 }
 
-// Check if a booking date matches the selected calendar date
+// Hovered date from calendar (for exact day highlighting)
+const hoveredDate = ref<Date | null>(null)
+
+// Handle hover from week carousel
+function onDayHover(date: Date | null) {
+  hoveredDate.value = date
+}
+
+// Check if a booking should be highlighted
+// When hovering: only exact date matches
+// When not hovering: all bookings in the selected week
 function isBookingHighlighted(bookingDate: string | Date): boolean {
+  const booking = new Date(bookingDate)
+  const bookingStr = toLocalDateStr(booking)
+
+  // If hovering, only highlight exact date match
+  if (hoveredDate.value) {
+    const hoveredStr = toLocalDateStr(hoveredDate.value)
+    return bookingStr === hoveredStr
+  }
+
+  // Otherwise, highlight by week (existing behavior)
   if (!selectedDate.value) return false
-  const bookingStr = toLocalDateStr(new Date(bookingDate))
-  const selectedStr = toLocalDateStr(selectedDate.value)
-  return bookingStr === selectedStr
+  const selected = selectedDate.value
+
+  // Get start of week for both dates (Monday = start)
+  const getWeekStart = (date: Date) => {
+    const d = new Date(date)
+    const day = d.getDay()
+    const diff = day === 0 ? -6 : 1 - day // Adjust for Monday start
+    d.setDate(d.getDate() + diff)
+    d.setHours(0, 0, 0, 0)
+    return d.getTime()
+  }
+
+  return getWeekStart(booking) === getWeekStart(selected)
 }
 
 // ===== Bidirectional Sync: Week Carousel <-> Bookings List =====
@@ -580,6 +610,7 @@ useEventListener(scrollContainer, 'scroll', onBookingsScroll, { passive: true })
           ref="weekCarousel"
           v-model="selectedDate"
           @week-change="onWeekChange"
+          @day-hover="onDayHover"
         >
           <template #day="{ day }">
             <div v-if="hasBookingOnDate(day)" class="flex flex-col gap-1">

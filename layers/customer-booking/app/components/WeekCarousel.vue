@@ -17,6 +17,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   'update:modelValue': [value: Date | null]
   'weekChange': [weekStart: Date, weekEnd: Date]
+  'dayHover': [date: Date | null]
 }>()
 
 const carousel = useTemplateRef('carousel')
@@ -181,6 +182,8 @@ defineExpose({
             :key="day.date.toString()"
             class="flex flex-col items-center cursor-pointer group py-2"
             @click="selectDay(day)"
+            @mouseenter="emit('dayHover', day.jsDate)"
+            @mouseleave="emit('dayHover', null)"
           >
             <!-- Weekday label -->
             <span class="text-xs text-muted uppercase tracking-wider font-medium mb-1">
