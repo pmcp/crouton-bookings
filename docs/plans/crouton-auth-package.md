@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 8 / 54 |
+| **Tasks Completed** | 9 / 54 |
 | **Current Phase** | Phase 2 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
@@ -205,14 +205,14 @@ organization({
 - [x] Implement backup codes
 - [x] Add trusted device management
 
-### Task 2.6: Stripe Billing Plugin
-- [ ] Configure Stripe plugin
-- [ ] Set up webhook handling
-- [ ] Configure subscription plans
-- [ ] Implement checkout flow
-- [ ] Handle billing portal redirect
-- [ ] Support organization-based billing (multi-tenant)
-- [ ] Support user-based billing (personal mode)
+### Task 2.6: Stripe Billing Plugin ✅
+- [x] Configure Stripe plugin
+- [x] Set up webhook handling
+- [x] Configure subscription plans
+- [x] Implement checkout flow
+- [x] Handle billing portal redirect
+- [x] Support organization-based billing (multi-tenant)
+- [x] Support user-based billing (personal mode)
 
 ### Task 2.7: API Route Handler
 - [ ] Create `/server/api/auth/[...all].ts` catch-all route
@@ -1301,6 +1301,47 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Task 2.5 complete.
+
+**Task 2.6 completed:**
+- Added `@better-auth/stripe` and `stripe` dependencies to package.json
+- Imported Stripe plugin from `@better-auth/stripe`
+- Created `buildStripePluginConfig()` function with:
+  - Stripe client initialization with latest API version
+  - Auto-create Stripe customers on signup
+  - Custom customer creation with user metadata
+  - Subscription configuration with plans from config
+  - Authorization for organization-based billing (multi-tenant/single-tenant modes)
+  - Lifecycle hooks (onSubscriptionComplete, onSubscriptionUpdate, onSubscriptionCancel, onSubscriptionDeleted)
+  - Webhook event handling (invoice.paid, invoice.payment_failed)
+- Created `buildStripePlansConfig()` to convert @crouton/auth plans to Better Auth format
+- Added utility functions:
+  - `isBillingEnabled()` - Check if billing is configured
+  - `getBillingInfo()` - Get billing config for UI display
+  - `getStripePublishableKey()` - Get client-safe publishable key
+  - `isSubscriptionActive()` - Check if subscription grants access
+  - `isSubscriptionInGracePeriod()` - Check for past_due status
+- Updated `app/plugins/auth-client.ts`:
+  - Imports and conditionally adds `stripeClient()` plugin
+  - Added `isBillingEnabled()` helper function
+- Updated `app/composables/useBilling.ts` with full implementation:
+  - `fetchSubscriptions()` - Fetch user/org subscriptions
+  - `checkout()` - Start Stripe Checkout for subscription
+  - `portal()` - Open Stripe Customer Portal
+  - `cancel()` - Cancel subscription (at period end)
+  - `restore()` - Restore canceled subscription
+  - `changePlan()` - Change to different plan
+  - `isCurrentPlan()` / `getPlan()` - Helper functions
+  - Reactive subscription state (isPro, isTrialing, isCanceled, etc.)
+  - Support for both user-based and organization-based billing modes
+- Added TypeScript interfaces:
+  - `StripePluginPlan` - Better Auth plan configuration
+  - `SubscriptionData` - Subscription hook data type
+  - `BillingInfo` / `BillingPlanInfo` - UI display types
+  - `SubscriptionStatus` - Stripe subscription status type
+  - `CheckoutOptions` / `PortalOptions` - Method parameter types
+
+**Blockers:**
+- None. Task 2.6 complete.
 
 ---
 
