@@ -6,8 +6,8 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 21 / 54 |
-| **Current Phase** | Phase 4 - Complete |
+| **Tasks Completed** | 22 / 54 |
+| **Current Phase** | Phase 5 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
 ---
@@ -481,13 +481,14 @@ export const requireTeamMember = async (event: H3Event) => {
 ## Phase 5: UI Components (Nuxt UI)
 **Estimated: 10-14 hours**
 
-### Task 5.1: Auth Pages
-- [ ] Create `pages/auth/login.vue`
-- [ ] Create `pages/auth/register.vue`
-- [ ] Create `pages/auth/forgot-password.vue`
-- [ ] Create `pages/auth/reset-password.vue`
-- [ ] Create `pages/auth/verify-email.vue`
-- [ ] Create `pages/auth/magic-link.vue` (if enabled)
+### Task 5.1: Auth Pages ✅
+- [x] Create `pages/auth/login.vue`
+- [x] Create `pages/auth/register.vue`
+- [x] Create `pages/auth/forgot-password.vue`
+- [x] Create `pages/auth/reset-password.vue`
+- [x] Create `pages/auth/verify-email.vue`
+- [x] Create `pages/auth/magic-link.vue` (if enabled)
+- [x] Create `layouts/auth.vue`
 
 **Login page features:**
 - Email/password form (if enabled)
@@ -1559,6 +1560,50 @@ const team = getTeamContext(event)
 - Types work with Nuxt's auto-import system
 
 **Phase 4 Complete!**
+
+### Day 5: 2024-12-16
+**Tasks completed:**
+- Task 5.1: Auth Pages
+
+**Implementation details:**
+- Created `layouts/auth.vue` - centered layout for auth pages
+- Created `pages/auth/login.vue` with:
+  - Email/password form (conditionally shown)
+  - OAuth buttons (GitHub, Google, Discord)
+  - Passkey button (if WebAuthn supported)
+  - Magic link toggle option
+  - Remember me checkbox
+  - Redirect after login
+- Created `pages/auth/register.vue` with:
+  - Name, email, password, confirm password fields
+  - OAuth registration options
+  - Password validation (minimum 8 characters)
+  - Link to terms and privacy policy
+- Created `pages/auth/forgot-password.vue`:
+  - Email input for password reset request
+  - Success state with email sent confirmation
+- Created `pages/auth/reset-password.vue`:
+  - Token-based password reset
+  - New password with confirmation
+  - Handles invalid/expired tokens
+- Created `pages/auth/verify-email.vue`:
+  - Token-based email verification
+  - Resend verification option
+  - Handles verification states (pending, verified, error)
+- Created `pages/auth/magic-link.vue`:
+  - Token-based magic link verification
+  - Auto-redirect to dashboard on success
+
+**All pages use:**
+- Nuxt UI v4 components (UForm, UFormField, UInput, UButton, UAlert, USeparator, UCheckbox)
+- useAuth composable for authentication methods
+- guest middleware for unauthenticated-only access
+- auth layout for consistent styling
+- Toast notifications for feedback
+- Proper form validation
+
+**Blockers:**
+- None. Task 5.1 complete.
 
 ---
 
