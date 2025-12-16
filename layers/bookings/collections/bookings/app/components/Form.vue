@@ -17,14 +17,14 @@
     <CroutonFormLayout>
       <template #main>
       <div class="flex flex-col gap-4 p-1">
-        <UFormField label="Location" name="location" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.form.location')" name="location" class="not-last:pb-4">
           <CroutonFormReferenceSelect
             v-model="state.location"
             collection="bookingsLocations"
-            label="Location"
+            :label="$t('bookings.form.location')"
           />
         </UFormField>
-        <UFormField label="Date" name="date" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.form.date')" name="date" class="not-last:pb-4">
           <BookingsCalendarWithAvailability
             v-model="state.date"
             :location-id="state.location"
@@ -32,7 +32,7 @@
             @available-slots-changed="availableSlots = $event"
           />
         </UFormField>
-        <UFormField label="Slot" name="slot" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.form.slot')" name="slot" class="not-last:pb-4">
           <BookingsSlotSelectWithAvailability
             v-model="state.slot"
             :location-id="state.location"
@@ -40,12 +40,12 @@
             :selected-date="state.date"
           />
         </UFormField>
-        <UFormField v-if="enableGroups" label="Age Group" name="group" class="not-last:pb-4">
+        <UFormField v-if="enableGroups" :label="$t('bookings.form.ageGroup')" name="group" class="not-last:pb-4">
           <CroutonFormOptionsSelect
             v-model="state.group"
             options-collection="bookingsSettings"
             options-field="groups"
-            label="Age Group"
+            :label="$t('bookings.form.ageGroup')"
           />
         </UFormField>
       </div>
@@ -53,12 +53,12 @@
 
       <template #sidebar>
       <div class="flex flex-col gap-4 p-1">
-        <UFormField label="Status" name="status" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.form.status')" name="status" class="not-last:pb-4">
           <CroutonFormOptionsSelect
             v-model="state.status"
             options-collection="bookingsSettings"
             options-field="statuses"
-            label="Status"
+            :label="$t('bookings.form.status')"
           />
         </UFormField>
       </div>

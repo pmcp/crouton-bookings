@@ -18,14 +18,14 @@ if (model.value && !model.value.id) {
 }
 
 // Preset color options
-const colorOptions = [
-  { label: 'Green', value: '#22c55e' },
-  { label: 'Blue', value: '#3b82f6' },
-  { label: 'Amber', value: '#f59e0b' },
-  { label: 'Teal', value: '#14b8a6' },
-  { label: 'Purple', value: '#a855f7' },
-  { label: 'Red', value: '#ef4444' },
-]
+const colorOptions = computed(() => [
+  { label: t('bookings.colors.green'), value: '#22c55e' },
+  { label: t('bookings.colors.blue'), value: '#3b82f6' },
+  { label: t('bookings.colors.amber'), value: '#f59e0b' },
+  { label: t('bookings.colors.teal'), value: '#14b8a6' },
+  { label: t('bookings.colors.purple'), value: '#a855f7' },
+  { label: t('bookings.colors.red'), value: '#ef4444' },
+])
 </script>
 
 <template>

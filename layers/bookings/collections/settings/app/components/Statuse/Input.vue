@@ -13,13 +13,13 @@ interface BookingsSettingsStatuseItem {
 const model = defineModel<BookingsSettingsStatuseItem>()
 
 // Color options for the select
-const colorOptions = [
-  { label: 'Green (Success)', value: 'success' },
-  { label: 'Yellow (Warning)', value: 'warning' },
-  { label: 'Red (Error)', value: 'error' },
-  { label: 'Blue (Info)', value: 'info' },
-  { label: 'Gray (Neutral)', value: 'neutral' },
-]
+const colorOptions = computed(() => [
+  { label: t('bookings.colors.greenSuccess'), value: 'success' },
+  { label: t('bookings.colors.yellowWarning'), value: 'warning' },
+  { label: t('bookings.colors.redError'), value: 'error' },
+  { label: t('bookings.colors.blueInfo'), value: 'info' },
+  { label: t('bookings.colors.grayNeutral'), value: 'neutral' },
+])
 
 // Ensure stable ID and defaults on first creation
 if (model.value && !model.value.id) {

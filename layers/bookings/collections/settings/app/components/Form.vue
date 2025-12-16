@@ -17,18 +17,18 @@
     <CroutonFormLayout>
       <template #main>
       <div class="flex flex-col gap-4 p-1">
-        <UFormField label="Enable Groups" name="enableGroups" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.settings.fields.enableGroups')" name="enableGroups" class="not-last:pb-4">
           <USwitch v-model="state.enableGroups" />
           <template #description>
-            When enabled, bookings must include a group selection (e.g., age groups)
+            {{ $t('bookings.collections.settings.fields.enableGroupsDescription') }}
           </template>
         </UFormField>
 
-        <UFormField v-if="state.enableGroups" label="Groups" name="groups" class="not-last:pb-4">
+        <UFormField v-if="state.enableGroups" :label="$t('bookings.collections.settings.fields.groups')" name="groups" class="not-last:pb-4">
           <CroutonFormRepeater
             v-model="state.groups"
             component-name="BookingsSettingsGroupInput"
-            add-label="Add Group"
+            :add-label="$t('bookings.collections.settings.fields.addGroup')"
             :sortable="true"
           />
         </UFormField>

@@ -72,13 +72,85 @@
   },
   "bookings": {
     "collections": {
-      "bookings": { "title": "Reservations" },
-      "locations": { "title": "Emplacements" },
-      "assets": { "title": "Ressources" },
-      "settings": { "title": "Parametres" },
-      "emailtemplates": { "title": "Modeles d'email" },
-      "emaillogs": { "title": "Journaux d'email" },
-      "pages": { "title": "Pages" }
+      "bookings": { "title": "Réservations" },
+      "locations": {
+        "title": "Emplacements",
+        "tabs": {
+          "basic": "Base",
+          "address": "Adresse",
+          "content": "Contenu",
+          "scheduling": "Planification"
+        },
+        "fields": {
+          "title": "Titre",
+          "street": "Rue",
+          "zip": "Code postal",
+          "city": "Ville",
+          "locationMap": "Carte de l'emplacement",
+          "content": "Contenu",
+          "slots": "Créneaux",
+          "allowedMemberIds": "Membres autorisés",
+          "addTimeSlot": "Ajouter un créneau"
+        },
+        "geocoding": "Géocodage de l'adresse..."
+      },
+      "assets": {
+        "title": "Ressources",
+        "fields": {
+          "filename": "Nom du fichier",
+          "pathname": "Chemin",
+          "alt": "Texte alternatif",
+          "contentType": "Type de contenu",
+          "size": "Taille"
+        }
+      },
+      "settings": {
+        "title": "Paramètres",
+        "fields": {
+          "enableGroups": "Activer les groupes",
+          "enableGroupsDescription": "Lorsque activé, les réservations doivent inclure une sélection de groupe (ex: groupes d'âge)",
+          "groups": "Groupes",
+          "addGroup": "Ajouter un groupe"
+        }
+      },
+      "emailtemplates": { "title": "Modèles d'e-mail" },
+      "emaillogs": {
+        "title": "Journaux d'e-mail",
+        "fields": {
+          "bookingId": "Réservation",
+          "templateId": "Modèle",
+          "recipientEmail": "E-mail du destinataire",
+          "triggerType": "Type de déclencheur",
+          "error": "Erreur",
+          "status": "Statut",
+          "sentAt": "Envoyé le"
+        }
+      },
+      "pages": {
+        "title": "Pages",
+        "tabs": {
+          "basic": "Base",
+          "content": "Contenu"
+        },
+        "fields": {
+          "title": "Titre",
+          "slug": "Slug",
+          "content": "Contenu",
+          "excerpt": "Extrait",
+          "parent": "Parent",
+          "metaDescription": "Meta description",
+          "metaTitle": "Meta titre",
+          "featuredImage": "Image à la une",
+          "status": "Statut",
+          "publishedAt": "Publié le",
+          "template": "Modèle",
+          "showInMenu": "Afficher dans le menu"
+        },
+        "templates": {
+          "default": "Page par défaut",
+          "article": "Article"
+        }
+      }
     },
     "form": {
       "location": "Emplacement",
@@ -166,6 +238,19 @@
     "empty": {
       "title": "Pas encore de reservations",
       "description": "Creez votre premiere reservation pour commencer"
+    },
+    "colors": {
+      "greenSuccess": "Vert (Succès)",
+      "yellowWarning": "Jaune (Avertissement)",
+      "redError": "Rouge (Erreur)",
+      "blueInfo": "Bleu (Info)",
+      "grayNeutral": "Gris (Neutre)",
+      "green": "Vert",
+      "blue": "Bleu",
+      "amber": "Ambre",
+      "teal": "Sarcelle",
+      "purple": "Violet",
+      "red": "Rouge"
     },
     "emailTemplates": {
       "form": {

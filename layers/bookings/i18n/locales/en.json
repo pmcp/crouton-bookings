@@ -73,12 +73,84 @@
   "bookings": {
     "collections": {
       "bookings": { "title": "Bookings" },
-      "locations": { "title": "Locations" },
-      "assets": { "title": "Assets" },
-      "settings": { "title": "Settings" },
+      "locations": {
+        "title": "Locations",
+        "tabs": {
+          "basic": "Basic",
+          "address": "Address",
+          "content": "Content",
+          "scheduling": "Scheduling"
+        },
+        "fields": {
+          "title": "Title",
+          "street": "Street",
+          "zip": "Zip",
+          "city": "City",
+          "locationMap": "Location Map",
+          "content": "Content",
+          "slots": "Slots",
+          "allowedMemberIds": "Allowed Members",
+          "addTimeSlot": "Add Time Slot"
+        },
+        "geocoding": "Geocoding address..."
+      },
+      "assets": {
+        "title": "Assets",
+        "fields": {
+          "filename": "Filename",
+          "pathname": "Pathname",
+          "alt": "Alt Text",
+          "contentType": "Content Type",
+          "size": "Size"
+        }
+      },
+      "settings": {
+        "title": "Settings",
+        "fields": {
+          "enableGroups": "Enable Groups",
+          "enableGroupsDescription": "When enabled, bookings must include a group selection (e.g., age groups)",
+          "groups": "Groups",
+          "addGroup": "Add Group"
+        }
+      },
       "emailtemplates": { "title": "Email Templates" },
-      "emaillogs": { "title": "Email Logs" },
-      "pages": { "title": "Pages" }
+      "emaillogs": {
+        "title": "Email Logs",
+        "fields": {
+          "bookingId": "Booking",
+          "templateId": "Template",
+          "recipientEmail": "Recipient Email",
+          "triggerType": "Trigger Type",
+          "error": "Error",
+          "status": "Status",
+          "sentAt": "Sent At"
+        }
+      },
+      "pages": {
+        "title": "Pages",
+        "tabs": {
+          "basic": "Basic",
+          "content": "Content"
+        },
+        "fields": {
+          "title": "Title",
+          "slug": "Slug",
+          "content": "Content",
+          "excerpt": "Excerpt",
+          "parent": "Parent",
+          "metaDescription": "Meta Description",
+          "metaTitle": "Meta Title",
+          "featuredImage": "Featured Image",
+          "status": "Status",
+          "publishedAt": "Published At",
+          "template": "Template",
+          "showInMenu": "Show in Menu"
+        },
+        "templates": {
+          "default": "Default Page",
+          "article": "Article"
+        }
+      }
     },
     "form": {
       "location": "Location",
@@ -166,6 +238,19 @@
     "empty": {
       "title": "No bookings yet",
       "description": "Create your first booking to get started"
+    },
+    "colors": {
+      "greenSuccess": "Green (Success)",
+      "yellowWarning": "Yellow (Warning)",
+      "redError": "Red (Error)",
+      "blueInfo": "Blue (Info)",
+      "grayNeutral": "Gray (Neutral)",
+      "green": "Green",
+      "blue": "Blue",
+      "amber": "Amber",
+      "teal": "Teal",
+      "purple": "Purple",
+      "red": "Red"
     },
     "emailTemplates": {
       "form": {

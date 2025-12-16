@@ -18,24 +18,24 @@
     <CroutonFormLayout :tabs="tabs" :navigation-items="navigationItems" :tab-errors="tabErrorCounts" v-model="activeSection">
       <template #main="{ activeSection }">
       <div v-show="!tabs || activeSection === 'basic'" class="flex flex-col gap-4 p-1">
-        <UFormField label="Title" name="title" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.locations.fields.title')" name="title" class="not-last:pb-4">
           <UInput v-model="state.title" class="w-full" size="xl" />
         </UFormField>
       </div>
 
       <div v-show="!tabs || activeSection === 'address'" class="flex flex-col gap-4 p-1">
-        <UFormField label="Street" name="street" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.locations.fields.street')" name="street" class="not-last:pb-4">
           <UInput v-model="state.street" class="w-full" size="xl" />
         </UFormField>
-        <UFormField label="Zip" name="zip" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.locations.fields.zip')" name="zip" class="not-last:pb-4">
           <UInput v-model="state.zip" class="w-full" size="xl" />
         </UFormField>
-        <UFormField label="City" name="city" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.locations.fields.city')" name="city" class="not-last:pb-4">
           <UInput v-model="state.city" class="w-full" size="xl" />
         </UFormField>
 
        <!-- MapBox Map Display -->
-      <UFormField label="Location Map" name="location" class="not-last:pb-4">
+      <UFormField :label="$t('bookings.collections.locations.fields.locationMap')" name="location" class="not-last:pb-4">
         <CroutonMapsMap
           :center="mapCenter"
           :zoom="14"
@@ -57,23 +57,23 @@
           </template>
         </CroutonMapsMap>
         <p v-if="geocoding" class="text-sm text-gray-500 mt-2">
-          Geocoding address...
+          {{ $t('bookings.collections.locations.geocoding') }}
         </p>
       </UFormField>
       </div>
 
       <div v-show="!tabs || activeSection === 'content'" class="flex flex-col gap-4 p-1">
-        <UFormField label="Content" name="content" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.locations.fields.content')" name="content" class="not-last:pb-4">
           <CroutonEditorSimple v-model="state.content" />
         </UFormField>
       </div>
 
       <div v-show="!tabs || activeSection === 'scheduling'" class="flex flex-col gap-4 p-1">
-        <UFormField label="Slots" name="slots" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.locations.fields.slots')" name="slots" class="not-last:pb-4">
           <CroutonFormRepeater
             v-model="state.slots"
             component-name="BookingsLocationsSlotInput"
-            add-label="Add Time Slot"
+            :add-label="$t('bookings.collections.locations.fields.addTimeSlot')"
             :sortable="true"
           />
         </UFormField>
@@ -82,11 +82,11 @@
 
       <template #sidebar>
       <div class="flex flex-col gap-4 p-1">
-        <UFormField label="AllowedMemberIds" name="allowedMemberIds" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.locations.fields.allowedMemberIds')" name="allowedMemberIds" class="not-last:pb-4">
           <CroutonFormReferenceSelect
             v-model="state.allowedMemberIds"
             collection="teamMembers"
-            label="AllowedMemberIds"
+            :label="$t('bookings.collections.locations.fields.allowedMemberIds')"
             multiple
           />
         </UFormField>
@@ -119,13 +119,15 @@ import type { BookingsLocationFormProps, BookingsLocationFormData } from '../../
 const props = defineProps<BookingsLocationFormProps>()
 const { defaultValue, schema, collection } = useBookingsLocations()
 
+const { t } = useI18n()
+
 // Form layout configuration
-const navigationItems = [
-  { label: 'Basic', value: 'basic' },
-  { label: 'Address', value: 'address' },
-  { label: 'Content', value: 'content' },
-  { label: 'Scheduling', value: 'scheduling' }
-]
+const navigationItems = computed(() => [
+  { label: t('bookings.collections.locations.tabs.basic'), value: 'basic' },
+  { label: t('bookings.collections.locations.tabs.address'), value: 'address' },
+  { label: t('bookings.collections.locations.tabs.content'), value: 'content' },
+  { label: t('bookings.collections.locations.tabs.scheduling'), value: 'scheduling' }
+])
 
 const tabs = ref(true)
 const activeSection = ref('basic')

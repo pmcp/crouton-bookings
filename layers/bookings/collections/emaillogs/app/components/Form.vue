@@ -17,27 +17,27 @@
     <CroutonFormLayout>
       <template #main>
       <div class="flex flex-col gap-4 p-1">
-        <UFormField label="BookingId" name="bookingId" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.emaillogs.fields.bookingId')" name="bookingId" class="not-last:pb-4">
           <CroutonFormReferenceSelect
             v-model="state.bookingId"
             collection="bookingsBookings"
-            label="BookingId"
+            :label="$t('bookings.collections.emaillogs.fields.bookingId')"
           />
         </UFormField>
-        <UFormField label="TemplateId" name="templateId" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.emaillogs.fields.templateId')" name="templateId" class="not-last:pb-4">
           <CroutonFormReferenceSelect
             v-model="state.templateId"
             collection="bookingsEmailTemplates"
-            label="TemplateId"
+            :label="$t('bookings.collections.emaillogs.fields.templateId')"
           />
         </UFormField>
-        <UFormField label="RecipientEmail" name="recipientEmail" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.emaillogs.fields.recipientEmail')" name="recipientEmail" class="not-last:pb-4">
           <UInput v-model="state.recipientEmail" class="w-full" size="xl" />
         </UFormField>
-        <UFormField label="TriggerType" name="triggerType" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.emaillogs.fields.triggerType')" name="triggerType" class="not-last:pb-4">
           <UInput v-model="state.triggerType" class="w-full" size="xl" />
         </UFormField>
-        <UFormField label="Error" name="error" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.emaillogs.fields.error')" name="error" class="not-last:pb-4">
           <UTextarea v-model="state.error" class="w-full" size="xl" />
         </UFormField>
       </div>
@@ -47,10 +47,10 @@
       <div class="flex flex-col gap-4 p-1">
       </div>
       <div class="flex flex-col gap-4 p-1">
-        <UFormField label="Status" name="status" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.emaillogs.fields.status')" name="status" class="not-last:pb-4">
           <UInput v-model="state.status" class="w-full" size="xl" />
         </UFormField>
-        <UFormField label="SentAt" name="sentAt" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.emaillogs.fields.sentAt')" name="sentAt" class="not-last:pb-4">
           <UInput v-model="state.sentAt" class="w-full" size="xl" />
         </UFormField>
       </div>

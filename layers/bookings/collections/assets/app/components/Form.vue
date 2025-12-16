@@ -17,13 +17,13 @@
     <CroutonFormLayout>
       <template #main>
       <div class="flex flex-col gap-4 p-1">
-        <UFormField label="Filename" name="filename" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.assets.fields.filename')" name="filename" class="not-last:pb-4">
           <UInput v-model="state.filename" class="w-full" size="xl" />
         </UFormField>
-        <UFormField label="Pathname" name="pathname" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.assets.fields.pathname')" name="pathname" class="not-last:pb-4">
           <UInput v-model="state.pathname" class="w-full" size="xl" />
         </UFormField>
-        <UFormField label="Alt" name="alt" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.assets.fields.alt')" name="alt" class="not-last:pb-4">
           <UInput v-model="state.alt" class="w-full" size="xl" />
         </UFormField>
       </div>
@@ -31,10 +31,10 @@
 
       <template #sidebar>
       <div class="flex flex-col gap-4 p-1">
-        <UFormField label="ContentType" name="contentType" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.assets.fields.contentType')" name="contentType" class="not-last:pb-4">
           <UInput v-model="state.contentType" class="w-full" size="xl" />
         </UFormField>
-        <UFormField label="Size" name="size" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.assets.fields.size')" name="size" class="not-last:pb-4">
           <UInputNumber v-model="state.size" class="w-full" />
         </UFormField>
       </div>

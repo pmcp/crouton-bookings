@@ -18,19 +18,19 @@
     <CroutonFormLayout :tabs="tabs" :navigation-items="navigationItems" :tab-errors="tabErrorCounts" v-model="activeSection">
       <template #main="{ activeSection }">
       <div v-show="!tabs || activeSection === 'basic'" class="flex flex-col gap-4 p-1">
-        <UFormField label="Title" name="title" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.pages.fields.title')" name="title" class="not-last:pb-4">
           <UInput v-model="state.title" class="w-full" size="xl" />
         </UFormField>
-        <UFormField label="Slug" name="slug" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.pages.fields.slug')" name="slug" class="not-last:pb-4">
           <UInput v-model="state.slug" class="w-full" size="xl" />
         </UFormField>
       </div>
 
       <div v-show="!tabs || activeSection === 'content'" class="flex flex-col gap-4 p-1">
-        <UFormField label="Content" name="content" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.pages.fields.content')" name="content" class="not-last:pb-4">
           <CroutonEditorSimple v-model="state.content" />
         </UFormField>
-        <UFormField label="Excerpt" name="excerpt" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.pages.fields.excerpt')" name="excerpt" class="not-last:pb-4">
           <CroutonEditorSimple v-model="state.excerpt" />
         </UFormField>
       </div>
@@ -39,26 +39,26 @@
       <template #sidebar>
       <div class="flex flex-col gap-4 p-1">
 
-        <UFormField label="Parent" name="parentId" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.pages.fields.parent')" name="parentId" class="not-last:pb-4">
           <CroutonFormParentSelect
             v-model="state.parentId"
             collection="bookingsPages"
             :current-id="state.id"
-            label="Parent"
+            :label="$t('bookings.collections.pages.fields.parent')"
           />
         </UFormField>
       </div>
       <div class="flex flex-col gap-4 p-1">
-        <UFormField label="MetaDescription" name="metaDescription" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.pages.fields.metaDescription')" name="metaDescription" class="not-last:pb-4">
           <UTextarea v-model="state.metaDescription" class="w-full" size="xl" />
         </UFormField>
-        <UFormField label="MetaTitle" name="metaTitle" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.pages.fields.metaTitle')" name="metaTitle" class="not-last:pb-4">
           <UInput v-model="state.metaTitle" class="w-full" size="xl" />
         </UFormField>
       </div>
 
       <div class="flex flex-col gap-4 p-1">
-        <UFormField label="FeaturedImageId" name="featuredImageId" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.pages.fields.featuredImage')" name="featuredImageId" class="not-last:pb-4">
           <CroutonAssetsPicker
             v-model="state.featuredImageId"
             collection="bookingsAssets"
@@ -67,13 +67,13 @@
       </div>
 
       <div class="flex flex-col gap-4 p-1">
-        <UFormField label="Status" name="status" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.pages.fields.status')" name="status" class="not-last:pb-4">
           <UInput v-model="state.status" class="w-full" size="xl" />
         </UFormField>
-        <UFormField label="PublishedAt" name="publishedAt" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.pages.fields.publishedAt')" name="publishedAt" class="not-last:pb-4">
           <CroutonCalendar v-model:date="state.publishedAt" />
         </UFormField>
-        <UFormField label="Template" name="template" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.pages.fields.template')" name="template" class="not-last:pb-4">
           <USelect
             v-model="state.template"
             :items="templateOptions"
@@ -84,7 +84,7 @@
       </div>
 
       <div class="flex flex-col gap-4 p-1">
-        <UFormField label="ShowInMenu" name="showInMenu" class="not-last:pb-4">
+        <UFormField :label="$t('bookings.collections.pages.fields.showInMenu')" name="showInMenu" class="not-last:pb-4">
           <UCheckbox v-model="state.showInMenu" />
         </UFormField>
       </div>
@@ -117,17 +117,19 @@ import useBookingsPages from '../composables/useBookingsPages'
 const props = defineProps<BookingsPageFormProps>()
 const { defaultValue, schema, collection } = useBookingsPages()
 
+const { t } = useI18n()
+
 // Template options for page rendering
-const templateOptions = [
-  { label: 'Default Page', value: 'default' },
-  { label: 'Article', value: 'article' },
-]
+const templateOptions = computed(() => [
+  { label: t('bookings.collections.pages.templates.default'), value: 'default' },
+  { label: t('bookings.collections.pages.templates.article'), value: 'article' },
+])
 
 // Form layout configuration
-const navigationItems = [
-  { label: 'Basic', value: 'basic' },
-  { label: 'Content', value: 'content' }
-]
+const navigationItems = computed(() => [
+  { label: t('bookings.collections.pages.tabs.basic'), value: 'basic' },
+  { label: t('bookings.collections.pages.tabs.content'), value: 'content' }
+])
 
 const tabs = ref(true)
 const activeSection = ref('basic')

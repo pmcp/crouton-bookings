@@ -73,12 +73,84 @@
   "bookings": {
     "collections": {
       "bookings": { "title": "Boekingen" },
-      "locations": { "title": "Locaties" },
-      "assets": { "title": "Middelen" },
-      "settings": { "title": "Instellingen" },
+      "locations": {
+        "title": "Locaties",
+        "tabs": {
+          "basic": "Basis",
+          "address": "Adres",
+          "content": "Inhoud",
+          "scheduling": "Planning"
+        },
+        "fields": {
+          "title": "Titel",
+          "street": "Straat",
+          "zip": "Postcode",
+          "city": "Stad",
+          "locationMap": "Locatiekaart",
+          "content": "Inhoud",
+          "slots": "Tijdslots",
+          "allowedMemberIds": "Toegestane leden",
+          "addTimeSlot": "Tijdslot toevoegen"
+        },
+        "geocoding": "Adres geocoderen..."
+      },
+      "assets": {
+        "title": "Middelen",
+        "fields": {
+          "filename": "Bestandsnaam",
+          "pathname": "Pad",
+          "alt": "Alt-tekst",
+          "contentType": "Inhoudstype",
+          "size": "Grootte"
+        }
+      },
+      "settings": {
+        "title": "Instellingen",
+        "fields": {
+          "enableGroups": "Groepen inschakelen",
+          "enableGroupsDescription": "Indien ingeschakeld, moeten boekingen een groepsselectie bevatten (bijv. leeftijdsgroepen)",
+          "groups": "Groepen",
+          "addGroup": "Groep toevoegen"
+        }
+      },
       "emailtemplates": { "title": "E-mailsjablonen" },
-      "emaillogs": { "title": "E-maillogs" },
-      "pages": { "title": "Pagina's" }
+      "emaillogs": {
+        "title": "E-maillogs",
+        "fields": {
+          "bookingId": "Boeking",
+          "templateId": "Sjabloon",
+          "recipientEmail": "E-mail ontvanger",
+          "triggerType": "Triggertype",
+          "error": "Fout",
+          "status": "Status",
+          "sentAt": "Verzonden op"
+        }
+      },
+      "pages": {
+        "title": "Pagina's",
+        "tabs": {
+          "basic": "Basis",
+          "content": "Inhoud"
+        },
+        "fields": {
+          "title": "Titel",
+          "slug": "Slug",
+          "content": "Inhoud",
+          "excerpt": "Samenvatting",
+          "parent": "Bovenliggend",
+          "metaDescription": "Meta-beschrijving",
+          "metaTitle": "Meta-titel",
+          "featuredImage": "Uitgelichte afbeelding",
+          "status": "Status",
+          "publishedAt": "Gepubliceerd op",
+          "template": "Sjabloon",
+          "showInMenu": "Tonen in menu"
+        },
+        "templates": {
+          "default": "Standaard pagina",
+          "article": "Artikel"
+        }
+      }
     },
     "form": {
       "location": "Locatie",
@@ -166,6 +238,19 @@
     "empty": {
       "title": "Nog geen boekingen",
       "description": "Maak je eerste boeking om te beginnen"
+    },
+    "colors": {
+      "greenSuccess": "Groen (Succes)",
+      "yellowWarning": "Geel (Waarschuwing)",
+      "redError": "Rood (Fout)",
+      "blueInfo": "Blauw (Info)",
+      "grayNeutral": "Grijs (Neutraal)",
+      "green": "Groen",
+      "blue": "Blauw",
+      "amber": "Amber",
+      "teal": "Blauwgroen",
+      "purple": "Paars",
+      "red": "Rood"
     },
     "emailTemplates": {
       "form": {
