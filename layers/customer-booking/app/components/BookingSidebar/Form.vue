@@ -283,7 +283,7 @@ async function handleSubmit() {
             <div class="flex flex-col items-center">
               <span>{{ day.day }}</span>
               <BookingsLocationsSlotIndicator
-                v-if="formState.locationId && calendarSlots.length > 0"
+                v-if="formState.locationId && calendarSlots.length > 0 && getBookedSlotsForDateValue(day).length > 0"
                 :slots="calendarSlots"
                 :booked-slot-ids="getBookedSlotsForDateValue(day).map(s => s.id)"
                 size="xs"

@@ -105,7 +105,7 @@ function isDateDisabled(date: DateValue): boolean {
         <div class="flex flex-col items-center">
           <span>{{ day.day }}</span>
           <BookingsLocationsSlotIndicator
-            v-if="calendarSlots.length > 0"
+            v-if="calendarSlots.length > 0 && getBookedSlotsForDate(day).length > 0"
             :slots="calendarSlots"
             :booked-slot-ids="getBookedSlotsForDate(day)"
             size="xs"
