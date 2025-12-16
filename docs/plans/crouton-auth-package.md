@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 25 / 54 |
+| **Tasks Completed** | 26 / 54 |
 | **Current Phase** | Phase 5 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
@@ -575,13 +575,13 @@ const handleSubmit = async () => {
 - [x] Create `components/Account/LinkedAccounts.vue`
 - [x] Create `components/Account/DeleteAccount.vue`
 
-### Task 5.5: Billing Components
-- [ ] Create `components/Billing/PlanCard.vue`
-- [ ] Create `components/Billing/PricingTable.vue`
-- [ ] Create `components/Billing/CurrentPlan.vue`
-- [ ] Create `components/Billing/UpgradeButton.vue`
-- [ ] Create `components/Billing/PortalButton.vue`
-- [ ] Create `components/Billing/UsageDisplay.vue` (optional)
+### Task 5.5: Billing Components ✅
+- [x] Create `components/Billing/PlanCard.vue`
+- [x] Create `components/Billing/PricingTable.vue`
+- [x] Create `components/Billing/CurrentPlan.vue`
+- [x] Create `components/Billing/UpgradeButton.vue`
+- [x] Create `components/Billing/PortalButton.vue`
+- [x] Create `components/Billing/UsageDisplay.vue` (optional)
 
 ### Task 5.6: Dashboard Pages
 - [ ] Create `pages/dashboard/index.vue` (redirect or overview)
@@ -1685,6 +1685,25 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Task 5.4 complete.
+
+**Task 5.5 completed:**
+- Created 6 Billing components for subscription management:
+  - `Billing/PlanCard.vue` - Single plan display with features, pricing, and selection
+  - `Billing/PricingTable.vue` - Grid of all plans with annual toggle option
+  - `Billing/CurrentPlan.vue` - Current subscription status with trial info, cancellation notices, and management actions
+  - `Billing/UpgradeButton.vue` - Button to start Stripe Checkout for a plan
+  - `Billing/PortalButton.vue` - Button to open Stripe Customer Portal
+  - `Billing/UsageDisplay.vue` - Usage metrics with progress bars and threshold warnings
+- All components:
+  - Use `useBilling()` composable for billing operations
+  - Follow Nuxt UI v4 patterns (UCard, UButton, UBadge, UProgress, etc.)
+  - Include proper loading states and error handling
+  - Support both compact and full display modes (UsageDisplay)
+  - Are conditionally rendered based on billing enabled state
+- Typecheck passes for all new components
+
+**Blockers:**
+- None. Task 5.5 complete.
 
 ---
 
