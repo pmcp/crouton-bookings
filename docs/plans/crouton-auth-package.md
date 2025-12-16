@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 22 / 54 |
+| **Tasks Completed** | 23 / 54 |
 | **Current Phase** | Phase 5 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
@@ -498,14 +498,14 @@ export const requireTeamMember = async (event: H3Event) => {
 - "Remember me" option
 - Redirect after login
 
-### Task 5.2: Auth Components
-- [ ] Create `components/Auth/LoginForm.vue`
-- [ ] Create `components/Auth/RegisterForm.vue`
-- [ ] Create `components/Auth/OAuthButtons.vue`
-- [ ] Create `components/Auth/PasskeyButton.vue`
-- [ ] Create `components/Auth/MagicLinkForm.vue`
-- [ ] Create `components/Auth/TwoFactorForm.vue`
-- [ ] Create `components/Auth/ForgotPasswordForm.vue`
+### Task 5.2: Auth Components ✅
+- [x] Create `components/Auth/LoginForm.vue`
+- [x] Create `components/Auth/RegisterForm.vue`
+- [x] Create `components/Auth/OAuthButtons.vue`
+- [x] Create `components/Auth/PasskeyButton.vue`
+- [x] Create `components/Auth/MagicLinkForm.vue`
+- [x] Create `components/Auth/TwoFactorForm.vue`
+- [x] Create `components/Auth/ForgotPasswordForm.vue`
 
 **Component pattern:**
 ```vue
@@ -1604,6 +1604,29 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Task 5.1 complete.
+
+**Task 5.2 completed:**
+- Created 7 reusable Auth components:
+  - `Auth/LoginForm.vue` - Email/password login form with validation, remember me, forgot password link
+  - `Auth/RegisterForm.vue` - Full registration form with name, email, password, confirm password, terms link
+  - `Auth/OAuthButtons.vue` - OAuth provider buttons with icons (GitHub, Google, Discord, etc.)
+  - `Auth/PasskeyButton.vue` - Passkey/WebAuthn sign-in button with browser support check
+  - `Auth/MagicLinkForm.vue` - Magic link email form with sent state handling
+  - `Auth/TwoFactorForm.vue` - TOTP/backup code verification with mode toggle
+  - `Auth/ForgotPasswordForm.vue` - Password reset request form with sent state
+- Updated auth pages to use new components:
+  - `pages/auth/login.vue` - Uses LoginForm, OAuthButtons, PasskeyButton, MagicLinkForm
+  - `pages/auth/register.vue` - Uses RegisterForm, OAuthButtons
+  - `pages/auth/forgot-password.vue` - Uses ForgotPasswordForm
+- All components:
+  - Emit events for parent handling (@submit, @click, @reset)
+  - Accept props for loading/error state
+  - Include proper validation
+  - Use Nuxt UI v4 patterns
+- Typecheck passes for crouton-auth package
+
+**Blockers:**
+- None. Task 5.2 complete.
 
 ---
 
