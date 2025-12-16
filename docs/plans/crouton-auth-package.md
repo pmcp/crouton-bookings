@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 13 / 54 |
+| **Tasks Completed** | 14 / 54 |
 | **Current Phase** | Phase 3 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
@@ -289,26 +289,30 @@ databaseHooks: {
 }
 ```
 
-### Task 3.3: Personal Mode
-- [ ] Auto-create organization when user registers
-- [ ] One org per user (user is always owner)
-- [ ] Hide organization management UI
-- [ ] Optional: allow collaboration (invite to personal org)
-- [ ] URL pattern: `/dashboard/...`
+### Task 3.3: Personal Mode ✅
+- [x] Auto-create organization when user registers
+- [x] One org per user (user is always owner)
+- [ ] Hide organization management UI (deferred to Phase 5)
+- [ ] Optional: allow collaboration (invite to personal org) (deferred)
+- [ ] URL pattern: `/dashboard/...` (deferred to Task 3.5)
 
 **Implementation:**
 ```typescript
-// Hook into user registration
-hooks: {
-  after: {
-    signUp: async ({ user }) => {
-      if (config.mode === 'personal') {
-        await createOrganization({
-          name: `${user.name}'s Workspace`,
-          ownerId: user.id,
-          personal: true
-        })
-      }
+// Database hooks for personal mode in buildDatabaseHooks()
+user: {
+  create: {
+    after: async (user) => {
+      // Create personal org with user as owner
+      const orgId = await createPersonalOrg(db, user.id, user.name, user.email, config.appName)
+    }
+  }
+}
+session: {
+  create: {
+    after: async (session) => {
+      // Set active org to user's personal workspace
+      const personalOrgId = await getUserPersonalOrgId(db, session.userId)
+      await setSessionActiveOrg(db, session.id, personalOrgId)
     }
   }
 }
@@ -1426,6 +1430,22 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Task 3.2 complete.
+
+**Task 3.3 completed:**
+- Implemented personal mode with automatic organization creation on user registration
+- Extended `buildDatabaseHooks()` to handle personal mode:
+  - `user.create.after`: Creates personal organization with user as owner
+  - `session.create.after`: Sets active organization to user's personal workspace
+- Added helper functions:
+  - `createPersonalOrg()` - Creates org with metadata marking it as personal, adds user as owner
+  - `getUserPersonalOrgId()` - Finds user's personal organization via member table
+- Personal workspace naming: `"{userName}'s Workspace"` or `"{emailPrefix}'s Workspace"`
+- Personal workspace slug: `personal-{userId.substring(0,8)}` for uniqueness
+- Metadata includes: `{ personal: true, ownerId: userId, appName }`
+- Team utilities already had personal mode support in `resolveTeamAndCheckMembership()`
+
+**Blockers:**
+- None. Task 3.3 complete.
 
 ---
 
