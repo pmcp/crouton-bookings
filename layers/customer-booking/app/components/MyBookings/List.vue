@@ -205,6 +205,8 @@ interface LocationBooking {
   locationTitle: string
   color: string
   bookings: Booking[]
+  slots: SlotItem[]
+  bookedSlotIds: string[]
 }
 
 function getLocationBookingsForDate(date: DateValue): LocationBooking[] {
@@ -219,13 +221,30 @@ function getLocationBookingsForDate(date: DateValue): LocationBooking[] {
     locationMap.set(b.location, existing)
   })
 
-  // Convert to array with color info
-  return Array.from(locationMap.entries()).map(([locationId, bookings]) => ({
-    locationId,
-    locationTitle: bookings[0]?.locationData?.title || 'Unknown',
-    color: getLocationColor(locationId),
-    bookings,
-  }))
+  // Convert to array with color info and slot data
+  return Array.from(locationMap.entries()).map(([locationId, bookings]) => {
+    // Get slots from the first booking's location data (all bookings at same location have same slots)
+    const locationSlots = bookings[0] ? parseLocationSlots(bookings[0]) : []
+    // Collect all booked slot IDs from all bookings at this location
+    const bookedIds: string[] = []
+    bookings.forEach((b) => {
+      const ids = parseBookingSlotIds(b)
+      bookedIds.push(...ids)
+    })
+
+    return {
+      locationId,
+      locationTitle: bookings[0]?.locationData?.title || 'Unknown',
+      color: getLocationColor(locationId),
+      bookings,
+      slots: locationSlots.filter(s => s.id !== 'all-day').map(s => ({
+        id: s.id,
+        label: s.label || s.value || s.id,
+        color: s.color || '#94a3b8',
+      })),
+      bookedSlotIds: bookedIds,
+    }
+  })
 }
 
 // Tooltip text for dates with bookings - now shows location and status details
@@ -439,24 +458,18 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
           color="primary"
         >
           <template #day="{ day }">
-            <UTooltip
-              v-if="hasBookingOnDate(day)"
-              :text="getTooltipForDate(day)"
-              :delay-duration="200"
-            >
-              <div class="relative flex flex-col items-center">
-                <span>{{ day.day }}</span>
-                <div class="flex gap-0.5 mt-0.5">
-                  <span
-                    v-for="lb in getLocationBookingsForDate(day)"
-                    :key="lb.locationId"
-                    style="width: 6px; height: 6px; border-radius: 50%;"
-                    :style="{ backgroundColor: lb.color }"
-                  />
-                </div>
+            <div class="flex flex-col items-center">
+              <span>{{ day.day }}</span>
+              <div v-if="hasBookingOnDate(day)" class="flex flex-col gap-0.5 mt-0.5">
+                <BookingsLocationsSlotIndicator
+                  v-for="lb in getLocationBookingsForDate(day)"
+                  :key="lb.locationId"
+                  :slots="lb.slots"
+                  :booked-slot-ids="lb.bookedSlotIds"
+                  size="xs"
+                />
               </div>
-            </UTooltip>
-            <span v-else>{{ day.day }}</span>
+            </div>
           </template>
         </CroutonCalendar>
       </UCard>
