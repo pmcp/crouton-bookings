@@ -36,7 +36,7 @@ function isBooked(slotId: string): boolean {
 </script>
 
 <template>
-  <div class="flex items-center" :class="gapClasses[size]">
+  <div class="flex items-center justify-center" :class="gapClasses[size]">
     <div
       v-for="slot in slots"
       :key="slot.id"

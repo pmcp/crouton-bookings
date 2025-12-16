@@ -400,18 +400,16 @@ function onBookingsScroll() {
   // Debounce the scroll handler
   if (scrollTimeout) clearTimeout(scrollTimeout)
   scrollTimeout = setTimeout(() => {
-    const container = scrollAreaRef.value
-    if (!container) return
-
-    // Find which booking is currently most visible in the container
-    const containerRect = container.getBoundingClientRect()
+    // Use viewport for visibility calculation
+    const viewportTop = 0
+    const viewportBottom = window.innerHeight
     let mostVisibleDate: string | null = null
     let maxVisibility = 0
 
     bookingRefs.forEach((el) => {
       const rect = el.getBoundingClientRect()
-      const visibleTop = Math.max(rect.top, containerRect.top)
-      const visibleBottom = Math.min(rect.bottom, containerRect.bottom)
+      const visibleTop = Math.max(rect.top, viewportTop)
+      const visibleBottom = Math.min(rect.bottom, viewportBottom)
       const visibleHeight = Math.max(0, visibleBottom - visibleTop)
 
       if (visibleHeight > maxVisibility) {
@@ -421,7 +419,9 @@ function onBookingsScroll() {
     })
 
     if (mostVisibleDate && weekCarousel.value) {
-      const bookingDate = new Date(mostVisibleDate)
+      // Parse YYYY-MM-DD as local date (not UTC)
+      const [year, month, day] = mostVisibleDate.split('-').map(Number)
+      const bookingDate = new Date(year, month - 1, day)
       isSyncing.value = true
       weekCarousel.value.scrollToDate(bookingDate)
       setTimeout(() => {
@@ -431,13 +431,22 @@ function onBookingsScroll() {
   }, 150)
 }
 
-// Set up scroll listener
+// Find the actual scrolling container (parent div with overflow-y-auto)
+let scrollContainer: HTMLElement | null = null
+
 onMounted(() => {
-  scrollAreaRef.value?.addEventListener('scroll', onBookingsScroll, { passive: true })
+  // The scroll container is the main content div with w-full and overflow-y-auto in [team].vue
+  scrollContainer = document.querySelector('.w-full.flex-1.overflow-y-auto')
+  if (scrollContainer) {
+    scrollContainer.addEventListener('scroll', onBookingsScroll, { passive: true })
+  }
 })
 
+// Clean up on unmount
 onUnmounted(() => {
-  scrollAreaRef.value?.removeEventListener('scroll', onBookingsScroll)
+  if (scrollContainer) {
+    scrollContainer.removeEventListener('scroll', onBookingsScroll)
+  }
   if (scrollTimeout) clearTimeout(scrollTimeout)
 })
 </script>
@@ -545,7 +554,7 @@ onUnmounted(() => {
       <!-- Bookings List (scrollable container) -->
       <div
         ref="scrollAreaRef"
-        class="px-2 space-y-2 h-[500px] overflow-y-auto scroll-smooth"
+        class="px-2 space-y-2"
       >
         <div
           v-for="booking in filteredBookings"
