@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Pending Invitations Table -->
-    <p class="text-sm font-semibold">Pending Invitations</p>
+    <p class="text-sm font-semibold">{{ $t('teams.invites.pendingInvitations') }}</p>
     <div
       class="mt-2 overflow-x-auto rounded-lg border border-neutral-200 dark:divide-white/10 dark:border-white/10"
     >
@@ -73,12 +73,12 @@
       </table>
       <div v-else class="flex h-32 flex-col items-center justify-center gap-3">
         <UIcon name="i-lucide-inbox" class="size-8" />
-        <p class="text-sm text-neutral-500">No pending invitations found</p>
+        <p class="text-sm text-neutral-500">{{ $t('teams.invites.noPendingInvitations') }}</p>
       </div>
     </div>
 
     <!-- Accepted Invitations Table -->
-    <p v-if="acceptedInvites.length" class="mt-8 text-sm font-semibold">Accepted Invitations</p>
+    <p v-if="acceptedInvites.length" class="mt-8 text-sm font-semibold">{{ $t('teams.invites.acceptedInvitations') }}</p>
     <div
       v-if="acceptedInvites.length"
       class="mt-2 overflow-x-auto rounded-lg border border-neutral-200 dark:divide-white/10 dark:border-white/10"
@@ -138,6 +138,7 @@ import type { FetchError } from 'ofetch'
 
 type TeamInviteAccepted = TeamInvite & { acceptedByEmail?: string }
 
+const { t } = useI18n()
 const { currentTeam, cancelInvite, resendInvite } = useTeam()
 const toast = useToast()
 
@@ -154,35 +155,48 @@ const acceptedInvites = computed(() =>
   teamInvites.value?.filter((invite) => invite.status === 'accepted') || [],
 )
 
-const pendingColumns = ['Email', 'Role', 'Status', 'Expires At', 'Created At', '']
-const acceptedColumns = ['Email', 'Role', 'Accepted At', 'Accepted By', 'Created At']
+const pendingColumns = computed(() => [
+  t('table.email'),
+  t('table.role'),
+  t('table.status'),
+  t('table.expiresAt'),
+  t('superAdmin.columns.createdAt'),
+  '',
+])
+const acceptedColumns = computed(() => [
+  t('table.email'),
+  t('table.role'),
+  t('table.acceptedAt'),
+  t('table.acceptedBy'),
+  t('superAdmin.columns.createdAt'),
+])
 
 const getRowItems = (invite: TeamInviteAccepted): DropdownMenuItem[] => {
   return [
     {
-      label: 'Copy Email',
+      label: t('teams.invites.copyEmail'),
       onSelect: () => {
         void navigator.clipboard.writeText(invite.email).then(() => {
           toast.add({
-            title: 'Email copied to clipboard!',
+            title: t('teams.invites.emailCopied'),
             color: 'success',
           })
         })
       },
     },
     {
-      label: 'Resend Invite',
+      label: t('teams.invites.resendInvite'),
       onSelect: () => {
         void resendInvite(invite.id)
           .then(() => {
             toast.add({
-              title: 'Invite resent successfully!',
+              title: t('teams.invites.inviteResentSuccessfully'),
               color: 'success',
             })
           })
           .catch((error) => {
             toast.add({
-              title: 'Failed to resend invite',
+              title: t('teams.invites.failedToResendInvite'),
               description: (error as FetchError).statusMessage,
               color: 'error',
             })
@@ -191,20 +205,20 @@ const getRowItems = (invite: TeamInviteAccepted): DropdownMenuItem[] => {
     },
     { type: 'separator' },
     {
-      label: 'Cancel Invite',
+      label: t('teams.invites.cancelInvite'),
       color: 'error' as const,
       onSelect: () => {
         void cancelInvite(invite.id)
           .then(() => {
             toast.add({
-              title: 'Invite cancelled successfully',
+              title: t('teams.invites.inviteCancelledSuccessfully'),
               color: 'success',
             })
             return fetchTeamInvites()
           })
           .catch((error) => {
             toast.add({
-              title: 'Failed to cancel invite',
+              title: t('teams.invites.failedToCancelInvite'),
               description: (error as FetchError).statusMessage,
               color: 'error',
             })

@@ -21,8 +21,8 @@
   <UDrawer
     v-model:open="newTeamModal"
     :ui="{ container: 'max-w-xl mx-auto' }"
-    title="Create a new team"
-    description="A team is a workspace for your organization."
+    :title="$t('teams.createNewTeam')"
+    :description="$t('teams.teamWorkspaceDescription')"
   >
     <template #body>
       <AppNewTeamForm @success="onTeamCreated" />
@@ -33,6 +33,7 @@
 <script lang="ts" setup>
 import type { Team } from '@@/types/database'
 
+const { t } = useI18n()
 const newTeamModal = ref(false)
 const { currentTeam } = useTeam()
 const teams = useState<Team[]>('teams')
@@ -69,7 +70,7 @@ const items = computed(() => {
     [...allTeams],
     [
       {
-        label: 'Create a new team',
+        label: t('teams.createNewTeam'),
         icon: 'i-lucide-plus-circle',
         onSelect: () => {
           newTeamModal.value = true

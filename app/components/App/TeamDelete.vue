@@ -1,7 +1,7 @@
 <template>
   <UCard>
     <template #header>
-      <h3 class="text-sm font-medium">Danger Zone</h3>
+      <h3 class="text-sm font-medium">{{ $t('accountSettings.dangerZone.title') }}</h3>
     </template>
     <div class="flex items-start gap-2 md:items-center">
       <div
@@ -10,18 +10,17 @@
         <UIcon name="i-lucide-trash-2" class="h-5 w-5 text-red-500" />
       </div>
       <div class="flex-1">
-        <h4 class="font-medium">Delete Team</h4>
+        <h4 class="font-medium">{{ $t('teams.deleteTeam') }}</h4>
         <p class="text-xs text-neutral-500 dark:text-neutral-400">
-          Deleting a team is irreversible and will remove all data associated
-          with it.
+          {{ $t('teams.deleteTeamDescription') }}
         </p>
       </div>
       <UModal
-        :title="`Delete ${currentTeam?.name}`"
-        description="This action is irreversible and will remove all data associated with it"
+        :title="`${$t('common.delete')} ${currentTeam?.name}`"
+        :description="$t('accountSettings.dangerZone.irreversible')"
         close-icon="i-lucide-x"
       >
-        <UButton color="error" size="lg"> Delete Permanently </UButton>
+        <UButton color="error" size="lg">{{ $t('teams.deletePermanently') }}</UButton>
 
         <template #body>
           <UForm
@@ -31,13 +30,13 @@
             @submit="handleSubmit"
           >
             <UFormField
-              label="Team Name"
+              :label="$t('teams.teamName')"
               name="teamName"
-              :help="`Please type '${currentTeam?.name}' to confirm deletion`"
+              :help="$t('teams.confirmDeleteHelp', { teamName: currentTeam?.name })"
             >
               <UInput
                 v-model="formState.teamName"
-                placeholder="Enter team name"
+                :placeholder="$t('placeholders.enterTeamName')"
                 class="w-full"
               />
             </UFormField>
@@ -49,7 +48,7 @@
               :loading="loading"
               :disabled="formState.teamName !== currentTeam?.name"
             >
-              Delete Permanently
+              {{ $t('teams.deletePermanently') }}
             </UButton>
           </UForm>
         </template>
@@ -61,6 +60,7 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 
+const { t } = useI18n()
 const toast = useToast()
 const { currentTeam, deleteTeam, loading } = useTeam()
 
@@ -84,15 +84,14 @@ async function handleSubmit() {
     if (!currentTeam.value) return
     await deleteTeam(currentTeam.value.id)
     toast.add({
-      title: 'Team deleted successfully',
+      title: t('toast.teamDeleted.title'),
       color: 'success',
     })
     window.location.href = '/dashboard'
   } catch (error: any) {
     toast.add({
-      title: 'Failed to delete team',
-      description:
-        error?.data?.message || 'An error occurred while deleting the team',
+      title: t('toast.teamFailedToDelete.title'),
+      description: error?.data?.message || t('errors.generic'),
       color: 'error',
     })
   }

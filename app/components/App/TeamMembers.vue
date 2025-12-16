@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p class="text-sm font-semibold">Active Members</p>
+    <p class="text-sm font-semibold">{{ $t('teams.activeMembers') }}</p>
     <div
       class="mt-2 overflow-x-auto rounded-lg border border-neutral-200 dark:divide-white/10 dark:border-white/10"
     >
@@ -59,7 +59,7 @@
                 member.lastLoginAt
                   ? useDateFormat(member.lastLoginAt, 'MMM D, YYYY hh:mm a')
                     .value
-                  : 'Never'
+                  : $t('teams.neverLoggedIn')
               }}
             </td>
             <td class="px-4 py-3">
@@ -92,6 +92,7 @@ import { useDateFormat } from '@vueuse/core'
 import { getAvatarUrl } from '@/utils/avatar'
 import type { DropdownMenuItem } from '@nuxt/ui'
 
+const { t } = useI18n()
 const { currentTeam, removeTeamMember } = useTeam()
 interface TeamMember {
   id: string
@@ -107,29 +108,35 @@ interface TeamMember {
 const { data: members, refresh: refreshMembers } = await useFetch<TeamMember[]>(
   `/api/teams/${currentTeam.value.id}/members`,
 )
-const columns = ['Name', 'Email', 'Role', 'Last Login', 'Created At']
+const columns = computed(() => [
+  t('superAdmin.columns.name'),
+  t('table.email'),
+  t('table.role'),
+  t('teams.lastLoginColumn'),
+  t('superAdmin.columns.createdAt'),
+])
 const toast = useToast()
 const getRowItems = (member: TeamMember): DropdownMenuItem[] => {
   return [
     {
-      label: 'Copy Email',
+      label: t('teams.invites.copyEmail'),
       onSelect: () => {
         void navigator.clipboard.writeText(member.email)
           .then(() => {
             toast.add({
-              title: 'Email copied to clipboard!',
+              title: t('teams.invites.emailCopied'),
               color: 'success',
             })
           })
       },
     },
     {
-      label: 'Copy User ID',
+      label: t('teams.invites.copyUserId'),
       onSelect: () => {
         void navigator.clipboard.writeText(member.userId)
           .then(() => {
             toast.add({
-              title: 'User ID copied to clipboard!',
+              title: t('teams.invites.userIdCopied'),
               color: 'success',
             })
           })
@@ -137,7 +144,7 @@ const getRowItems = (member: TeamMember): DropdownMenuItem[] => {
     },
     { type: 'separator' },
     {
-      label: 'Remove from team',
+      label: t('teams.memberActions.removeFromTeam'),
       color: 'error' as const,
       onSelect: () => {
         void removeTeamMember(member.id)
@@ -146,7 +153,7 @@ const getRowItems = (member: TeamMember): DropdownMenuItem[] => {
           })
           .catch(() => {
             toast.add({
-              title: 'Failed to remove member',
+              title: t('teams.memberActions.failedToRemoveMember'),
               color: 'error',
             })
           })

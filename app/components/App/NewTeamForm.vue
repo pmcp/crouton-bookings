@@ -6,7 +6,7 @@
     @submit="onSubmit as any"
   >
     <UFormField
-      label="Team logo (Recommended size: 1 MB, 1:1 aspect ratio)"
+      :label="`${$t('teams.teamLogo')} (${$t('teams.teamLogoHelp')})`"
       name="logo"
     >
       <AppAvatarUploader
@@ -15,24 +15,24 @@
       />
     </UFormField>
 
-    <UFormField required label="Team name" name="name">
+    <UFormField required :label="$t('teams.teamName')" name="name">
       <UInput
         v-model="state.name"
-        placeholder="Personal or Company Name"
+        :placeholder="$t('placeholders.personalOrCompanyName')"
         class="w-full"
         size="lg"
       />
     </UFormField>
 
     <UFormField
-      label="Team URL"
+      :label="$t('teams.teamUrl')"
       name="slug"
       required
       :help="`${host}/dashboard/${state.slug}`"
     >
       <UInput
         v-model="state.slug"
-        placeholder="my-awesome-team"
+        :placeholder="$t('placeholders.myAwesomeTeam')"
         class="w-full"
         size="lg"
       />
@@ -47,7 +47,7 @@
       :loading="loading"
       :disabled="loading"
     >
-      Create team
+      {{ $t('teams.createTeam') }}
     </UButton>
   </UForm>
 </template>
@@ -59,6 +59,7 @@ import type { Team } from '@@/types/database'
 import { FetchError } from 'ofetch'
 import { watch, nextTick, ref } from 'vue'
 
+const { t } = useI18n()
 const toast = useToast()
 const teams = useState<Team[]>('teams')
 const loading = ref(false)
@@ -121,7 +122,7 @@ async function getAvailableSlug(baseSlug: string): Promise<string> {
       if (!existingTeam) {
         // If the slug was taken and we had to increment, show a message
         if (wasTaken) {
-          slugAutoAdjustedMessage.value = `"${baseSlug}" is taken so we have just made it unique, you can adjust the Team URL however you want to an available name.`
+          slugAutoAdjustedMessage.value = t('teams.slugAutoAdjusted', { slug: baseSlug })
         }
         return slug
       }
@@ -200,8 +201,8 @@ const onSubmit = async (event: FormSubmitEvent<typeof schema>) => {
 
     if (existingTeam) {
       toast.add({
-        title: 'Team URL already in use',
-        description: `You are already a member of team "${existingTeam.name}" with URL /${existingTeam.slug}. Please choose a different URL.`,
+        title: t('toast.teamUrlAlreadyInUse.title'),
+        description: t('teams.urlAlreadyInUseDescription', { teamName: existingTeam.name, teamSlug: existingTeam.slug }),
         color: 'error',
       })
       loading.value = false
@@ -219,17 +220,17 @@ const onSubmit = async (event: FormSubmitEvent<typeof schema>) => {
     teams.value.push(newTeam)
     setLastUsedTeam(newTeam.slug)
     toast.add({
-      title: 'Team created successfully',
+      title: t('toast.teamCreated.title'),
       color: 'success',
     })
     emit('success', newTeam)
   } catch (error) {
     toast.add({
-      title: 'Failed to create team',
+      title: t('toast.teamFailedToCreate.title'),
       description:
         (error as any).message
         || (error as any).statusMessage
-        || 'Please try again',
+        || t('errors.tryAgain'),
       color: 'error',
     })
   } finally {

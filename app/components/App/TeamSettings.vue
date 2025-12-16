@@ -1,7 +1,7 @@
 <template>
   <UCard>
     <template #header>
-      <h3 class="text-sm font-medium">General Settings</h3>
+      <h3 class="text-sm font-medium">{{ $t('teams.generalSettings') }}</h3>
     </template>
 
     <UForm
@@ -11,7 +11,7 @@
       @submit="onSubmit as any"
     >
       <UFormField
-        label="Team logo (Recommended size: 1 MB, 1:1 aspect ratio)"
+        :label="`${$t('teams.teamLogo')} (${$t('teams.teamLogoHelp')})`"
         name="logo"
       >
         <AppAvatarUploader
@@ -20,15 +20,15 @@
         />
       </UFormField>
 
-      <UFormField required label="Team name" name="name">
+      <UFormField required :label="$t('teams.teamName')" name="name">
         <UInput v-model="state.name" class="w-full" />
       </UFormField>
 
-      <UFormField label="Team URL" :help="`${host}/dashboard/${state.slug}`">
+      <UFormField :label="$t('teams.teamUrl')" :help="`${host}/dashboard/${state.slug}`">
         <UInput v-model="state.slug" variant="subtle" class="w-full" disabled />
       </UFormField>
 
-      <UFormField label="Team ID">
+      <UFormField :label="$t('teams.teamId')">
         <UInput
           :value="currentTeam?.id || ''"
           variant="subtle"
@@ -43,7 +43,7 @@
         :loading="loading"
         :disabled="loading"
       >
-        Save Changes
+        {{ $t('common.saveChanges') }}
       </UButton>
     </UForm>
   </UCard>
@@ -52,6 +52,7 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '#ui/types'
 
+const { t } = useI18n()
 const toast = useToast()
 const { teamSchema, updateTeam, currentTeam, loading } = useTeam()
 const selectedFile = ref<File | null>(null)
@@ -106,7 +107,7 @@ const onSubmit = async (event: FormSubmitEvent<typeof teamSchema>) => {
     await updateTeam(currentTeam.value.id, teamData)
   } catch (error) {
     toast.add({
-      title: 'Failed to update team',
+      title: t('teams.failedToUpdateTeam'),
       description: (error as any).statusMessage,
       color: 'error',
     })
