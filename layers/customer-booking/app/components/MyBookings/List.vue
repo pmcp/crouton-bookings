@@ -632,11 +632,11 @@ useEventListener(scrollContainer, 'scroll', onBookingsScroll, { passive: true })
             v-for="loc in availableLocations"
             :key="loc.id"
             type="button"
-            class="px-3 py-2 rounded-lg transition-all"
+            class="px-3 py-2 rounded-lg transition-all hover:scale-105 hover:shadow-md"
             :class="[
               locationFilters[loc.id]
                 ? 'bg-elevated shadow-sm'
-                : 'bg-elevated/30 opacity-40 hover:opacity-60'
+                : 'bg-elevated/30 opacity-40 hover:opacity-70 hover:bg-elevated/50'
             ]"
             @click="toggleLocation(loc.id)"
           >
