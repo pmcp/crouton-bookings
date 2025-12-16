@@ -34,6 +34,8 @@ const emit = defineEmits<{
   'hide-confirmation': []
 }>()
 
+const { t } = useI18n()
+
 // Check if we have valid position info
 const hasPositionInfo = computed(() => props.totalSlots > 0 && props.slotPosition >= 0)
 
@@ -80,7 +82,7 @@ function confirmAction() {
 </script>
 
 <template>
-  <div class="bg-elevated/50 rounded-lg overflow-hidden">
+  <div class="bg-elevated/50 rounded-lg overflow-hidden group">
     <div class="p-3 flex items-center gap-3">
       <!-- Date card -->
       <DateBadge :date="date" :variant="dateBadgeVariant" />
@@ -121,7 +123,7 @@ function confirmAction() {
           variant="subtle"
           size="sm"
         >
-          {{ status }}
+          {{ $t(`bookings.status.${status}`) }}
         </UBadge>
 
         <!-- Action button -->
@@ -142,7 +144,7 @@ function confirmAction() {
     <div v-if="showConfirmation" class="px-3 pb-3">
       <div class="flex items-center justify-between gap-2 bg-error/10 rounded-lg px-3 py-2">
         <span class="text-xs text-muted">
-          {{ actionType === 'delete' ? 'Delete permanently?' : 'Cancel this booking?' }}
+          {{ actionType === 'delete' ? $t('bookings.confirm.delete') : $t('bookings.confirm.cancel') }}
         </span>
         <div class="flex items-center gap-2">
           <UButton
@@ -151,7 +153,7 @@ function confirmAction() {
             size="xs"
             @click="emit('hide-confirmation')"
           >
-            Keep
+            {{ $t('bookings.buttons.keep') }}
           </UButton>
           <UButton
             variant="soft"
@@ -160,7 +162,7 @@ function confirmAction() {
             :loading="loading"
             @click="confirmAction"
           >
-            {{ actionType === 'delete' ? 'Delete' : 'Cancel' }}
+            {{ actionType === 'delete' ? $t('common.delete') : $t('common.cancel') }}
           </UButton>
         </div>
       </div>
