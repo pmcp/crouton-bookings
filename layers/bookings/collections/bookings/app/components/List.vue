@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { DateValue } from '@internationalized/date'
-import { getLocalTimeZone } from '@internationalized/date'
 
 const { t } = useT()
 
@@ -114,25 +113,15 @@ function toggleLocation(locationId: string) {
   locationOverrides.value[locationId] = !locationFilters.value[locationId]
 }
 
-// Date range filter
-const selectedFilterRange = ref<{ start: Date | null, end: Date | null }>({ start: null, end: null })
-const calendarRangeValue = shallowRef<{ start: DateValue, end: DateValue } | undefined>(undefined)
+// Date range filter (using CroutonCalendar's v-model:startDate/endDate pattern)
+const rangeStartDate = ref<Date | null>(null)
+const rangeEndDate = ref<Date | null>(null)
 
-watch(calendarRangeValue, (value) => {
-  if (!value) {
-    selectedFilterRange.value = { start: null, end: null }
-  } else {
-    selectedFilterRange.value = {
-      start: value.start ? value.start.toDate(getLocalTimeZone()) : null,
-      end: value.end ? value.end.toDate(getLocalTimeZone()) : null,
-    }
-  }
-})
-
-const hasActiveRange = computed(() => selectedFilterRange.value.start !== null)
+const hasActiveRange = computed(() => rangeStartDate.value !== null)
 
 function clearDateFilter() {
-  calendarRangeValue.value = undefined
+  rangeStartDate.value = null
+  rangeEndDate.value = null
 }
 
 // Helper functions
@@ -155,14 +144,14 @@ const filteredBookings = computed(() => {
 
     // Date range filter
     let dateMatch = true
-    if (hasActiveRange.value && selectedFilterRange.value.start) {
+    if (hasActiveRange.value && rangeStartDate.value) {
       const bookingDate = new Date(b.date)
       bookingDate.setHours(0, 0, 0, 0)
 
-      const rangeStart = new Date(selectedFilterRange.value.start)
+      const rangeStart = new Date(rangeStartDate.value)
       rangeStart.setHours(0, 0, 0, 0)
 
-      const rangeEnd = new Date(selectedFilterRange.value.end || selectedFilterRange.value.start)
+      const rangeEnd = new Date(rangeEndDate.value || rangeStartDate.value)
       rangeEnd.setHours(23, 59, 59, 999)
 
       dateMatch = bookingDate >= rangeStart && bookingDate <= rangeEnd
@@ -294,13 +283,13 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
 
 // Format filter range display
 const filterRangeDisplay = computed(() => {
-  if (!selectedFilterRange.value.start) return ''
+  if (!rangeStartDate.value) return ''
   const formatDate = (d: Date) => new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).format(d)
-  const start = formatDate(selectedFilterRange.value.start)
-  if (!selectedFilterRange.value.end || selectedFilterRange.value.start.getTime() === selectedFilterRange.value.end.getTime()) {
+  const start = formatDate(rangeStartDate.value)
+  if (!rangeEndDate.value || rangeStartDate.value.getTime() === rangeEndDate.value.getTime()) {
     return start
   }
-  return `${start} – ${formatDate(selectedFilterRange.value.end)}`
+  return `${start} – ${formatDate(rangeEndDate.value)}`
 })
 
 const hasBookings = computed(() => bookings.value && bookings.value.length > 0)
@@ -397,13 +386,12 @@ const hasBookings = computed(() => bookings.value && bookings.value.length > 0)
           </div>
         </template>
 
-        <UCalendar
-          v-model="calendarRangeValue"
+        <CroutonCalendar
+          v-model:start-date="rangeStartDate"
+          v-model:end-date="rangeEndDate"
           range
           :number-of-months="3"
           size="sm"
-          class="w-full"
-          :ui="{ root: 'w-full' }"
         >
           <template #day="{ day }">
             <div class="flex flex-col items-center">
@@ -419,7 +407,7 @@ const hasBookings = computed(() => bookings.value && bookings.value.length > 0)
               </div>
             </div>
           </template>
-        </UCalendar>
+        </CroutonCalendar>
       </UCard>
 
       <!-- Filter indicator -->
