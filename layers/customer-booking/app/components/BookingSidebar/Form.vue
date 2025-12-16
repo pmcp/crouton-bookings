@@ -184,8 +184,10 @@ watch(
 
 // Preview card data for current selection
 const previewData = computed(() => {
-  const slot = allSlots.value.find(s => s.id === formState.slotId)
+  const slots = allSlots.value
+  const slot = slots.find(s => s.id === formState.slotId)
   const group = groupOptions.value.find(g => g.id === formState.groupId)
+  const slotIndex = slots.findIndex(s => s.id === formState.slotId)
 
   const d = formState.date
   return {
@@ -194,10 +196,12 @@ const previewData = computed(() => {
     month: d?.toLocaleDateString('en-US', { month: 'short' }) ?? '---',
     weekday: d?.toLocaleDateString('en-US', { weekday: 'short' }) ?? '---',
     locationTitle: cachedLocationTitle.value,
-    slotLabel: slot?.label || slot?.value || 'Select a slot',
-    slotColor: slot ? getSlotColorById(slot.id) : DEFAULT_SLOT_COLOR,
+    slotLabel: slot?.label || slot?.value || t('bookings.slots.selectSlot'),
+    slotColor: slot?.color || (slot ? getSlotColorById(slot.id) : DEFAULT_SLOT_COLOR),
     groupLabel: group?.label || null,
     hasSlot: !!formState.slotId,
+    totalSlots: slots.length,
+    slotPosition: slotIndex,
   }
 })
 
@@ -354,37 +358,39 @@ async function handleSubmit() {
       <!-- Preview card - always visible, shows current selection -->
       <div
         class="mt-4 rounded-lg overflow-hidden transition-all duration-200"
-        :class="canAddToCart ? 'bg-accented' : 'bg-elevated'"
+        :class="canAddToCart ? 'bg-accented' : 'bg-elevated/50'"
       >
-        <div class="p-2 flex items-center gap-2">
+        <div class="p-3 flex items-center gap-3">
           <!-- Date card -->
           <DateBadge
             v-if="formState.date"
             :date="formState.date"
-            size="sm"
-            :variant="canAddToCart ? 'elevated' : 'muted'"
+            :variant="canAddToCart ? 'primary' : 'muted'"
           />
 
           <!-- Content -->
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium truncate flex items-center gap-1">
-              <UIcon name="i-lucide-map-pin" class="w-3.5 h-3.5 text-muted shrink-0" />
-              {{ previewData.locationTitle }}
+          <div class="flex-1 flex flex-col gap-1">
+            <p class="text-sm font-medium truncate flex items-center gap-1.5">
+              <span class="truncate capitalize">{{ previewData.locationTitle }}</span>
             </p>
-            <p class="text-xs text-muted mt-0.5 flex items-center gap-1.5">
-              <UIcon name="i-lucide-clock" class="w-3 h-3" />
-              <span :class="{ 'opacity-50': !previewData.hasSlot }">{{ previewData.slotLabel }}</span>
-              <span
-                v-if="previewData.hasSlot"
-                class="w-2 h-2 rounded-full shrink-0 inline-block"
-                :style="{ backgroundColor: previewData.slotColor }"
+            <div class="flex items-center">
+              <!-- Position indicator when slot selected -->
+              <BookingsLocationsSlotSingleIndicator
+                v-if="previewData.hasSlot && previewData.totalSlots > 0 && previewData.slotPosition >= 0"
+                :total-slots="previewData.totalSlots"
+                :position="previewData.slotPosition"
+                :color="previewData.slotColor"
+                :label="previewData.slotLabel"
+                size="sm"
               />
-              <template v-if="previewData.groupLabel">
-                <span class="mx-1" />
-                <UIcon name="i-lucide-users" class="w-3 h-3" />
-                <span>{{ previewData.groupLabel }}</span>
-              </template>
-            </p>
+              <!-- Placeholder when no slot selected -->
+              <span v-else class="text-xs text-muted">{{ previewData.slotLabel }}</span>
+            </div>
+            <div v-if="previewData.groupLabel" class="relative" style="left:-0.07em;margin-top: 0.15em">
+              <UBadge color="neutral" variant="subtle" size="md">
+                {{ previewData.groupLabel }}
+              </UBadge>
+            </div>
           </div>
 
           <!-- Add button -->
@@ -395,7 +401,7 @@ async function handleSubmit() {
             :disabled="!canAddToCart"
             @click="addToCart"
           >
-            Add
+            {{ t('bookings.buttons.add') }}
           </UButton>
         </div>
       </div>
@@ -440,7 +446,9 @@ async function handleSubmit() {
           :id="item.id"
           :location-title="item.locationTitle"
           :slot-label="item.slotLabel"
-          :slot-color="getSlotColorById(item.slotId)"
+          :slot-color="item.slotColor"
+          :total-slots="item.totalSlots || 0"
+          :slot-position="item.slotPosition ?? -1"
           :date="item.date"
           :group-label="item.groupLabel"
           action-type="remove"
