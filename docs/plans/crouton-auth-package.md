@@ -6,8 +6,8 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 18 / 54 |
-| **Current Phase** | Phase 4 - In Progress |
+| **Tasks Completed** | 21 / 54 |
+| **Current Phase** | Phase 4 - Complete |
 | **Estimated Total** | ~40-60 hours |
 
 ---
@@ -333,8 +333,8 @@ session: {
 
 ---
 
-## Phase 4: Composables & Utilities
-**Estimated: 6-8 hours**
+## Phase 4: Composables & Utilities ✅
+**Estimated: 6-8 hours** | **Status: Complete**
 
 ### Task 4.1: useAuth Composable ✅
 - [x] Create `composables/useAuth.ts`
@@ -403,11 +403,11 @@ export const useTeam = () => {
 }
 ```
 
-### Task 4.3: useBilling Composable
-- [ ] Create `composables/useBilling.ts`
-- [ ] Wrap Better Auth Stripe client
-- [ ] Provide subscription state
-- [ ] Handle checkout/portal flows
+### Task 4.3: useBilling Composable ✅
+- [x] Create `composables/useBilling.ts`
+- [x] Wrap Better Auth Stripe client
+- [x] Provide subscription state
+- [x] Handle checkout/portal flows
 
 ```typescript
 export const useBilling = () => {
@@ -432,14 +432,14 @@ export const useBilling = () => {
 }
 ```
 
-### Task 4.4: Server Utilities
-- [ ] Create `server/utils/auth.ts`
-- [ ] `requireAuth(event)` - throws if not authenticated
-- [ ] `requireTeamMember(event)` - throws if not team member
-- [ ] `requireTeamAdmin(event)` - throws if not admin
-- [ ] `requireTeamOwner(event)` - throws if not owner
-- [ ] `getAuthUser(event)` - returns user or null
-- [ ] `getTeamContext(event)` - returns current team
+### Task 4.4: Server Utilities ✅
+- [x] Create `server/utils/auth.ts`
+- [x] `requireAuth(event)` - throws if not authenticated
+- [x] `requireTeamMember(event)` - throws if not team member
+- [x] `requireTeamAdmin(event)` - throws if not admin
+- [x] `requireTeamOwner(event)` - throws if not owner
+- [x] `getAuthUser(event)` - returns user or null
+- [x] `getTeamContext(event)` - returns current team
 
 ```typescript
 // server/utils/auth.ts
@@ -468,13 +468,13 @@ export const requireTeamMember = async (event: H3Event) => {
 }
 ```
 
-### Task 4.5: Type Exports
-- [ ] Export User type
-- [ ] Export Team/Organization type
-- [ ] Export Session type
-- [ ] Export Member type with roles
-- [ ] Export Subscription type
-- [ ] Ensure types work with Nuxt's auto-imports
+### Task 4.5: Type Exports ✅
+- [x] Export User type
+- [x] Export Team/Organization type
+- [x] Export Session type
+- [x] Export Member type with roles
+- [x] Export Subscription type
+- [x] Ensure types work with Nuxt's auto-imports
 
 ---
 
@@ -1542,6 +1542,23 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Task 4.2 complete.
+
+**Task 4.3 verified:**
+- `useBilling` composable was fully implemented during Task 2.6 (Stripe Plugin)
+- All required features present: subscription state, checkout/portal flows
+- Disabled stub for apps without billing enabled
+
+**Task 4.4 verified:**
+- All server utilities were implemented during Phase 2
+- `requireAuth`, `requireTeamMember`, `requireTeamAdmin`, `requireTeamOwner` all working
+- `getAuthUser`, `getTeamContext` also present
+
+**Task 4.5 verified:**
+- All types exported from `types/index.ts`
+- User, Team, Session, Member, MemberRole, Subscription types all present
+- Types work with Nuxt's auto-import system
+
+**Phase 4 Complete!**
 
 ---
 
