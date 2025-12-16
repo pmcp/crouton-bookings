@@ -635,8 +635,8 @@ useEventListener(scrollContainer, 'scroll', onBookingsScroll, { passive: true })
             class="px-3 py-2 rounded-lg transition-all"
             :class="[
               locationFilters[loc.id]
-                ? 'bg-elevated ring-1 ring-primary'
-                : 'bg-elevated/50 opacity-50 hover:opacity-75'
+                ? 'bg-elevated shadow-sm'
+                : 'bg-elevated/30 opacity-40 hover:opacity-60'
             ]"
             @click="toggleLocation(loc.id)"
           >
