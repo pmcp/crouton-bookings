@@ -9,9 +9,8 @@ export default defineNuxtConfig({
     '@friendlyinternet/nuxt-crouton-editor',
     '@friendlyinternet/nuxt-crouton-maps',
     '@friendlyinternet/nuxt-crouton-i18n',
-    // Local crouton-auth layer (Better Auth integration)
-    // NOTE: Must come AFTER nuxt-crouton to override #crouton/team-auth alias
-    './packages/crouton-auth',
+    // TODO: Add './packages/crouton-auth' here when Phase 3+ is complete
+    // It will override #crouton/team-auth alias to use Better Auth
     // Application layers
     './layers/bookings',
     './layers/customer-booking',
