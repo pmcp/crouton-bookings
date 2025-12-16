@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 5 / 54 |
+| **Tasks Completed** | 6 / 54 |
 | **Current Phase** | Phase 2 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
@@ -185,12 +185,12 @@ organization({
 })
 ```
 
-### Task 2.3: OAuth Providers
-- [ ] Configure GitHub OAuth
-- [ ] Configure Google OAuth
-- [ ] Configure Discord OAuth
-- [ ] Add support for additional providers (configurable)
-- [ ] Handle OAuth callback URLs
+### Task 2.3: OAuth Providers ✅
+- [x] Configure GitHub OAuth
+- [x] Configure Google OAuth
+- [x] Configure Discord OAuth
+- [x] Add support for additional providers (configurable)
+- [x] Handle OAuth callback URLs
 
 ### Task 2.4: Passkey Plugin
 - [ ] Configure passkey/WebAuthn plugin
@@ -1224,6 +1224,22 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Task 2.2 complete.
+
+**Task 2.3 completed:**
+- Added OAuth/social providers configuration to Better Auth setup
+- Implemented `buildSocialProvidersConfig()` factory function
+- Configured GitHub OAuth with required `user:email` scope
+- Configured Google OAuth with `accessType: 'offline'` for refresh tokens
+- Configured Discord OAuth
+- Added support for additional custom OAuth providers via dynamic configuration
+- Created helper utilities:
+  - `getConfiguredOAuthProviders()` - Returns provider info for UI display (icons, colors, names)
+  - `isOAuthProviderConfigured()` - Check if a provider is configured
+  - `getOAuthCallbackURL()` - Generate callback URLs (pattern: `/api/auth/callback/{provider}`)
+- All providers support `allowSignUp` option to disable new user registration
+
+**Blockers:**
+- None. Task 2.3 complete.
 
 ---
 
