@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 4 / 54 |
+| **Tasks Completed** | 5 / 54 |
 | **Current Phase** | Phase 2 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
@@ -166,12 +166,12 @@ export const createAuth = (config: CroutonAuthConfig, db: DrizzleDB) => {
 }
 ```
 
-### Task 2.2: Organization Plugin (Teams)
-- [ ] Configure organization plugin for all modes
-- [ ] Set up default roles (owner, admin, member)
-- [ ] Configure invitation system
-- [ ] Implement team limits based on config
-- [ ] Add sub-team support (optional)
+### Task 2.2: Organization Plugin (Teams) ✅
+- [x] Configure organization plugin for all modes
+- [x] Set up default roles (owner, admin, member)
+- [x] Configure invitation system
+- [x] Implement team limits based on config
+- [ ] Add sub-team support (optional - deferred)
 
 **Mode-specific behavior:**
 ```typescript
@@ -1187,6 +1187,7 @@ const team = getTeamContext(event)
 ### Day 2: 2024-12-16
 **Tasks completed:**
 - Task 2.1: Core Better Auth Setup
+- Task 2.2: Organization Plugin (Teams)
 
 **Notes:**
 - Created `server/lib/auth.ts` with Better Auth factory function (`createAuth`)
@@ -1196,10 +1197,33 @@ const team = getTeamContext(event)
 - Created `server/utils/useServerAuth.ts` for lazy auth instance initialization
 - Updated API route handler `/api/auth/[...all].ts` to use Better Auth
 - Updated `server/utils/auth.ts` with `requireAuth` using Better Auth session
-- Team utilities (requireTeamMember, etc.) pending Task 2.2 (Organization plugin)
+
+**Task 2.2 Implementation:**
+- Added Better Auth organization plugin to auth instance
+- Configured mode-aware organization creation:
+  - Multi-tenant: users can create orgs (configurable)
+  - Single-tenant: no manual org creation
+  - Personal: no manual org creation (auto-created on signup)
+- Set up organization limits: 5 (multi-tenant), 1 (single/personal)
+- Configured membership limit from config (default: 100)
+- Set up invitation system with:
+  - Configurable expiry (default: 48 hours)
+  - Email verification option
+  - Default role assignment
+  - Placeholder email sender (logs to console)
+- Added organization lifecycle hooks for debugging
+- Updated `server/utils/team.ts` with full Better Auth integration:
+  - `resolveTeamAndCheckMembership()` - mode-aware team resolution
+  - `getMembership()` - check user's team membership
+  - `getTeamById()` / `getTeamBySlug()` - team lookup
+  - `getUserTeams()` - list user's teams
+  - `createPersonalWorkspace()` - for personal mode signup
+  - `canUserCreateTeam()` - check team creation limits
+  - `requireTeamRole()` / `requireTeamAdmin()` / `requireTeamOwner()` - RBAC helpers
+- Updated `server/utils/auth.ts` to re-export team utilities
 
 **Blockers:**
-- None. Task 2.1 complete.
+- None. Task 2.2 complete.
 
 ---
 
