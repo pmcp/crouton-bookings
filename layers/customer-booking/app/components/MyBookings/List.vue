@@ -99,29 +99,6 @@ const availableLocations = computed<LocationItem[]>(() => {
   return Array.from(locationMap.entries()).map(([id, title]) => ({ id, title }))
 })
 
-// Location color palette for calendar dots (hex colors for inline styles)
-const LOCATION_COLORS = [
-  '#3b82f6', // blue
-  '#10b981', // emerald
-  '#f59e0b', // amber
-  '#a855f7', // purple
-  '#f43f5e', // rose
-  '#06b6d4', // cyan
-]
-
-// Map location IDs to colors (stable assignment based on order)
-const locationColorMap = computed(() => {
-  const map = new Map<string, string>()
-  availableLocations.value.forEach((loc, index) => {
-    const colorIndex = index % LOCATION_COLORS.length
-    map.set(loc.id, LOCATION_COLORS[colorIndex]!)
-  })
-  return map
-})
-
-function getLocationColor(locationId: string): string {
-  return locationColorMap.value.get(locationId) ?? LOCATION_COLORS[0]!
-}
 
 // Location filter state - all locations enabled by default
 const locationOverrides = ref<Record<string, boolean>>({})
@@ -235,7 +212,6 @@ function getLocationBookingsForDate(date: DateValue): LocationBooking[] {
     return {
       locationId,
       locationTitle: bookings[0]?.locationData?.title || 'Unknown',
-      color: getLocationColor(locationId),
       bookings,
       slots: locationSlots.filter(s => s.id !== 'all-day').map(s => ({
         id: s.id,
@@ -386,16 +362,11 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
 
     <!-- Bookings list -->
     <div v-else class="space-y-6">
-      <!-- Header with count and refresh -->
-      <div class="flex items-center justify-between">
-        <p class="text-sm text-muted">
-          {{ filteredBookings.length }} of {{ bookings?.length }} booking{{ bookings?.length === 1 ? '' : 's' }}
-        </p>
-        <UButton variant="ghost" color="neutral" size="sm" icon="i-lucide-refresh-cw" @click="() => refresh()" />
-      </div>
+
+
 
       <!-- Filters -->
-      <div class="flex flex-col gap-3">
+      <div class="flex flex-row gap-3">
         <!-- Status Filter Toggles -->
         <div class="flex flex-wrap gap-2">
           <UButton
@@ -424,10 +395,7 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
             color="neutral"
             @click="toggleLocation(loc.id)"
           >
-            <span
-              style="width: 8px; height: 8px; border-radius: 50%; margin-right: 6px;"
-              :style="{ backgroundColor: getLocationColor(loc.id) }"
-            />
+
             <UIcon
               :name="locationFilters[loc.id] ? 'i-lucide-check' : 'i-lucide-x'"
               class="w-3 h-3 mr-1"
@@ -435,22 +403,18 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
             {{ loc.title }}
           </UButton>
         </div>
+        <!-- Header with count and refresh -->
+        <div class="flex items-center justify-between">
+          <p class="text-sm text-muted">
+            {{ filteredBookings.length }} of {{ bookings?.length }} booking{{ bookings?.length === 1 ? '' : 's' }}
+          </p>
+          <UButton variant="ghost" color="neutral" size="sm" icon="i-lucide-refresh-cw" @click="() => refresh()" />
+        </div>
+
       </div>
 
       <!-- Calendar -->
       <UCard>
-        <template v-if="availableLocations.length > 1" #header>
-          <!-- Location Legend -->
-          <div class="flex items-center gap-3 text-xs text-muted">
-            <div v-for="loc in availableLocations" :key="loc.id" class="flex items-center gap-1">
-              <span
-                style="width: 8px; height: 8px; border-radius: 50%;"
-                :style="{ backgroundColor: getLocationColor(loc.id) }"
-              />
-              <span>{{ loc.title }}</span>
-            </div>
-          </div>
-        </template>
         <CroutonCalendar
           v-model:date="selectedDate"
           :number-of-months="3"

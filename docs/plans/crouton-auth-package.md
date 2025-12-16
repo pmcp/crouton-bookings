@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 12 / 54 |
+| **Tasks Completed** | 13 / 54 |
 | **Current Phase** | Phase 3 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
@@ -268,23 +268,25 @@ export const betterAuthConnector = {
 - [x] URL pattern: `/dashboard/[team]/...`
 - [x] Team context in session
 
-### Task 3.2: Single-Tenant Mode
-- [ ] Auto-create default organization on first boot
-- [ ] Auto-add all new users to default org
-- [ ] Hide organization switcher
-- [ ] Simplified URL pattern: `/dashboard/...`
-- [ ] Auto-select default org in session
+### Task 3.2: Single-Tenant Mode ✅
+- [x] Auto-create default organization on first boot (lazy on first user signup)
+- [x] Auto-add all new users to default org
+- [ ] Hide organization switcher (UI task - deferred to Phase 5)
+- [ ] Simplified URL pattern: `/dashboard/...` (deferred to Task 3.5)
+- [x] Auto-select default org in session
 
 **Implementation:**
 ```typescript
-// server/plugins/single-tenant-init.ts
-export default defineNitroPlugin(async () => {
-  const config = useRuntimeConfig().crouton.auth
-  if (config.mode !== 'single-tenant') return
-
-  const defaultOrg = await getOrCreateDefaultOrganization()
-  // Store default org ID for auto-assignment
-})
+// server/lib/auth.ts - Database hooks for single-tenant mode
+databaseHooks: {
+  user: { create: { after: async (user) => {
+    await ensureDefaultOrgExists(db, defaultTeamId, appName)
+    await addUserToDefaultOrg(db, user.id, defaultTeamId)
+  }}}
+  session: { create: { after: async (session) => {
+    await setSessionActiveOrg(db, session.id, defaultTeamId)
+  }}}
+}
 ```
 
 ### Task 3.3: Personal Mode
@@ -1408,6 +1410,22 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Task 3.1 complete.
+
+**Task 3.2 completed:**
+- Implemented single-tenant mode with lazy default organization creation
+- Added `buildDatabaseHooks()` function in `server/lib/auth.ts`:
+  - `user.create.after` hook: Creates default org (if needed) and adds new user to it
+  - `session.create.after` hook: Sets activeOrganizationId to default org
+- Helper functions added:
+  - `ensureDefaultOrgExists()` - Lazy creation of default organization
+  - `addUserToDefaultOrg()` - Idempotent member creation
+  - `setSessionActiveOrg()` - Updates session with active org
+- Updated `single-tenant-init.ts` plugin to log initialization (DB not available at startup)
+- Updated `getOrCreateDefaultOrganization()` in `team.ts` to actually create the org when called during request handling
+- Key insight: NuxtHub D1 database is only available during request handling, so lazy initialization pattern is used
+
+**Blockers:**
+- None. Task 3.2 complete.
 
 ---
 
