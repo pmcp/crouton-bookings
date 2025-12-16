@@ -1,4 +1,75 @@
 {
+  "pages": {
+    "dashboard": {
+      "welcome": "Welcome to your dashboard."
+    },
+    "domains": {
+      "title": "Custom Domains",
+      "addDomain": "Add Domain",
+      "domain": "Domain",
+      "primary": "Primary",
+      "setPrimary": "Set Primary",
+      "verified": "Domain verified",
+      "verifiedOn": "on {date}",
+      "modal": {
+        "title": "Add Custom Domain",
+        "description": "Connect your own domain to your workspace. You'll need to add a DNS record to verify ownership."
+      },
+      "empty": {
+        "title": "No custom domains",
+        "description": "Add a custom domain to give your workspace a professional URL. Your pages will be accessible at your own domain."
+      },
+      "status": {
+        "verified": "Verified",
+        "pending": "Pending",
+        "failed": "Failed"
+      },
+      "verification": {
+        "instructions": "Add the following DNS TXT record to verify ownership:",
+        "type": "Type",
+        "name": "Name",
+        "value": "Value",
+        "dnsNote": "DNS changes can take up to 48 hours to propagate, but usually complete within minutes."
+      },
+      "validation": {
+        "required": "Domain is required",
+        "invalidFormat": "Invalid domain format"
+      },
+      "toast": {
+        "added": {
+          "title": "Domain added",
+          "description": "Add the DNS record to verify ownership."
+        },
+        "addFailed": "Failed to add domain",
+        "verified": {
+          "title": "Domain verified",
+          "description": "Your domain is now active."
+        },
+        "verificationFailed": "Verification failed",
+        "verificationError": "Verification error",
+        "primaryUpdated": "Primary domain updated",
+        "setPrimaryFailed": "Failed to set primary",
+        "removed": "Domain removed",
+        "removeFailed": "Failed to remove domain"
+      }
+    },
+    "members": {
+      "modal": {
+        "title": "Invite a new member to {team}",
+        "description": "We will email them a link to join your team. Invitations are valid for 7 days."
+      },
+      "validation": {
+        "cannotInviteSelf": "You cannot invite yourself"
+      },
+      "toast": {
+        "inviteSent": "We have sent an invitation to {email}"
+      }
+    },
+    "onboard": {
+      "welcome": "Welcome {name}",
+      "description": "Let's get you started by creating your first team."
+    }
+  },
   "bookings": {
     "collections": {
       "bookings": { "title": "Bookings" },
@@ -87,9 +158,42 @@
       "delete": "Delete permanently?",
       "cancel": "Cancel this booking?"
     },
+    "meta": {
+      "bookedOn": "Booked {date}",
+      "emailsSent": "{sent}/{total} sent",
+      "emailsFailed": "{failed}/{total} failed"
+    },
     "empty": {
       "title": "No bookings yet",
       "description": "Create your first booking to get started"
+    },
+    "emailTemplates": {
+      "form": {
+        "templateName": "Template Name",
+        "emailSubject": "Email Subject",
+        "emailSubjectHelp": "Variables: {{customer_name}}, {{booking_date}}, {{booking_slot}}, {{location_name}}, {{team_name}}",
+        "emailBody": "Email Body",
+        "emailBodyHelp": "Variables: {{customer_name}}, {{booking_date}}, {{booking_slot}}, {{location_name}}, {{location_address}}, {{team_name}}",
+        "active": "Active",
+        "triggerType": "Trigger Type",
+        "sendTo": "Send To",
+        "hoursOffset": "Hours Offset",
+        "hoursOffsetHelp": "Negative = before booking, Positive = after booking. Only used for reminder/follow-up triggers.",
+        "fromEmail": "From Email",
+        "locationOptional": "Location (optional)",
+        "locationHelp": "Leave empty to apply to all locations"
+      },
+      "triggers": {
+        "bookingConfirmed": "Booking Confirmed",
+        "reminderBefore": "Reminder Before",
+        "bookingCancelled": "Booking Cancelled",
+        "followUpAfter": "Follow-up After"
+      },
+      "recipients": {
+        "customer": "Customer",
+        "admin": "Admin",
+        "both": "Both"
+      }
     }
   }
 }

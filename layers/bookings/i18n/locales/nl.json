@@ -1,4 +1,75 @@
 {
+  "pages": {
+    "dashboard": {
+      "welcome": "Welkom op je dashboard."
+    },
+    "domains": {
+      "title": "Aangepaste Domeinen",
+      "addDomain": "Domein toevoegen",
+      "domain": "Domein",
+      "primary": "Primair",
+      "setPrimary": "Instellen als primair",
+      "verified": "Domein geverifieerd",
+      "verifiedOn": "op {date}",
+      "modal": {
+        "title": "Aangepast domein toevoegen",
+        "description": "Koppel je eigen domein aan je werkruimte. Je moet een DNS-record toevoegen om eigendom te verifiëren."
+      },
+      "empty": {
+        "title": "Geen aangepaste domeinen",
+        "description": "Voeg een aangepast domein toe om je werkruimte een professionele URL te geven. Je pagina's zijn toegankelijk via je eigen domein."
+      },
+      "status": {
+        "verified": "Geverifieerd",
+        "pending": "In afwachting",
+        "failed": "Mislukt"
+      },
+      "verification": {
+        "instructions": "Voeg het volgende DNS TXT-record toe om eigendom te verifiëren:",
+        "type": "Type",
+        "name": "Naam",
+        "value": "Waarde",
+        "dnsNote": "DNS-wijzigingen kunnen tot 48 uur duren om te propageren, maar zijn meestal binnen enkele minuten voltooid."
+      },
+      "validation": {
+        "required": "Domein is verplicht",
+        "invalidFormat": "Ongeldig domeinformaat"
+      },
+      "toast": {
+        "added": {
+          "title": "Domein toegevoegd",
+          "description": "Voeg het DNS-record toe om eigendom te verifiëren."
+        },
+        "addFailed": "Domein toevoegen mislukt",
+        "verified": {
+          "title": "Domein geverifieerd",
+          "description": "Je domein is nu actief."
+        },
+        "verificationFailed": "Verificatie mislukt",
+        "verificationError": "Verificatiefout",
+        "primaryUpdated": "Primair domein bijgewerkt",
+        "setPrimaryFailed": "Instellen als primair mislukt",
+        "removed": "Domein verwijderd",
+        "removeFailed": "Domein verwijderen mislukt"
+      }
+    },
+    "members": {
+      "modal": {
+        "title": "Nodig een nieuw lid uit voor {team}",
+        "description": "We sturen hen een e-mail met een link om lid te worden van je team. Uitnodigingen zijn 7 dagen geldig."
+      },
+      "validation": {
+        "cannotInviteSelf": "Je kunt jezelf niet uitnodigen"
+      },
+      "toast": {
+        "inviteSent": "We hebben een uitnodiging gestuurd naar {email}"
+      }
+    },
+    "onboard": {
+      "welcome": "Welkom {name}",
+      "description": "Laten we je op weg helpen door je eerste team aan te maken."
+    }
+  },
   "bookings": {
     "collections": {
       "bookings": { "title": "Boekingen" },
@@ -87,9 +158,42 @@
       "delete": "Permanent verwijderen?",
       "cancel": "Deze boeking annuleren?"
     },
+    "meta": {
+      "bookedOn": "Geboekt op {date}",
+      "emailsSent": "{sent}/{total} verzonden",
+      "emailsFailed": "{failed}/{total} mislukt"
+    },
     "empty": {
       "title": "Nog geen boekingen",
       "description": "Maak je eerste boeking om te beginnen"
+    },
+    "emailTemplates": {
+      "form": {
+        "templateName": "Sjabloonnaam",
+        "emailSubject": "E-mail onderwerp",
+        "emailSubjectHelp": "Variabelen: {{customer_name}}, {{booking_date}}, {{booking_slot}}, {{location_name}}, {{team_name}}",
+        "emailBody": "E-mail inhoud",
+        "emailBodyHelp": "Variabelen: {{customer_name}}, {{booking_date}}, {{booking_slot}}, {{location_name}}, {{location_address}}, {{team_name}}",
+        "active": "Actief",
+        "triggerType": "Triggertype",
+        "sendTo": "Verzenden naar",
+        "hoursOffset": "Uren verschuiving",
+        "hoursOffsetHelp": "Negatief = voor boeking, Positief = na boeking. Alleen gebruikt voor herinnering/opvolging triggers.",
+        "fromEmail": "Afzender e-mail",
+        "locationOptional": "Locatie (optioneel)",
+        "locationHelp": "Laat leeg om toe te passen op alle locaties"
+      },
+      "triggers": {
+        "bookingConfirmed": "Boeking bevestigd",
+        "reminderBefore": "Herinnering vooraf",
+        "bookingCancelled": "Boeking geannuleerd",
+        "followUpAfter": "Opvolging achteraf"
+      },
+      "recipients": {
+        "customer": "Klant",
+        "admin": "Beheerder",
+        "both": "Beide"
+      }
     }
   }
 }

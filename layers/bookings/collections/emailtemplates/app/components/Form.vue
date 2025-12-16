@@ -17,13 +17,13 @@
     <CroutonFormLayout>
       <template #main>
       <div class="flex flex-col gap-4 p-1">
-        <UFormField label="Template Name" name="name" class="not-last:pb-4">
+        <UFormField :label="t('bookings.emailTemplates.form.templateName')" name="name" class="not-last:pb-4">
           <UInput v-model="state.name" class="w-full" size="xl" />
         </UFormField>
-        <UFormField label="Email Subject" name="subject" class="not-last:pb-4" help="Variables: {{customer_name}}, {{booking_date}}, {{booking_slot}}, {{location_name}}, {{team_name}}">
+        <UFormField :label="t('bookings.emailTemplates.form.emailSubject')" name="subject" class="not-last:pb-4" :help="t('bookings.emailTemplates.form.emailSubjectHelp')">
           <UInput v-model="state.subject" class="w-full" size="xl" />
         </UFormField>
-        <UFormField label="Email Body" name="body" class="not-last:pb-4" help="Variables: {{customer_name}}, {{booking_date}}, {{booking_slot}}, {{location_name}}, {{location_address}}, {{team_name}}">
+        <UFormField :label="t('bookings.emailTemplates.form.emailBody')" name="body" class="not-last:pb-4" :help="t('bookings.emailTemplates.form.emailBodyHelp')">
           <CroutonEditorSimple v-model="state.body" />
         </UFormField>
       </div>
@@ -31,10 +31,10 @@
 
       <template #sidebar>
       <div class="flex flex-col gap-4 p-1">
-        <UFormField label="Active" name="isActive" class="not-last:pb-4">
+        <UFormField :label="t('bookings.emailTemplates.form.active')" name="isActive" class="not-last:pb-4">
           <USwitch v-model="state.isActive" />
         </UFormField>
-        <UFormField label="Trigger Type" name="triggerType" class="not-last:pb-4">
+        <UFormField :label="t('bookings.emailTemplates.form.triggerType')" name="triggerType" class="not-last:pb-4">
           <USelect
             v-model="state.triggerType"
             :items="triggerOptions"
@@ -43,7 +43,7 @@
             size="xl"
           />
         </UFormField>
-        <UFormField label="Send To" name="recipientType" class="not-last:pb-4">
+        <UFormField :label="t('bookings.emailTemplates.form.sendTo')" name="recipientType" class="not-last:pb-4">
           <USelect
             v-model="state.recipientType"
             :items="recipientOptions"
@@ -52,17 +52,17 @@
             size="xl"
           />
         </UFormField>
-        <UFormField label="Hours Offset" name="hoursOffset" class="not-last:pb-4" help="Negative = before booking, Positive = after booking. Only used for reminder/follow-up triggers.">
+        <UFormField :label="t('bookings.emailTemplates.form.hoursOffset')" name="hoursOffset" class="not-last:pb-4" :help="t('bookings.emailTemplates.form.hoursOffsetHelp')">
           <UInputNumber v-model="state.hoursOffset" class="w-full" />
         </UFormField>
-        <UFormField label="From Email" name="fromEmail" class="not-last:pb-4">
+        <UFormField :label="t('bookings.emailTemplates.form.fromEmail')" name="fromEmail" class="not-last:pb-4">
           <UInput v-model="state.fromEmail" class="w-full" size="xl" />
         </UFormField>
-        <UFormField label="Location (optional)" name="locationId" class="not-last:pb-4" help="Leave empty to apply to all locations">
+        <UFormField :label="t('bookings.emailTemplates.form.locationOptional')" name="locationId" class="not-last:pb-4" :help="t('bookings.emailTemplates.form.locationHelp')">
           <CroutonFormReferenceSelect
             v-model="state.locationId"
             collection="bookingsLocations"
-            label="Location"
+            :label="t('bookings.form.location')"
           />
         </UFormField>
       </div>
@@ -84,21 +84,22 @@
 import type { BookingsEmailTemplateFormProps, BookingsEmailTemplateFormData } from '../../types'
 import useBookingsEmailTemplates from '../composables/useBookingsEmailTemplates'
 
+const { t } = useI18n()
 const props = defineProps<BookingsEmailTemplateFormProps>()
 const { defaultValue, schema, collection } = useBookingsEmailTemplates()
 
-const triggerOptions = [
-  { label: 'Booking Confirmed', value: 'booking_confirmed' },
-  { label: 'Reminder Before', value: 'reminder_before' },
-  { label: 'Booking Cancelled', value: 'booking_cancelled' },
-  { label: 'Follow-up After', value: 'follow_up_after' },
-]
+const triggerOptions = computed(() => [
+  { label: t('bookings.emailTemplates.triggers.bookingConfirmed'), value: 'booking_confirmed' },
+  { label: t('bookings.emailTemplates.triggers.reminderBefore'), value: 'reminder_before' },
+  { label: t('bookings.emailTemplates.triggers.bookingCancelled'), value: 'booking_cancelled' },
+  { label: t('bookings.emailTemplates.triggers.followUpAfter'), value: 'follow_up_after' },
+])
 
-const recipientOptions = [
-  { label: 'Customer', value: 'customer' },
-  { label: 'Admin', value: 'admin' },
-  { label: 'Both', value: 'both' },
-]
+const recipientOptions = computed(() => [
+  { label: t('bookings.emailTemplates.recipients.customer'), value: 'customer' },
+  { label: t('bookings.emailTemplates.recipients.admin'), value: 'admin' },
+  { label: t('bookings.emailTemplates.recipients.both'), value: 'both' },
+])
 
 // Use new mutation composable for data operations
 const { create, update, deleteItems } = useCollectionMutation(collection)
