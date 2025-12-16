@@ -8,7 +8,7 @@ interface SlotItem {
 interface Props {
   slots: SlotItem[]
   bookedSlotIds?: string[]
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'xs' | 'sm' | 'md' | 'lg'
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -17,9 +17,17 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const sizeClasses = {
+  xs: 'w-1 h-1',
   sm: 'w-2 h-2',
   md: 'w-3 h-3',
   lg: 'w-4 h-4'
+}
+
+const gapClasses = {
+  xs: 'gap-px',
+  sm: 'gap-1',
+  md: 'gap-1',
+  lg: 'gap-1'
 }
 
 function isBooked(slotId: string): boolean {
@@ -28,16 +36,20 @@ function isBooked(slotId: string): boolean {
 </script>
 
 <template>
-  <div class="flex gap-1 items-center">
+  <div class="flex items-center bg-gray-100" :class="gapClasses[size]">
     <div
       v-for="slot in slots"
       :key="slot.id"
       class="rounded-full transition-colors"
       :class="[
         sizeClasses[size],
-        isBooked(slot.id) ? '' : 'opacity-30'
+        isBooked(slot.id)
+          ? ''
+          : size === 'xs'
+            ? 'bg-gray-100'
+            : 'border bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-600'
       ]"
-      :style="{ backgroundColor: slot.color || '#94a3b8' }"
+      :style="isBooked(slot.id) ? { backgroundColor: slot.color || '#94a3b8' } : undefined"
       :title="slot.label"
     />
   </div>

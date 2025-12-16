@@ -352,6 +352,53 @@ const isMultiDayRange = computed(() => {
   return selectedFilterRange.value.start.getTime() !== selectedFilterRange.value.end.getTime()
 })
 
+// Group bookings by location for a date
+function getBookingsByLocation(dateValue: DateValue): Map<string, Booking[]> {
+  const dateBookings = getBookingsForDate(dateValue)
+  const grouped = new Map<string, Booking[]>()
+
+  for (const booking of dateBookings) {
+    const locationId = booking.location
+    if (!grouped.has(locationId)) {
+      grouped.set(locationId, [])
+    }
+    grouped.get(locationId)!.push(booking)
+  }
+
+  return grouped
+}
+
+// Get all slots for a location from a booking's locationData
+function getLocationSlots(booking: Booking): SlotItem[] {
+  if (!booking.locationData?.slots) return []
+  try {
+    const slots = typeof booking.locationData.slots === 'string'
+      ? JSON.parse(booking.locationData.slots)
+      : booking.locationData.slots
+    return Array.isArray(slots) ? slots : []
+  }
+  catch {
+    return []
+  }
+}
+
+// Get booked slot IDs from bookings at a location
+function getBookedSlotIds(locationBookings: Booking[]): string[] {
+  const ids: string[] = []
+  for (const booking of locationBookings) {
+    try {
+      const slotIds = typeof booking.slot === 'string'
+        ? JSON.parse(booking.slot)
+        : booking.slot
+      if (Array.isArray(slotIds)) {
+        ids.push(...slotIds)
+      }
+    }
+    catch { /* ignore parse errors */ }
+  }
+  return ids
+}
+
 // Filter bookings by selected date range
 // When no filter: show upcoming only
 // When filter applied: show ALL bookings in that range (including past)
@@ -417,13 +464,15 @@ const filteredBookings = computed(() => {
         <template #day="{ day }">
           <div class="flex flex-col items-center">
             <span>{{ day.day }}</span>
-            <div v-if="hasBookingsOnDate(day)" class="flex gap-px mt-px">
-              <span
-                v-for="booking in getBookingsForDate(day)"
-                :key="booking.id"
-                class="w-1 h-1 rounded-full"
-                :style="{ backgroundColor: getBookingSlotColor(booking) }"
-              />
+            <div v-if="hasBookingsOnDate(day)" class="flex flex-col gap-0.5 mt-0.5">
+              <template v-for="[locationId, locationBookings] in getBookingsByLocation(day)" :key="locationId">
+                <BookingsLocationsSlotIndicator
+                  v-if="locationBookings[0]"
+                  :slots="getLocationSlots(locationBookings[0])"
+                  :booked-slot-ids="getBookedSlotIds(locationBookings)"
+                  size="xs"
+                />
+              </template>
             </div>
           </div>
         </template>
