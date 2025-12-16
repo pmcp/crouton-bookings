@@ -32,6 +32,9 @@ interface StatusItem {
   color: 'success' | 'warning' | 'error' | 'info' | 'neutral'
 }
 
+// Status keys type
+type StatusKey = 'confirmed' | 'pending' | 'cancelled'
+
 // Hardcoded statuses - labels come from translations
 const STATUSES: StatusItem[] = [
   { id: '1', value: 'confirmed', color: 'success' },
@@ -95,6 +98,30 @@ const availableLocations = computed<LocationItem[]>(() => {
   return Array.from(locationMap.entries()).map(([id, title]) => ({ id, title }))
 })
 
+// Location color palette for calendar dots (hex colors for inline styles)
+const LOCATION_COLORS = [
+  '#3b82f6', // blue
+  '#10b981', // emerald
+  '#f59e0b', // amber
+  '#a855f7', // purple
+  '#f43f5e', // rose
+  '#06b6d4', // cyan
+]
+
+// Map location IDs to colors (stable assignment based on order)
+const locationColorMap = computed(() => {
+  const map = new Map<string, string>()
+  availableLocations.value.forEach((loc, index) => {
+    const colorIndex = index % LOCATION_COLORS.length
+    map.set(loc.id, LOCATION_COLORS[colorIndex]!)
+  })
+  return map
+})
+
+function getLocationColor(locationId: string): string {
+  return locationColorMap.value.get(locationId) ?? LOCATION_COLORS[0]!
+}
+
 // Location filter state - all locations enabled by default
 const locationOverrides = ref<Record<string, boolean>>({})
 
@@ -122,9 +149,27 @@ const filteredBookings = computed(() => {
   })
 })
 
-// Calendar - selected date and year
+// Calendar - selected date and year (default to year with most bookings)
+const bookingYears = computed(() => {
+  if (!filteredBookings.value.length) return [new Date().getFullYear()]
+  const years = new Set(filteredBookings.value.map(b => new Date(b.date).getFullYear()))
+  return Array.from(years).sort((a, b) => b - a) // Most recent first
+})
+
 const currentYear = ref(new Date().getFullYear())
 const selectedDate = ref<Date | null>(null)
+
+// Update year when bookings load
+watch(bookingYears, (years) => {
+  if (years.length > 0 && !years.includes(currentYear.value)) {
+    currentYear.value = years[0]!
+  }
+}, { immediate: true })
+
+// Helper to get local date string (YYYY-MM-DD) from a Date
+function toLocalDateStr(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
 
 // Get dates that have bookings for calendar highlighting (respects status filters)
 function hasBookingOnDate(date: DateValue): boolean {
@@ -132,7 +177,7 @@ function hasBookingOnDate(date: DateValue): boolean {
   const dateStr = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`
   return filteredBookings.value.some((b) => {
     const bookingDate = new Date(b.date)
-    const bookingStr = bookingDate.toISOString().substring(0, 10)
+    const bookingStr = toLocalDateStr(bookingDate)
     return bookingStr === dateStr
   })
 }
@@ -143,7 +188,7 @@ function getBookingStatusForDate(date: DateValue): string | null {
   const dateStr = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`
   const booking = filteredBookings.value.find((b) => {
     const bookingDate = new Date(b.date)
-    const bookingStr = bookingDate.toISOString().substring(0, 10)
+    const bookingStr = toLocalDateStr(bookingDate)
     return bookingStr === dateStr
   })
   return booking?.status?.toLowerCase() || null
@@ -162,16 +207,50 @@ function getBookingsForDate(date: DateValue): Booking[] {
   const dateStr = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`
   return filteredBookings.value.filter((b) => {
     const bookingDate = new Date(b.date)
-    const bookingStr = bookingDate.toISOString().substring(0, 10)
+    const bookingStr = toLocalDateStr(bookingDate)
     return bookingStr === dateStr
   })
 }
 
-// Tooltip text for dates with bookings
-function getTooltipForDate(date: DateValue): string {
+// Get unique locations with bookings for a specific date
+interface LocationBooking {
+  locationId: string
+  locationTitle: string
+  color: string
+  bookings: Booking[]
+}
+
+function getLocationBookingsForDate(date: DateValue): LocationBooking[] {
   const dateBookings = getBookingsForDate(date)
-  if (dateBookings.length === 0) return ''
-  return dateBookings.map(b => b.locationData?.title || 'Booking').join(', ')
+  if (dateBookings.length === 0) return []
+
+  // Group bookings by location
+  const locationMap = new Map<string, Booking[]>()
+  dateBookings.forEach((b) => {
+    const existing = locationMap.get(b.location) || []
+    existing.push(b)
+    locationMap.set(b.location, existing)
+  })
+
+  // Convert to array with color info
+  return Array.from(locationMap.entries()).map(([locationId, bookings]) => ({
+    locationId,
+    locationTitle: bookings[0]?.locationData?.title || 'Unknown',
+    color: getLocationColor(locationId),
+    bookings,
+  }))
+}
+
+// Tooltip text for dates with bookings - now shows location and status details
+function getTooltipForDate(date: DateValue): string {
+  const locationBookings = getLocationBookingsForDate(date)
+  if (locationBookings.length === 0) return ''
+
+  return locationBookings.map((lb) => {
+    const slots = lb.bookings.map(b => getSlotLabel(b)).join(', ')
+    const status = lb.bookings[0]?.status || ''
+    return `${lb.locationTitle}: ${slots} (${status})`
+  }).join('\n')
 }
 
 // When calendar date is selected, could scroll to / highlight those bookings
@@ -256,6 +335,7 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
     <div v-if="status === 'pending'" class="text-center py-12">
       <UIcon name="i-lucide-loader-2" class="w-8 h-8 text-muted animate-spin mx-auto mb-3" />
       <p class="text-muted">
+
         {{ t('bookings.list.loading') }}
       </p>
     </div>
@@ -315,6 +395,10 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
             color="neutral"
             @click="toggleLocation(loc.id)"
           >
+            <span
+              style="width: 8px; height: 8px; border-radius: 50%; margin-right: 6px;"
+              :style="{ backgroundColor: getLocationColor(loc.id) }"
+            />
             <UIcon
               :name="locationFilters[loc.id] ? 'i-lucide-check' : 'i-lucide-x'"
               class="w-3 h-3 mr-1"
@@ -330,13 +414,35 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <UIcon name="i-lucide-calendar" class="w-4 h-4 text-muted" />
-              <span class="text-sm font-medium">{{ currentYear }}</span>
+              <!-- Year navigation -->
+              <div class="flex items-center gap-1">
+                <UButton
+                  variant="ghost"
+                  color="neutral"
+                  size="xs"
+                  icon="i-lucide-chevron-left"
+                  :disabled="!bookingYears.includes(currentYear - 1)"
+                  @click="currentYear--"
+                />
+                <span class="text-sm font-medium min-w-[3rem] text-center">{{ currentYear }}</span>
+                <UButton
+                  variant="ghost"
+                  color="neutral"
+                  size="xs"
+                  icon="i-lucide-chevron-right"
+                  :disabled="!bookingYears.includes(currentYear + 1)"
+                  @click="currentYear++"
+                />
+              </div>
             </div>
-            <!-- Legend -->
-            <div class="flex items-center gap-3 text-xs text-muted">
-              <div v-for="statusItem in statuses" :key="statusItem.id" class="flex items-center gap-1">
-                <UChip :color="statusItem.color" size="xs" standalone inset />
-                <span>{{ t('bookings.status.' + statusItem.value) }}</span>
+            <!-- Location Legend -->
+            <div v-if="availableLocations.length > 1" class="flex items-center gap-3 text-xs text-muted">
+              <div v-for="loc in availableLocations" :key="loc.id" class="flex items-center gap-1">
+                <span
+                  style="width: 8px; height: 8px; border-radius: 50%;"
+                  :style="{ backgroundColor: getLocationColor(loc.id) }"
+                />
+                <span>{{ loc.title }}</span>
               </div>
             </div>
           </div>
@@ -353,13 +459,17 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
               :text="getTooltipForDate(day)"
               :delay-duration="200"
             >
-              <UChip
-                :color="getChipColorForDate(day)"
-                size="2xs"
-                :show="hasBookingOnDate(day)"
-              >
-                {{ day.day }}
-              </UChip>
+              <div class="relative flex flex-col items-center">
+                <span>{{ day.day }}</span>
+                <div class="flex gap-0.5 mt-0.5">
+                  <span
+                    v-for="lb in getLocationBookingsForDate(day)"
+                    :key="lb.locationId"
+                    style="width: 6px; height: 6px; border-radius: 50%;"
+                    :style="{ backgroundColor: lb.color }"
+                  />
+                </div>
+              </div>
             </UTooltip>
             <span v-else>{{ day.day }}</span>
           </template>
