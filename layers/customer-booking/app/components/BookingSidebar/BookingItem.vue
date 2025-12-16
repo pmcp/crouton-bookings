@@ -11,6 +11,9 @@ interface Props {
   actionType?: 'remove' | 'cancel' | 'delete'
   loading?: boolean
   showConfirmation?: boolean
+  // Position indicator props
+  totalSlots?: number
+  slotPosition?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -19,6 +22,8 @@ const props = withDefaults(defineProps<Props>(), {
   actionType: 'remove',
   loading: false,
   showConfirmation: false,
+  totalSlots: 0,
+  slotPosition: -1,
 })
 
 const emit = defineEmits<{
@@ -28,6 +33,9 @@ const emit = defineEmits<{
   'show-confirmation': []
   'hide-confirmation': []
 }>()
+
+// Check if we have valid position info
+const hasPositionInfo = computed(() => props.totalSlots > 0 && props.slotPosition >= 0)
 
 // Date badge variant based on status
 const dateBadgeVariant = computed(() => {
@@ -84,12 +92,22 @@ function confirmAction() {
           {{ locationTitle }}
         </p>
         <p class="text-xs text-muted mt-0.5 flex items-center gap-1.5">
-          <UIcon name="i-lucide-clock" class="w-3 h-3" />
-          <span>{{ slotLabel }}</span>
+          <!-- Position indicator or single dot -->
+          <BookingsLocationsSlotSingleIndicator
+            v-if="hasPositionInfo"
+            :total-slots="totalSlots"
+            :position="slotPosition"
+            :color="slotColor"
+            :label="slotLabel"
+            size="sm"
+          />
           <span
+            v-else
             class="w-2 h-2 rounded-full shrink-0 inline-block"
             :style="{ backgroundColor: slotColor || '#22c55e' }"
           />
+          <UIcon name="i-lucide-clock" class="w-3 h-3" />
+          <span>{{ slotLabel }}</span>
           <template v-if="groupLabel">
             <span class="mx-1" />
             <UIcon name="i-lucide-users" class="w-3 h-3" />

@@ -7,6 +7,7 @@ interface SlotItem {
   id: string
   label?: string
   value?: string
+  color?: string
 }
 
 interface Booking {
@@ -272,39 +273,62 @@ function formatDate(date: string | Date): string {
   }).format(d)
 }
 
-// Get slot label from booking
-function getSlotLabel(booking: Booking): string {
-  if (!booking.slot || !booking.locationData?.slots) return '-'
-
-  // Parse slots from location
-  let locationSlots: SlotItem[]
+// Parse location slots helper
+function parseLocationSlots(booking: Booking): SlotItem[] {
+  if (!booking.locationData?.slots) return []
   try {
-    locationSlots = typeof booking.locationData.slots === 'string'
+    const slots = typeof booking.locationData.slots === 'string'
       ? JSON.parse(booking.locationData.slots)
       : booking.locationData.slots
+    return Array.isArray(slots) ? slots : []
   }
   catch {
-    return '-'
+    return []
   }
+}
 
-  if (!Array.isArray(locationSlots)) return '-'
-
-  // Parse slot IDs from booking
-  let bookingSlotIds: string[]
+// Parse booking slot IDs helper
+function parseBookingSlotIds(booking: Booking): string[] {
+  if (!booking.slot) return []
   try {
-    bookingSlotIds = typeof booking.slot === 'string'
+    const slotIds = typeof booking.slot === 'string'
       ? JSON.parse(booking.slot)
       : booking.slot
+    return Array.isArray(slotIds) ? slotIds : []
   }
   catch {
-    return '-'
+    return []
   }
+}
 
-  if (!Array.isArray(bookingSlotIds) || bookingSlotIds.length === 0) return '-'
+// Get slot label from booking
+function getSlotLabel(booking: Booking): string {
+  const locationSlots = parseLocationSlots(booking)
+  const bookingSlotIds = parseBookingSlotIds(booking)
+
+  if (locationSlots.length === 0 || bookingSlotIds.length === 0) return '-'
 
   // Find matching slot
   const slot = locationSlots.find(s => bookingSlotIds.includes(s.id))
   return slot?.label || slot?.value || '-'
+}
+
+// Get slot position info for indicator
+function getSlotPositionInfo(booking: Booking): { totalSlots: number, position: number, color?: string } | null {
+  const locationSlots = parseLocationSlots(booking)
+  const bookingSlotIds = parseBookingSlotIds(booking)
+
+  if (locationSlots.length === 0 || bookingSlotIds.length === 0) return null
+
+  // Find the position of the booked slot
+  const position = locationSlots.findIndex(s => bookingSlotIds.includes(s.id))
+  if (position === -1) return null
+
+  return {
+    totalSlots: locationSlots.length,
+    position,
+    color: locationSlots[position]?.color
+  }
 }
 
 // Status badge color - lookup from hardcoded statuses
@@ -477,40 +501,21 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
       </UCard>
 
       <!-- Bookings List -->
-      <div class="space-y-3">
-        <UCard v-for="booking in filteredBookings" :key="booking.id">
-            <div class="flex items-start gap-4">
-              <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <UIcon name="i-lucide-calendar-check" class="w-6 h-6 text-primary" />
-              </div>
-
-              <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 class="font-semibold">
-                      {{ booking.locationData?.title || t('bookings.list.unknownLocation') }}
-                    </h3>
-                    <p class="text-sm text-muted mt-1">
-                      {{ formatDate(booking.date) }} {{ t('bookings.common.at') }} {{ getSlotLabel(booking) }}
-                      <span v-if="getGroupLabel(booking.group)" class="ml-2">
-                        · {{ getGroupLabel(booking.group) }}
-                      </span>
-                    </p>
-                  </div>
-                  <UBadge :color="getStatusColor(booking.status)" variant="subtle">
-                    {{ getStatusLabel(booking.status) }}
-                  </UBadge>
-                </div>
-
-                <div v-if="booking.locationData?.city" class="mt-2">
-                  <p class="text-xs text-muted">
-                    <UIcon name="i-lucide-map-pin" class="w-3 h-3 inline mr-1" />
-                    {{ [booking.locationData.street, booking.locationData.city].filter(Boolean).join(', ') }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </UCard>
+      <div class="space-y-2">
+        <BookingSidebarBookingItem
+          v-for="booking in filteredBookings"
+          :key="booking.id"
+          :id="booking.id"
+          :location-title="booking.locationData?.title || 'Unknown Location'"
+          :slot-label="getSlotLabel(booking)"
+          :slot-color="getSlotPositionInfo(booking)?.color"
+          :date="booking.date"
+          :group-label="getGroupLabel(booking.group)"
+          :status="booking.status"
+          show-status
+          :total-slots="getSlotPositionInfo(booking)?.totalSlots || 0"
+          :slot-position="getSlotPositionInfo(booking)?.position ?? -1"
+        />
 
           <!-- Empty state when filtered -->
           <div v-if="filteredBookings.length === 0" class="text-center py-8">

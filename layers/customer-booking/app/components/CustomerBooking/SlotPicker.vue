@@ -3,6 +3,7 @@ interface SlotItem {
   id: string
   label?: string
   value?: string
+  color?: string
 }
 
 interface Props {
@@ -55,7 +56,7 @@ function isSelected(slot: SlotItem): boolean {
 
     <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
       <button
-        v-for="slot in normalizedSlots"
+        v-for="(slot, index) in normalizedSlots"
         :key="slot.id"
         type="button"
         class="p-4 rounded-lg border-2 transition-all duration-200 text-center"
@@ -66,10 +67,13 @@ function isSelected(slot: SlotItem): boolean {
         ]"
         @click="emit('select', slot.id)"
       >
-        <UIcon
-          :name="isSelected(slot) ? 'i-lucide-check-circle' : 'i-lucide-clock'"
-          class="w-5 h-5 mx-auto mb-2"
-          :class="isSelected(slot) ? 'text-primary' : 'text-gray-400'"
+        <BookingsLocationsSlotSingleIndicator
+          :total-slots="normalizedSlots.length"
+          :position="index"
+          :color="slot.color"
+          :label="getSlotLabel(slot)"
+          size="sm"
+          class="justify-center mb-2"
         />
         <span class="block text-sm">
           {{ getSlotLabel(slot) }}

@@ -33,11 +33,13 @@ const showMessage = computed(() => {
   return null
 })
 
-// Format slots for USelectMenu
+// Format slots for display
 const slotOptions = computed(() =>
-  props.availableSlots.map(slot => ({
+  props.availableSlots.map((slot, index) => ({
     value: slot.id,
-    label: slot.label
+    label: slot.label,
+    color: slot.color,
+    index
   }))
 )
 
@@ -72,9 +74,12 @@ const selectedSlot = computed({
           @click="selectedSlot = slot.value"
         >
           <div class="flex items-center gap-2">
-            <UIcon
-              :name="selectedSlot === slot.value ? 'i-heroicons-check-circle-solid' : 'i-heroicons-clock'"
-              :class="selectedSlot === slot.value ? 'text-primary' : 'text-muted'"
+            <BookingsLocationsSlotSingleIndicator
+              :total-slots="slotOptions.length"
+              :position="slot.index"
+              :color="slot.color"
+              :label="slot.label"
+              size="sm"
             />
             <span :class="selectedSlot === slot.value ? 'font-medium' : ''">
               {{ slot.label }}
@@ -82,18 +87,6 @@ const selectedSlot = computed({
           </div>
         </UCard>
       </div>
-
-      <!-- Alternative: Dropdown select -->
-      <!--
-      <USelectMenu
-        v-model="selectedSlot"
-        :items="slotOptions"
-        value-attribute="value"
-        option-attribute="label"
-        placeholder="Select a time slot"
-        class="w-full"
-      />
-      -->
     </div>
   </div>
 </template>

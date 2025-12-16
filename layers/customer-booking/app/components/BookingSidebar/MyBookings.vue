@@ -268,6 +268,43 @@ function getBookingSlotColor(booking: Booking): string {
   return DEFAULT_SLOT_COLOR
 }
 
+// Get slot position info for a booking
+function getSlotPositionInfo(booking: Booking): { totalSlots: number; position: number } | null {
+  if (!booking.slot || !booking.locationData?.slots) return null
+
+  let locationSlots: SlotItem[]
+  try {
+    locationSlots = typeof booking.locationData.slots === 'string'
+      ? JSON.parse(booking.locationData.slots)
+      : booking.locationData.slots
+  }
+  catch {
+    return null
+  }
+
+  if (!Array.isArray(locationSlots) || locationSlots.length === 0) return null
+
+  let bookingSlotIds: string[]
+  try {
+    bookingSlotIds = typeof booking.slot === 'string'
+      ? JSON.parse(booking.slot)
+      : booking.slot
+  }
+  catch {
+    return null
+  }
+
+  if (!Array.isArray(bookingSlotIds) || bookingSlotIds.length === 0) return null
+
+  const position = locationSlots.findIndex(s => bookingSlotIds.includes(s.id))
+  if (position === -1) return null
+
+  return {
+    totalSlots: locationSlots.length,
+    position,
+  }
+}
+
 // Convert Date to DateValue for calendar
 function dateToDateValue(date: Date | null): DateValue | undefined {
   if (!date) return undefined
@@ -433,7 +470,7 @@ const filteredBookings = computed(() => {
           v-for="booking in filteredBookings"
           :key="booking.id"
           :id="booking.id"
-          :location-title="booking.locationData?.title || 'Unknown'"
+          :location-title="booking.locationData?.title || 'Unknown Location'"
           :slot-label="getSlotLabel(booking)"
           :slot-color="getBookingSlotColor(booking)"
           :date="booking.date"
@@ -443,6 +480,8 @@ const filteredBookings = computed(() => {
           :action-type="booking.status === 'cancelled' ? 'delete' : 'cancel'"
           :loading="cancellingId === booking.id || deletingId === booking.id"
           :show-confirmation="confirmingId === booking.id || confirmingDeleteId === booking.id"
+          :total-slots="getSlotPositionInfo(booking)?.totalSlots || 0"
+          :slot-position="getSlotPositionInfo(booking)?.position ?? -1"
           @show-confirmation="booking.status === 'cancelled' ? showDeleteConfirmation(booking.id) : showConfirmation(booking.id)"
           @hide-confirmation="hideConfirmation"
           @cancel="confirmCancel(booking.id)"
