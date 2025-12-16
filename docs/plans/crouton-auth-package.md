@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 24 / 54 |
+| **Tasks Completed** | 25 / 54 |
 | **Current Phase** | Phase 5 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
@@ -566,14 +566,14 @@ const handleSubmit = async () => {
 - [x] Create `components/Team/Invitations.vue`
 - [x] Create `components/Team/DeleteConfirm.vue`
 
-### Task 5.4: Account Components
-- [ ] Create `components/Account/Settings.vue`
-- [ ] Create `components/Account/ProfileForm.vue`
-- [ ] Create `components/Account/PasswordForm.vue`
-- [ ] Create `components/Account/PasskeyManager.vue`
-- [ ] Create `components/Account/TwoFactorSetup.vue`
-- [ ] Create `components/Account/LinkedAccounts.vue`
-- [ ] Create `components/Account/DeleteAccount.vue`
+### Task 5.4: Account Components ✅
+- [x] Create `components/Account/Settings.vue`
+- [x] Create `components/Account/ProfileForm.vue`
+- [x] Create `components/Account/PasswordForm.vue`
+- [x] Create `components/Account/PasskeyManager.vue`
+- [x] Create `components/Account/TwoFactorSetup.vue`
+- [x] Create `components/Account/LinkedAccounts.vue`
+- [x] Create `components/Account/DeleteAccount.vue`
 
 ### Task 5.5: Billing Components
 - [ ] Create `components/Billing/PlanCard.vue`
@@ -1561,7 +1561,7 @@ const team = getTeamContext(event)
 
 **Phase 4 Complete!**
 
-### Day 5: 2024-12-16
+### Day 5: 2024-12-15
 **Tasks completed:**
 - Task 5.1: Auth Pages
 
@@ -1648,6 +1648,43 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Task 5.3 complete.
+
+### Day 6: 2024-12-16
+**Tasks completed:**
+- Task 5.4: Account Components
+
+**Implementation details:**
+- Created 7 Account management components:
+  - `Account/Settings.vue` - Main container with tabs navigation for all account settings
+  - `Account/ProfileForm.vue` - Update name and avatar with validation
+  - `Account/PasswordForm.vue` - Change password with current/new/confirm fields
+  - `Account/PasskeyManager.vue` - List, add, and remove WebAuthn passkeys
+  - `Account/TwoFactorSetup.vue` - Enable/disable 2FA with QR code setup and backup codes
+  - `Account/LinkedAccounts.vue` - View and manage linked OAuth accounts
+  - `Account/DeleteAccount.vue` - Delete account with password and type-to-confirm
+- All components:
+  - Use `useAuth()` composable for authentication operations
+  - Follow Nuxt UI v4 patterns (UForm, UFormField, UModal, UTabs, etc.)
+  - Include proper validation and error handling
+  - Show loading states and toast notifications
+  - Are conditionally shown based on enabled features (hasPassword, hasOAuth, hasPasskeys, has2FA)
+- TwoFactorSetup includes:
+  - Multi-step setup wizard (password → QR code → verify → backup codes)
+  - QR code display via external API
+  - Backup codes management (view, copy, regenerate)
+  - Enable/disable with password confirmation
+- PasskeyManager includes:
+  - Browser WebAuthn support detection
+  - Add/remove passkey functionality
+  - Empty state with call-to-action
+- LinkedAccounts includes:
+  - Provider icons and branding
+  - Connect/disconnect functionality
+  - Warning when only one login method remains
+- Typecheck passes for crouton-auth package components
+
+**Blockers:**
+- None. Task 5.4 complete.
 
 ---
 

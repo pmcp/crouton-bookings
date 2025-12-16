@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { DateValue } from '@internationalized/date'
+import { CalendarDate, getLocalTimeZone } from '@internationalized/date'
 
 const { t } = useT()
 
@@ -59,6 +60,10 @@ const STATUSES: StatusItem[] = [
   { id: '2', value: 'pending', color: 'warning' },
   { id: '3', value: 'cancelled', color: 'error' },
 ]
+
+// Calendar view mode: 'week' (swipeable carousel) or 'month' (3-month grid)
+type CalendarViewMode = 'week' | 'month'
+const calendarViewMode = ref<CalendarViewMode>('week')
 
 const route = useRoute()
 const teamId = computed(() => route.params.team as string)
@@ -354,8 +359,25 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
 
 // Refs
 const weekCarousel = useTemplateRef('weekCarousel')
+const monthCalendar = useTemplateRef('monthCalendar')
 const scrollAreaRef = useTemplateRef<HTMLElement>('scrollAreaRef')
 const bookingRefs = new Map<string, HTMLElement>()
+
+// Convert selectedDate (Date | null) to CalendarDate for UCalendar
+const selectedCalendarDate = computed({
+  get: () => {
+    if (!selectedDate.value) return undefined
+    const d = selectedDate.value
+    return new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate())
+  },
+  set: (value: DateValue | undefined) => {
+    if (!value) {
+      selectedDate.value = null
+    } else {
+      selectedDate.value = value.toDate(getLocalTimeZone())
+    }
+  },
+})
 
 function setBookingRef(id: string, el: HTMLElement | null) {
   if (el) {
@@ -418,12 +440,20 @@ function onBookingsScroll() {
       }
     })
 
-    if (mostVisibleDate && weekCarousel.value) {
+    if (mostVisibleDate) {
       // Parse YYYY-MM-DD as local date (not UTC)
       const [year, month, day] = mostVisibleDate.split('-').map(Number)
       const bookingDate = new Date(year, month - 1, day)
       isSyncing.value = true
-      weekCarousel.value.scrollToDate(bookingDate)
+
+      if (calendarViewMode.value === 'week' && weekCarousel.value) {
+        // Week view: scroll carousel to the week
+        weekCarousel.value.scrollToDate(bookingDate)
+      } else if (calendarViewMode.value === 'month') {
+        // Month view: update selected date to highlight in calendar
+        selectedDate.value = bookingDate
+      }
+
       setTimeout(() => {
         isSyncing.value = false
       }, 500)
@@ -520,18 +550,35 @@ onUnmounted(() => {
             {{ loc.title }}
           </UButton>
         </div>
-        <!-- Header with count and refresh -->
+        <!-- Header with count, view toggle, and refresh -->
         <div class="flex items-center justify-between">
           <p class="text-sm text-muted">
             {{ filteredBookings.length }} of {{ bookings?.length }} booking{{ bookings?.length === 1 ? '' : 's' }}
           </p>
-          <UButton variant="ghost" color="neutral" size="sm" icon="i-lucide-refresh-cw" @click="() => refresh()" />
+          <div class="flex items-center gap-1">
+            <!-- View mode toggle -->
+            <UButtonGroup size="sm">
+              <UButton
+                :variant="calendarViewMode === 'week' ? 'solid' : 'ghost'"
+                color="neutral"
+                icon="i-lucide-calendar-days"
+                @click="calendarViewMode = 'week'"
+              />
+              <UButton
+                :variant="calendarViewMode === 'month' ? 'solid' : 'ghost'"
+                color="neutral"
+                icon="i-lucide-calendar"
+                @click="calendarViewMode = 'month'"
+              />
+            </UButtonGroup>
+            <UButton variant="ghost" color="neutral" size="sm" icon="i-lucide-refresh-cw" @click="() => refresh()" />
+          </div>
         </div>
 
       </div>
 
       <!-- Week Calendar with Swipeable Weeks -->
-      <UCard>
+      <UCard v-if="calendarViewMode === 'week'">
         <WeekCarousel
           ref="weekCarousel"
           v-model="selectedDate"
@@ -549,6 +596,33 @@ onUnmounted(() => {
             </div>
           </template>
         </WeekCarousel>
+      </UCard>
+
+      <!-- 3-Month Calendar View -->
+      <UCard v-else>
+        <UCalendar
+          ref="monthCalendar"
+          v-model="selectedCalendarDate"
+          :number-of-months="3"
+          size="sm"
+          class="w-full"
+          :ui="{ root: 'w-full', header: 'justify-between', gridRow: 'grid grid-cols-7 mb-1' }"
+        >
+          <template #day="{ day }">
+            <div class="flex flex-col items-center">
+              <span>{{ day.day }}</span>
+              <div v-if="hasBookingOnDate(day)" class="flex flex-col gap-0.5 mt-0.5">
+                <BookingsLocationsSlotIndicator
+                  v-for="lb in getLocationBookingsForDate(day)"
+                  :key="lb.locationId"
+                  :slots="lb.slots"
+                  :booked-slot-ids="lb.bookedSlotIds"
+                  size="xs"
+                />
+              </div>
+            </div>
+          </template>
+        </UCalendar>
       </UCard>
       </div>
       <!-- Bookings List (scrollable container) -->
