@@ -171,9 +171,9 @@
       "form": {
         "templateName": "Nom du modèle",
         "emailSubject": "Objet de l'e-mail",
-        "emailSubjectHelp": "Variables: {{customer_name}}, {{booking_date}}, {{booking_slot}}, {{location_name}}, {{team_name}}",
+        "emailSubjectHelp": "Variables: {customer_name}, {booking_date}, {booking_slot}, {location_name}, {team_name}",
         "emailBody": "Corps de l'e-mail",
-        "emailBodyHelp": "Variables: {{customer_name}}, {{booking_date}}, {{booking_slot}}, {{location_name}}, {{location_address}}, {{team_name}}",
+        "emailBodyHelp": "Variables: {customer_name}, {booking_date}, {booking_slot}, {location_name}, {location_address}, {team_name}",
         "active": "Actif",
         "triggerType": "Type de déclencheur",
         "sendTo": "Envoyer à",
