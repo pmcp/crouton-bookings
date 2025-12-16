@@ -359,28 +359,46 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
 const hoveredDate = ref<Date | null>(null)
 // Suppress week highlighting after hover ends (until scroll resumes)
 const suppressWeekHighlight = ref(false)
+// Timeout for clearing hover (allows smooth transitions between days)
+let hoverClearTimeout: ReturnType<typeof setTimeout> | null = null
 
 // Handle hover from week carousel (also scrolls to booking)
 function onDayHover(date: Date | null) {
+  // Clear any pending timeout
+  if (hoverClearTimeout) {
+    clearTimeout(hoverClearTimeout)
+    hoverClearTimeout = null
+  }
+
   if (date) {
     hoveredDate.value = date
     suppressWeekHighlight.value = true
     scrollToDateBooking(date)
   } else {
-    // Clear hover but keep week highlight suppressed until scroll
-    hoveredDate.value = null
+    // Delay clearing hover to allow smooth transitions between days
+    hoverClearTimeout = setTimeout(() => {
+      hoveredDate.value = null
+    }, 100)
   }
 }
 
 // Handle hover from month calendar (also scrolls to booking)
 function onMonthDayHover(date: Date | null) {
+  // Clear any pending timeout
+  if (hoverClearTimeout) {
+    clearTimeout(hoverClearTimeout)
+    hoverClearTimeout = null
+  }
+
   if (date) {
     hoveredDate.value = date
     suppressWeekHighlight.value = true
     scrollToDateBooking(date)
   } else {
-    // Clear hover but keep week highlight suppressed until scroll
-    hoveredDate.value = null
+    // Delay clearing hover to allow smooth transitions between days
+    hoverClearTimeout = setTimeout(() => {
+      hoveredDate.value = null
+    }, 100)
   }
 }
 
