@@ -12,16 +12,18 @@ const {
   activeTab,
 } = useBookingCart()
 
+const { t } = useI18n()
+
 // Tab items for Book/My Bookings
 const tabItems = computed<TabsItem[]>(() => [
   {
-    label: 'Book',
+    label: t('bookings.tabs.book'),
     icon: 'i-lucide-calendar-plus',
     value: 'book',
     slot: 'book',
   },
   {
-    label: 'My Bookings',
+    label: t('bookings.tabs.myBookings'),
     icon: 'i-lucide-calendar-check',
     value: 'my-bookings',
     slot: 'my-bookings',
@@ -55,7 +57,7 @@ function toggleCart() {
         icon="i-lucide-minimize-2"
         @click="isExpanded = false"
       >
-        Collapse
+        {{ $t('bookings.buttons.collapse') }}
       </UButton>
     </div>
 
@@ -101,7 +103,7 @@ function toggleCart() {
             >
               <span class="flex items-center gap-2">
                 <UIcon name="i-lucide-shopping-cart" class="w-4 h-4" />
-                <span>Cart</span>
+                <span>{{ $t('bookings.cart.title') }}</span>
               </span>
               <span class="flex items-center gap-2">
                 <ClientOnly>
@@ -133,7 +135,7 @@ function toggleCart() {
               <div class="flex items-center justify-between p-3 border-b border-neutral-200 dark:border-neutral-800">
                 <h3 class="font-medium text-sm flex items-center gap-2">
                   <UIcon name="i-lucide-shopping-cart" class="w-4 h-4" />
-                  Cart
+                  {{ $t('bookings.cart.title') }}
                   <ClientOnly>
                     <UBadge v-if="cartCount > 0" color="primary" size="xs">
                       {{ cartCount }}
@@ -173,7 +175,7 @@ function toggleCart() {
         <div v-if="locationsStatus === 'pending'" class="bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm rounded-full shadow-lg px-4 py-2">
           <div class="flex items-center gap-2">
             <UIcon name="i-lucide-loader-2" class="w-4 h-4 animate-spin" />
-            <span class="text-sm text-muted">Loading...</span>
+            <span class="text-sm text-muted">{{ $t('common.loading') }}</span>
           </div>
         </div>
         <div
@@ -232,7 +234,7 @@ function toggleCart() {
           >
             <span class="flex items-center gap-2">
               <UIcon name="i-lucide-shopping-cart" class="w-4 h-4" />
-              <span>Cart</span>
+              <span>{{ $t('bookings.cart.title') }}</span>
             </span>
             <span class="flex items-center gap-2">
               <ClientOnly>
