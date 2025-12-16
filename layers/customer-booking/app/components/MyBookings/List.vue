@@ -359,47 +359,27 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
 const hoveredDate = ref<Date | null>(null)
 // Suppress week highlighting after hover ends (until scroll resumes)
 const suppressWeekHighlight = ref(false)
-// Timeout for clearing hover (allows smooth transitions between days)
-let hoverClearTimeout: ReturnType<typeof setTimeout> | null = null
 
 // Handle hover from week carousel (also scrolls to booking)
+// hoveredDate persists after mouseleave - only cleared when user scrolls
 function onDayHover(date: Date | null) {
-  // Clear any pending timeout
-  if (hoverClearTimeout) {
-    clearTimeout(hoverClearTimeout)
-    hoverClearTimeout = null
-  }
-
   if (date) {
     hoveredDate.value = date
     suppressWeekHighlight.value = true
     scrollToDateBooking(date)
-  } else {
-    // Delay clearing hover to allow smooth transitions between days
-    hoverClearTimeout = setTimeout(() => {
-      hoveredDate.value = null
-    }, 100)
   }
+  // Don't clear hoveredDate on mouseleave - keep highlight until scroll
 }
 
 // Handle hover from month calendar (also scrolls to booking)
+// hoveredDate persists after mouseleave - only cleared when user scrolls
 function onMonthDayHover(date: Date | null) {
-  // Clear any pending timeout
-  if (hoverClearTimeout) {
-    clearTimeout(hoverClearTimeout)
-    hoverClearTimeout = null
-  }
-
   if (date) {
     hoveredDate.value = date
     suppressWeekHighlight.value = true
     scrollToDateBooking(date)
-  } else {
-    // Delay clearing hover to allow smooth transitions between days
-    hoverClearTimeout = setTimeout(() => {
-      hoveredDate.value = null
-    }, 100)
   }
+  // Don't clear hoveredDate on mouseleave - keep highlight until scroll
 }
 
 // Check if a booking should be highlighted
@@ -555,6 +535,7 @@ function syncCalendarToScroll() {
     // Re-enable week highlighting only on user-initiated scroll (not hover scroll)
     if (!isHoverScroll.value) {
       suppressWeekHighlight.value = false
+      hoveredDate.value = null // Clear day highlight, switch to week highlight
     }
 
     // Always update selectedDate for highlighting bookings
