@@ -150,22 +150,8 @@ const filteredBookings = computed(() => {
   })
 })
 
-// Calendar - selected date and year (default to year with most bookings)
-const bookingYears = computed(() => {
-  if (!filteredBookings.value.length) return [new Date().getFullYear()]
-  const years = new Set(filteredBookings.value.map(b => new Date(b.date).getFullYear()))
-  return Array.from(years).sort((a, b) => b - a) // Most recent first
-})
-
-const currentYear = ref(new Date().getFullYear())
+// Calendar - selected date
 const selectedDate = ref<Date | null>(null)
-
-// Update year when bookings load
-watch(bookingYears, (years) => {
-  if (years.length > 0 && !years.includes(currentYear.value)) {
-    currentYear.value = years[0]!
-  }
-}, { immediate: true })
 
 // Helper to get local date string (YYYY-MM-DD) from a Date
 function toLocalDateStr(date: Date): string {
@@ -432,48 +418,23 @@ function getGroupLabel(groupId: string | null | undefined): string | null {
         </div>
       </div>
 
-      <!-- Year Calendar -->
+      <!-- Calendar -->
       <UCard>
-        <template #header>
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <UIcon name="i-lucide-calendar" class="w-4 h-4 text-muted" />
-              <!-- Year navigation -->
-              <div class="flex items-center gap-1">
-                <UButton
-                  variant="ghost"
-                  color="neutral"
-                  size="xs"
-                  icon="i-lucide-chevron-left"
-                  :disabled="!bookingYears.includes(currentYear - 1)"
-                  @click="currentYear--"
-                />
-                <span class="text-sm font-medium min-w-[3rem] text-center">{{ currentYear }}</span>
-                <UButton
-                  variant="ghost"
-                  color="neutral"
-                  size="xs"
-                  icon="i-lucide-chevron-right"
-                  :disabled="!bookingYears.includes(currentYear + 1)"
-                  @click="currentYear++"
-                />
-              </div>
-            </div>
-            <!-- Location Legend -->
-            <div v-if="availableLocations.length > 1" class="flex items-center gap-3 text-xs text-muted">
-              <div v-for="loc in availableLocations" :key="loc.id" class="flex items-center gap-1">
-                <span
-                  style="width: 8px; height: 8px; border-radius: 50%;"
-                  :style="{ backgroundColor: getLocationColor(loc.id) }"
-                />
-                <span>{{ loc.title }}</span>
-              </div>
+        <template v-if="availableLocations.length > 1" #header>
+          <!-- Location Legend -->
+          <div class="flex items-center gap-3 text-xs text-muted">
+            <div v-for="loc in availableLocations" :key="loc.id" class="flex items-center gap-1">
+              <span
+                style="width: 8px; height: 8px; border-radius: 50%;"
+                :style="{ backgroundColor: getLocationColor(loc.id) }"
+              />
+              <span>{{ loc.title }}</span>
             </div>
           </div>
         </template>
         <CroutonCalendar
           v-model:date="selectedDate"
-          :year="currentYear"
+          :number-of-months="3"
           size="xs"
           color="primary"
         >
