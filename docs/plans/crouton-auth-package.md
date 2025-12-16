@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 14 / 54 |
+| **Tasks Completed** | 15 / 54 |
 | **Current Phase** | Phase 3 - In Progress |
 | **Estimated Total** | ~40-60 hours |
 
@@ -318,12 +318,12 @@ session: {
 }
 ```
 
-### Task 3.4: Team Context Middleware
-- [ ] Create `middleware/team-context.global.ts`
-- [ ] Auto-resolve team based on mode
-- [ ] Multi-tenant: from URL param or session
-- [ ] Single/Personal: from session (auto-selected)
-- [ ] Inject team into `event.context` and `useState`
+### Task 3.4: Team Context Middleware ✅
+- [x] Create `middleware/team-context.global.ts`
+- [x] Auto-resolve team based on mode
+- [x] Multi-tenant: from URL param or session
+- [x] Single/Personal: from session (auto-selected)
+- [x] Inject team into `event.context` and `useState`
 
 ### Task 3.5: Route Generation by Mode
 - [ ] Multi-tenant: generate `/dashboard/[team]/...` routes
@@ -1446,6 +1446,29 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Task 3.3 complete.
+
+**Task 3.4 completed:**
+- Created `server/middleware/team-context.ts` for server-side team context injection:
+  - Extends H3EventContext to include `team`, `teamId`, `teamSlug`, `authMode`
+  - Mode-aware team resolution (multi-tenant, single-tenant, personal)
+  - Injects resolved team info into `event.context` for API routes
+  - Skips auth routes and non-API routes
+- Created `app/middleware/team-context.global.ts` for client-side team context:
+  - Global middleware that runs on all routes
+  - Mode-aware team resolution with URL validation (multi-tenant)
+  - Auto-redirects to correct team URL in multi-tenant mode
+  - Syncs team in session when switching via URL
+- Created `app/composables/useTeamState.ts` for useState integration:
+  - SSR-safe shared state via `useState('crouton-auth-team')`
+  - Stores resolved teamId, teamSlug, team object, and resolution status
+  - Provides setTeamContext, setTeamError, clearTeamContext methods
+- Updated `app/composables/useTeamContext.ts`:
+  - Integrates with useTeamState for resolved context
+  - Exposes team state properties (team, isResolved, hasError, error)
+  - Exposes state management methods for advanced use
+
+**Blockers:**
+- None. Task 3.4 complete.
 
 ---
 
