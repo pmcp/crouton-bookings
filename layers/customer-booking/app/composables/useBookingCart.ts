@@ -8,6 +8,9 @@ export interface CartItem {
   date: string // ISO string for localStorage
   slotId: string
   slotLabel: string
+  slotColor?: string
+  totalSlots?: number
+  slotPosition?: number
   groupId?: string | null
   groupLabel?: string | null
 }
@@ -328,11 +331,27 @@ export function useBookingCart() {
     return group?.label || groupId
   }
 
+  // Get slot position info by ID
+  function getSlotPositionInfo(slotId: string): { color?: string, totalSlots: number, position: number } | null {
+    if (slotId === 'all-day') return null
+    const slots = rawSlots.value
+    if (!slots.length) return null
+    const position = slots.findIndex(s => s.id === slotId)
+    if (position === -1) return null
+    return {
+      color: slots[position]?.color,
+      totalSlots: slots.length,
+      position,
+    }
+  }
+
   // Add current selection to cart
   function addToCart() {
     if (!canAddToCart.value || !selectedLocation.value || !formState.date || !formState.slotId) {
       return
     }
+
+    const positionInfo = getSlotPositionInfo(formState.slotId)
 
     const item: CartItem = {
       id: generateId(),
@@ -341,6 +360,9 @@ export function useBookingCart() {
       date: formState.date.toISOString(),
       slotId: formState.slotId,
       slotLabel: getSlotLabel(formState.slotId),
+      slotColor: positionInfo?.color,
+      totalSlots: positionInfo?.totalSlots,
+      slotPosition: positionInfo?.position,
       groupId: formState.groupId,
       groupLabel: getGroupLabel(formState.groupId),
     }

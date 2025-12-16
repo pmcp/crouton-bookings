@@ -28,10 +28,10 @@ function goToBooking() {
     <div v-if="cartCount === 0" class="flex flex-col items-center justify-center text-center py-8">
       <UIcon name="i-lucide-shopping-cart" class="w-12 h-12 text-muted mb-3" />
       <h3 class="text-sm font-medium text-default mb-1">
-        Your cart is empty
+        {{ $t('bookings.cart.empty') }}
       </h3>
       <p class="text-xs text-muted mb-4">
-        Add bookings to your cart to book multiple slots at once
+        {{ $t('bookings.cart.emptyDescription') }}
       </p>
       <UButton
         variant="soft"
@@ -39,7 +39,7 @@ function goToBooking() {
         icon="i-lucide-plus"
         @click="goToBooking"
       >
-        Add Booking
+        {{ $t('bookings.cart.addBooking') }}
       </UButton>
     </div>
 
@@ -48,7 +48,7 @@ function goToBooking() {
       <!-- Header row -->
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-medium text-default">
-          {{ cartCount }} {{ cartCount === 1 ? 'booking' : 'bookings' }}
+          {{ $t('bookings.cart.itemCount', { count: cartCount }, cartCount) }}
         </h3>
         <UButton
           variant="ghost"
@@ -57,7 +57,7 @@ function goToBooking() {
           icon="i-lucide-trash-2"
           @click="clearCart"
         >
-          Clear all
+          {{ $t('bookings.cart.clearAll') }}
         </UButton>
       </div>
 
@@ -69,6 +69,9 @@ function goToBooking() {
           :id="item.id"
           :location-title="item.locationTitle"
           :slot-label="item.slotLabel"
+          :slot-color="item.slotColor"
+          :total-slots="item.totalSlots || 0"
+          :slot-position="item.slotPosition ?? -1"
           :date="item.date"
           :group-label="item.groupLabel"
           action-type="remove"
@@ -85,10 +88,10 @@ function goToBooking() {
           icon="i-lucide-check"
           @click="handleSubmit"
         >
-          {{ isSubmitting ? 'Booking...' : `Book ${cartCount} ${cartCount === 1 ? 'Slot' : 'Slots'}` }}
+          {{ isSubmitting ? $t('bookings.cart.booking') : $t('bookings.cart.bookSlots', { count: cartCount }, cartCount) }}
         </UButton>
         <p class="text-xs text-muted text-center mt-2">
-          All bookings will be submitted together
+          {{ $t('bookings.cart.submitNote') }}
         </p>
       </div>
     </template>
