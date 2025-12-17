@@ -123,10 +123,13 @@ export function useBookingCart() {
   const availabilityLoading = ref(false)
 
   // Fetch allowed locations
-  const { data: locations, status: locationsStatus } = useFetch<LocationData[]>(
+  // Note: Using getCachedData to allow SSR but always refetch on client for fresh data
+  const { data: locations, status: locationsStatus, refresh: refreshLocations } = useFetch<LocationData[]>(
     () => `/api/teams/${teamId.value}/customer-locations`,
     {
       key: 'booking-cart-locations',
+      // Always refetch on client to ensure fresh slot colors
+      getCachedData: () => undefined,
     },
   )
 
@@ -141,9 +144,13 @@ export function useBookingCart() {
     if (!selectedLocation.value?.slots) return []
 
     const slots = selectedLocation.value.slots
+    // DEBUG: Log raw slots data to trace color issue
+    console.log('DEBUG: rawSlots input:', slots)
+
     if (typeof slots === 'string') {
       try {
         const parsed = JSON.parse(slots)
+        console.log('DEBUG: rawSlots parsed from string:', parsed)
         return Array.isArray(parsed) ? parsed : []
       }
       catch {
@@ -151,6 +158,7 @@ export function useBookingCart() {
       }
     }
 
+    console.log('DEBUG: rawSlots (already array):', slots)
     return Array.isArray(slots) ? slots : []
   })
 
@@ -531,6 +539,7 @@ export function useBookingCart() {
     // Locations
     locations,
     locationsStatus,
+    refreshLocations,
     selectedLocation,
     allSlots,
     availableSlots,

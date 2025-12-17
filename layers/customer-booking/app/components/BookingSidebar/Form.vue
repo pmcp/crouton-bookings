@@ -184,6 +184,9 @@ watch(
 
 // Slots formatted for calendar indicator (excludes 'all-day')
 const calendarSlots = computed(() => {
+  // DEBUG: Log slot colors to verify data flow
+  console.log('DEBUG: allSlots colors:', allSlots.value.map(s => ({ id: s.id, color: s.color })))
+
   return allSlots.value
     .filter(s => s.id !== 'all-day')
     .map(s => ({
