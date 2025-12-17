@@ -704,7 +704,7 @@ useEventListener(scrollContainer, 'scroll', onBookingsScroll, { passive: true })
     <div v-else class="space-y-8">
 
 
-      <div class="relative z-10 sticky top-0 space-y-8 mt-4 bg-default">
+      <div class="relative z-20 sticky top-0 space-y-8 mt-4 bg-default pb-4">
       <!-- Filters -->
       <div class="flex flex-row gap-3">
         <!-- Status Filter Toggles -->

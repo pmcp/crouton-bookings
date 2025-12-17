@@ -174,8 +174,34 @@ const startIndex = computed(() => {
   return idx !== -1 ? idx : Math.floor(weeks.value.length / 2)
 })
 
+// Track current visible week index for the month label
+const currentWeekIndex = ref(0)
+
+// Get ISO week number from a date
+function getWeekNumber(date: DateValue): number {
+  const jsDate = date.toDate(getLocalTimeZone())
+  const startOfYear = new Date(jsDate.getFullYear(), 0, 1)
+  const days = Math.floor((jsDate.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000))
+  return Math.ceil((days + startOfYear.getDay() + 1) / 7)
+}
+
+// Computed month label based on current visible week
+const currentMonthLabel = computed(() => {
+  const week = weeks.value[currentWeekIndex.value]
+  if (!week) return ''
+  return getMonthLabel(week.weekStart)
+})
+
+// Computed week number
+const currentWeekNumber = computed(() => {
+  const week = weeks.value[currentWeekIndex.value]
+  if (!week) return 0
+  return getWeekNumber(week.weekStart)
+})
+
 // Handle carousel slide change
 function onWeekSelect(index: number) {
+  currentWeekIndex.value = index
   const week = weeks.value[index]
   if (week) {
     const weekStart = week.weekStart.toDate(getLocalTimeZone())
@@ -190,6 +216,8 @@ function onWeekSelect(index: number) {
 // Initialize on mount
 onMounted(() => {
   initializeWeeks()
+  // Set initial week index before carousel renders
+  currentWeekIndex.value = startIndex.value
   nextTick(() => {
     onWeekSelect(startIndex.value)
   })
@@ -243,6 +271,18 @@ defineExpose({
 
 <template>
   <div class="flex flex-col gap-2">
+    <!-- Month Header (fixed, outside carousel) -->
+    <div class="flex items-center justify-center gap-2">
+      <button
+        type="button"
+        class="text-base font-medium hover:text-primary transition-colors"
+        @click="goToToday"
+      >
+        {{ currentMonthLabel }}
+      </button>
+      <UBadge color="neutral" variant="subtle" size="sm">W{{ currentWeekNumber }}</UBadge>
+    </div>
+
     <UCarousel
       ref="carousel"
       v-slot="{ item: week }"
@@ -257,17 +297,6 @@ defineExpose({
       @select="onWeekSelect"
     >
       <div class="px-2">
-        <!-- Header -->
-        <div class="flex items-center justify-center mb-4">
-          <button
-            type="button"
-            class="text-base font-medium hover:text-primary transition-colors"
-            @click="goToToday"
-          >
-            {{ getMonthLabel(week.weekStart) }}
-          </button>
-        </div>
-
         <!-- Days Grid -->
         <div class="grid grid-cols-7 gap-1">
           <div
