@@ -1,5 +1,6 @@
 // Customer-facing endpoint - returns only bookings created by the current user
-import { eq, and, asc } from 'drizzle-orm'
+// Supports date range queries: ?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
+import { eq, and, asc, gte, lte } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/sqlite-core'
 import { bookingsBookings } from '~~/layers/bookings/collections/bookings/server/database/schema'
 import { bookingsLocations } from '~~/layers/bookings/collections/locations/server/database/schema'
@@ -10,8 +11,27 @@ export default defineEventHandler(async (event) => {
   const { team, user } = await resolveTeamAndCheckMembership(event)
   const db = useDB()
 
+  // Parse optional date range query params
+  const query = getQuery(event)
+  const startDate = query.startDate ? new Date(String(query.startDate)) : null
+  const endDate = query.endDate ? new Date(String(query.endDate)) : null
+
   const ownerUsers = alias(users, 'ownerUsers')
   const createdByUsers = alias(users, 'createdByUsers')
+
+  // Build where conditions
+  const conditions = [
+    eq(bookingsBookings.teamId, team.id),
+    eq(bookingsBookings.createdBy, user.id),
+  ]
+
+  // Add date range conditions if provided
+  if (startDate && !isNaN(startDate.getTime())) {
+    conditions.push(gte(bookingsBookings.date, startDate))
+  }
+  if (endDate && !isNaN(endDate.getTime())) {
+    conditions.push(lte(bookingsBookings.date, endDate))
+  }
 
   // Get bookings created by this user
   const bookings = await db
@@ -46,13 +66,21 @@ export default defineEventHandler(async (event) => {
     .leftJoin(bookingsLocations, eq(bookingsBookings.location, bookingsLocations.id))
     .leftJoin(ownerUsers, eq(bookingsBookings.owner, ownerUsers.id))
     .leftJoin(createdByUsers, eq(bookingsBookings.createdBy, createdByUsers.id))
-    .where(
-      and(
-        eq(bookingsBookings.teamId, team.id),
-        eq(bookingsBookings.createdBy, user.id),
-      ),
-    )
+    .where(and(...conditions))
     .orderBy(asc(bookingsBookings.date))
 
+  // If date params were provided, return with metadata
+  // Otherwise return just the array for backwards compatibility
+  if (startDate || endDate) {
+    return {
+      items: bookings,
+      dateRange: {
+        startDate: startDate?.toISOString().split('T')[0] || null,
+        endDate: endDate?.toISOString().split('T')[0] || null,
+      },
+    }
+  }
+
+  // Backwards compatible: return array directly
   return bookings
 })
