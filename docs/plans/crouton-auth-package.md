@@ -6,8 +6,8 @@
 
 | Metric | Value |
 |--------|-------|
-| **Tasks Completed** | 31 / 54 |
-| **Current Phase** | Phase 6 - In Progress |
+| **Tasks Completed** | 32 / 54 |
+| **Current Phase** | Phase 6 - Complete |
 | **Estimated Total** | ~40-60 hours |
 
 ---
@@ -637,11 +637,11 @@ const handleSubmit = async () => {
 - [ ] Test fresh install migrations (deferred - requires runtime testing)
 - [ ] Test upgrade migrations (deferred - requires runtime testing)
 
-### Task 6.4: Seed Data (Development)
-- [ ] Create dev seed script
-- [ ] Seed default organization (single-tenant)
-- [ ] Seed test users
-- [ ] Seed test subscriptions
+### Task 6.4: Seed Data (Development) ✅
+- [x] ✅ Create dev seed script (`scripts/seed.ts`)
+- [x] ✅ Seed default organization (single-tenant)
+- [x] ✅ Seed test users (owner, admin, member, unverified)
+- [x] ✅ Seed test subscriptions (active, trialing, user-based)
 
 ---
 
@@ -649,7 +649,7 @@ const handleSubmit = async () => {
 **Estimated: 6-8 hours**
 
 ### Task 7.1: Unit Tests
-- [ ] Test `useAuth` composable
+- [x] ✅ Test `useAuth` composable (46 tests passing)
 - [ ] Test `useTeam` composable
 - [ ] Test `useBilling` composable
 - [ ] Test server utilities
@@ -1820,6 +1820,35 @@ const team = getTeamContext(event)
 
 **Blockers:**
 - None. Task 6.3 complete.
+
+**Task 6.4 completed:**
+- Created comprehensive development seed script at `scripts/seed.ts`
+- Seed script supports multiple commands:
+  - `all` - Seed everything (default)
+  - `users` - Seed test users only
+  - `orgs` - Seed organizations only
+  - `billing` - Seed subscriptions only
+  - `clear` - Clear all seeded data
+- Seeds test users with compatible password hashing (scrypt format):
+  - `owner@example.com` - Organization owner
+  - `admin@example.com` - Organization admin
+  - `member@example.com` - Regular member
+  - `unverified@example.com` - Unverified user
+  - All use password: `password123`
+- Seeds test organizations:
+  - `default` - Default workspace for single-tenant mode (isDefault: true)
+  - `acme-corp` - Multi-tenant test organization
+  - Personal workspace for test owner (personal: true)
+- Seeds organization memberships with proper roles
+- Seeds test subscriptions:
+  - Active subscription on Acme Corp (pro plan)
+  - Trialing subscription on default org (14-day trial)
+  - User-based subscription for personal mode testing
+- Added npm scripts: `seed`, `seed:users`, `seed:orgs`, `seed:billing`, `seed:clear`
+- Added `better-sqlite3` and `@types/better-sqlite3` dev dependencies
+
+**Blockers:**
+- None. Phase 6 complete!
 
 ---
 
