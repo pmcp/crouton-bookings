@@ -68,12 +68,95 @@ const calendarViewMode = ref<CalendarViewMode>('week')
 const route = useRoute()
 const teamId = computed(() => route.params.team as string)
 
-const { data: bookings, status, refresh } = useFetch<Booking[]>(
+// Date-windowed loading configuration
+const DAYS_BEFORE = 30  // Load 30 days before focus date
+const DAYS_AFTER = 90   // Load 90 days after focus date
+
+// Track the currently loaded date range
+const loadedRange = ref<{ startDate: string, endDate: string } | null>(null)
+
+// Helper to format date as YYYY-MM-DD for API queries
+function formatDateParam(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+
+// Calculate date range around a focus date
+function calculateDateRange(focusDate: Date = new Date()) {
+  const start = new Date(focusDate)
+  start.setDate(start.getDate() - DAYS_BEFORE)
+  const end = new Date(focusDate)
+  end.setDate(end.getDate() + DAYS_AFTER)
+  return {
+    startDate: formatDateParam(start),
+    endDate: formatDateParam(end),
+  }
+}
+
+// Initial date range centered on today
+const initialRange = calculateDateRange()
+const queryStartDate = ref(initialRange.startDate)
+const queryEndDate = ref(initialRange.endDate)
+
+// API response type
+interface BookingsResponse {
+  items: Booking[]
+  dateRange: { startDate: string | null, endDate: string | null }
+}
+
+const { data: bookingsData, status, refresh } = useFetch<BookingsResponse>(
   () => `/api/teams/${teamId.value}/customer-bookings`,
   {
     key: 'customer-bookings',
+    query: computed(() => ({
+      startDate: queryStartDate.value,
+      endDate: queryEndDate.value,
+    })),
   },
 )
+
+// Extract bookings from response
+const bookings = computed(() => bookingsData.value?.items || [])
+
+// Update loaded range when data changes
+watch(bookingsData, (data) => {
+  if (data?.dateRange) {
+    loadedRange.value = {
+      startDate: data.dateRange.startDate || queryStartDate.value,
+      endDate: data.dateRange.endDate || queryEndDate.value,
+    }
+  }
+}, { immediate: true })
+
+// Check if a date is within the loaded range
+function isDateInLoadedRange(date: Date): boolean {
+  if (!loadedRange.value) return false
+  const dateStr = formatDateParam(date)
+  return dateStr >= loadedRange.value.startDate && dateStr <= loadedRange.value.endDate
+}
+
+// Expand the date range when navigating outside loaded range
+async function expandDateRange(targetDate: Date) {
+  if (isDateInLoadedRange(targetDate)) return
+
+  // Calculate new range centered on target date
+  const newRange = calculateDateRange(targetDate)
+
+  // Expand to cover both old and new ranges
+  if (loadedRange.value) {
+    queryStartDate.value = newRange.startDate < loadedRange.value.startDate
+      ? newRange.startDate
+      : loadedRange.value.startDate
+    queryEndDate.value = newRange.endDate > loadedRange.value.endDate
+      ? newRange.endDate
+      : loadedRange.value.endDate
+  }
+  else {
+    queryStartDate.value = newRange.startDate
+    queryEndDate.value = newRange.endDate
+  }
+
+  // useFetch will automatically refetch due to reactive query params
+}
 
 // Fetch settings for group labels
 interface GroupItem { id: string, label: string }
@@ -266,10 +349,13 @@ function getTooltipForDate(date: DateValue): string {
   }).join('\n')
 }
 
-// When calendar date is selected, could scroll to / highlight those bookings
+// When calendar date is selected, check if we need to expand the date range
 watch(selectedDate, (newDate) => {
   if (!newDate) return
-  // Could implement scroll-to-booking functionality here
+  // Check if we need to expand the date range
+  if (!isDateInLoadedRange(newDate)) {
+    expandDateRange(newDate)
+  }
 })
 
 const hasBookings = computed(() => bookings.value && bookings.value.length > 0)
@@ -490,8 +576,21 @@ function scrollToDateBooking(date: Date) {
 }
 
 // When week carousel changes, scroll to first booking in that week
+// Also check if we need to load more data
 function onWeekChange(weekStart: Date, weekEnd: Date) {
   if (isSyncing.value) return
+
+  // Check if we need to expand the date range
+  if (!isDateInLoadedRange(weekStart) || !isDateInLoadedRange(weekEnd)) {
+    // Expand range to include the week we're navigating to
+    expandDateRange(weekStart)
+  }
+
+  // Update selectedDate to the start of the week for highlighting
+  // Clear any hover state - carousel navigation takes priority
+  hoveredDate.value = null
+  suppressWeekHighlight.value = false
+  selectedDate.value = weekStart
 
   // Find first booking index in this week
   const firstBookingIndex = filteredBookings.value.findIndex((booking) => {
@@ -605,7 +704,7 @@ useEventListener(scrollContainer, 'scroll', onBookingsScroll, { passive: true })
     <div v-else class="space-y-8">
 
 
-      <div class="relative z-30 sticky top-0 space-y-8 mt-4">
+      <div class="relative z-10 sticky top-0 space-y-8 mt-4 bg-default">
       <!-- Filters -->
       <div class="flex flex-row gap-3">
         <!-- Status Filter Toggles -->
@@ -653,7 +752,7 @@ useEventListener(scrollContainer, 'scroll', onBookingsScroll, { passive: true })
           </p>
           <div class="flex items-center gap-1">
             <!-- View mode toggle -->
-            <UButtonGroup size="sm">
+            <UFieldGroup size="sm">
               <UButton
                 :variant="calendarViewMode === 'week' ? 'solid' : 'ghost'"
                 color="neutral"
@@ -666,7 +765,7 @@ useEventListener(scrollContainer, 'scroll', onBookingsScroll, { passive: true })
                 icon="i-lucide-calendar"
                 @click="calendarViewMode = 'month'"
               />
-            </UButtonGroup>
+            </UFieldGroup>
             <UButton variant="ghost" color="neutral" size="sm" icon="i-lucide-refresh-cw" @click="() => refresh()" />
           </div>
         </div>
@@ -678,6 +777,7 @@ useEventListener(scrollContainer, 'scroll', onBookingsScroll, { passive: true })
         <WeekCarousel
           ref="weekCarousel"
           v-model="selectedDate"
+          :number-of-weeks="52"
           @week-change="onWeekChange"
           @day-hover="onDayHover"
         >
