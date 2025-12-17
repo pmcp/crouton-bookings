@@ -246,6 +246,7 @@ defineExpose({
     <UCarousel
       ref="carousel"
       v-slot="{ item: week }"
+      arrows
       :items="weeks"
       :start-index="startIndex"
       :ui="{
