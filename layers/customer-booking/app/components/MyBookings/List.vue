@@ -2,6 +2,11 @@
 import type { DateValue } from '@internationalized/date'
 import { CalendarDate, getLocalTimeZone } from '@internationalized/date'
 
+// Type helper for slot props (Vue proxies don't preserve class types)
+function asDateValue(date: unknown): DateValue {
+  return date as DateValue
+}
+
 const { t } = useT()
 
 interface SlotItem {
@@ -23,6 +28,21 @@ interface EmailStats {
   sent: number
   pending: number
   failed: number
+}
+
+type TriggerType = 'booking_confirmed' | 'reminder_before' | 'booking_cancelled' | 'follow_up_after'
+
+interface AvailableEmailAction {
+  triggerType: TriggerType
+  label: string
+  icon: string
+}
+
+interface EmailTemplate {
+  id: string
+  triggerType: TriggerType
+  locationId?: string | null
+  isActive: boolean
 }
 
 interface Booking {
@@ -52,13 +72,12 @@ interface StatusItem {
 }
 
 // Status keys type
-type StatusKey = 'confirmed' | 'pending' | 'cancelled'
+type StatusKey = 'active' | 'cancelled'
 
 // Hardcoded statuses - labels come from translations
 const STATUSES: StatusItem[] = [
-  { id: '1', value: 'confirmed', color: 'success' },
-  { id: '2', value: 'pending', color: 'warning' },
-  { id: '3', value: 'cancelled', color: 'error' },
+  { id: '1', value: 'active', color: 'success' },
+  { id: '2', value: 'cancelled', color: 'error' },
 ]
 
 // Calendar view mode: 'week' (swipeable carousel) or 'month' (3-month grid)
@@ -166,6 +185,101 @@ const { data: settingsData } = useFetch<SettingsData[]>(
   { key: 'mybookings-settings' },
 )
 const groupOptions = computed(() => settingsData.value?.[0]?.groups ?? [])
+
+// Fetch email templates to determine available actions
+const { data: emailTemplates } = useFetch<EmailTemplate[]>(
+  () => `/api/teams/${teamId.value}/bookings-emailtemplates`,
+  { key: 'mybookings-emailtemplates' },
+)
+
+// Build label and icon for each trigger type
+const triggerTypeInfo: Record<TriggerType, { label: string, icon: string }> = {
+  booking_confirmed: { label: t('bookings.email.resendConfirmation'), icon: 'i-lucide-mail-check' },
+  reminder_before: { label: t('bookings.email.sendReminder'), icon: 'i-lucide-bell' },
+  booking_cancelled: { label: t('bookings.email.sendCancellation'), icon: 'i-lucide-mail-x' },
+  follow_up_after: { label: t('bookings.email.sendFollowUp'), icon: 'i-lucide-mail-plus' },
+}
+
+// Get available email actions for a booking (based on templates for its location)
+function getEmailActionsForBooking(booking: Booking): AvailableEmailAction[] {
+  if (!emailTemplates.value) return []
+
+  // Filter templates that apply to this location
+  // Templates with no locationId apply to all locations
+  const applicableTemplates = emailTemplates.value.filter(template =>
+    template.isActive && (!template.locationId || template.locationId === booking.location)
+  )
+
+  // Get unique trigger types
+  const triggerTypes = [...new Set(applicableTemplates.map(t => t.triggerType))]
+
+  // Filter based on booking status
+  // - Don't show cancellation email for non-cancelled bookings
+  // - Don't show confirmation/reminder for cancelled bookings
+  const filteredTriggerTypes = triggerTypes.filter((tt) => {
+    if (booking.status === 'cancelled') {
+      return tt === 'booking_cancelled'
+    }
+    else {
+      return tt !== 'booking_cancelled'
+    }
+  })
+
+  return filteredTriggerTypes.map(tt => ({
+    triggerType: tt,
+    ...triggerTypeInfo[tt],
+  }))
+}
+
+// Track which booking+triggerType is currently being sent
+const sendingEmailState = ref<{ bookingId: string, triggerType: TriggerType } | null>(null)
+const toast = useToast()
+
+// Handle resend email action
+async function handleResendEmail(bookingId: string, triggerType: TriggerType) {
+  sendingEmailState.value = { bookingId, triggerType }
+
+  try {
+    const result = await $fetch(`/api/teams/${teamId.value}/bookings-bookings/${bookingId}/resend-email`, {
+      method: 'POST',
+      body: { triggerType },
+    })
+
+    if (result.sent > 0) {
+      toast.add({
+        title: t('bookings.email.sent'),
+        description: t('bookings.email.sentDescription', { count: result.sent }),
+        color: 'success',
+      })
+      // Refresh bookings to update email stats
+      refresh()
+    }
+    else if (result.skipped > 0) {
+      toast.add({
+        title: t('bookings.email.skipped'),
+        description: t('bookings.email.skippedDescription'),
+        color: 'warning',
+      })
+    }
+    else {
+      toast.add({
+        title: t('bookings.email.noTemplates'),
+        description: t('bookings.email.noTemplatesDescription'),
+        color: 'neutral',
+      })
+    }
+  }
+  catch (error: any) {
+    toast.add({
+      title: t('bookings.email.error'),
+      description: error.message || t('bookings.email.errorDescription'),
+      color: 'error',
+    })
+  }
+  finally {
+    sendingEmailState.value = null
+  }
+}
 
 // Use hardcoded statuses - labels come from translations
 const statuses = STATUSES
@@ -612,7 +726,13 @@ function onWeekChange(weekStart: Date, weekEnd: Date) {
 }
 
 // Watch for scroll in bookings list and sync carousel (using VueUse)
-const { height: windowHeight } = useWindowSize()
+const { width: windowWidth, height: windowHeight } = useWindowSize()
+
+// Responsive: number of months for calendar (1 on mobile, 3 on desktop)
+const numberOfMonths = computed(() => windowWidth.value < 768 ? 1 : 3)
+
+// Responsive: indicator size for week calendar (sm on mobile, md on desktop)
+const weekIndicatorSize = computed(() => windowWidth.value < 768 ? 'sm' : 'md')
 
 // Find booking closest to 40% of viewport and sync calendar
 function syncCalendarToScroll() {
@@ -701,110 +821,122 @@ useEventListener(scrollContainer, 'scroll', onBookingsScroll, { passive: true })
     </div>
 
     <!-- Bookings list -->
-    <div v-else class="space-y-8">
+    <div v-else class="space-y-4">
 
-
-      <div class="relative z-20 sticky top-0 space-y-8 mt-4 bg-default pb-4">
-      <!-- Filters -->
-      <div class="flex flex-row gap-3">
-        <!-- Status Filter Toggles -->
-        <div class="flex flex-wrap gap-2">
-          <UButton
-            v-for="statusItem in statuses"
-            :key="statusItem.id"
-            size="xs"
-            :variant="statusFilters[statusItem.value] ? 'solid' : 'outline'"
-            :color="statusItem.color"
-            @click="toggleStatus(statusItem.value)"
-          >
-            <UIcon
-              :name="statusFilters[statusItem.value] ? 'i-lucide-check' : 'i-lucide-x'"
-              class="w-3 h-3 mr-1"
-            />
-            {{ t('bookings.status.' + statusItem.value) }}
-          </UButton>
-        </div>
-
-        <!-- Location Filter Cards -->
-        <div v-if="availableLocations.length > 1" class="flex flex-wrap gap-2">
-          <button
-            v-for="loc in availableLocations"
-            :key="loc.id"
-            type="button"
-            class="px-3 py-2 rounded-lg transition-all hover:scale-105 hover:shadow-md"
-            :class="[
-              locationFilters[loc.id]
-                ? 'bg-elevated shadow-sm'
-                : 'bg-elevated/30 opacity-40 hover:opacity-70 hover:bg-elevated/50'
-            ]"
-            @click="toggleLocation(loc.id)"
-          >
-            <BookingsLocationsLocationCardMini
-              :title="loc.title"
-              :slots="loc.slots"
-            />
-          </button>
-        </div>
-        <!-- Header with count, view toggle, and refresh -->
-        <div class="flex items-center justify-between">
-          <p class="text-sm text-muted">
-            {{ filteredBookings.length }} of {{ bookings?.length }} booking{{ bookings?.length === 1 ? '' : 's' }}
-          </p>
-          <div class="flex items-center gap-1">
-            <!-- View mode toggle -->
-            <UFieldGroup size="sm">
-              <UButton
-                :variant="calendarViewMode === 'week' ? 'solid' : 'ghost'"
-                color="neutral"
-                icon="i-lucide-calendar-days"
-                @click="calendarViewMode = 'week'"
+      <!-- Sticky Filter Bar + Calendar -->
+      <div class="sticky top-0 z-20 bg-default py-2 space-y-2">
+        <!-- Filter Bar - horizontal scroll on mobile -->
+        <div class="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+          <!-- Status Toggles -->
+          <div class="flex gap-1 shrink-0">
+            <UButton
+              v-for="statusItem in statuses"
+              :key="statusItem.id"
+              size="xs"
+              :variant="statusFilters[statusItem.value] ? 'solid' : 'outline'"
+              :color="statusItem.color"
+              @click="toggleStatus(statusItem.value)"
+            >
+              <UIcon
+                :name="statusFilters[statusItem.value] ? 'i-lucide-check' : 'i-lucide-x'"
+                class="w-3 h-3"
               />
-              <UButton
-                :variant="calendarViewMode === 'month' ? 'solid' : 'ghost'"
-                color="neutral"
-                icon="i-lucide-calendar"
-                @click="calendarViewMode = 'month'"
+              {{ t('bookings.status.' + statusItem.value) }}
+            </UButton>
+          </div>
+
+          <!-- Separator -->
+          <USeparator v-if="availableLocations.length > 1" orientation="vertical" class="h-5 shrink-0" />
+
+          <!-- Location Filters -->
+          <div v-if="availableLocations.length > 1" class="flex gap-1 shrink-0">
+            <button
+              v-for="loc in availableLocations"
+              :key="loc.id"
+              type="button"
+              class="px-2 py-1 rounded-md transition-all"
+              :class="[
+                locationFilters[loc.id]
+                  ? 'bg-elevated shadow-sm'
+                  : 'bg-elevated/30 opacity-50 hover:opacity-80'
+              ]"
+              @click="toggleLocation(loc.id)"
+            >
+              <BookingsLocationsLocationCardMini
+                :title="loc.title"
+                :slots="loc.slots"
               />
-            </UFieldGroup>
-            <UButton variant="ghost" color="neutral" size="sm" icon="i-lucide-refresh-cw" @click="() => refresh()" />
+            </button>
+          </div>
+
+          <!-- Spacer -->
+          <div class="flex-1 min-w-2" />
+
+          <!-- Count -->
+          <span class="text-xs text-muted whitespace-nowrap shrink-0">
+            {{ filteredBookings.length }}/{{ bookings?.length }}
+          </span>
+
+          <!-- View Toggle + Refresh -->
+          <div class="flex items-center gap-0.5 shrink-0">
+            <UButton
+              size="xs"
+              :variant="calendarViewMode === 'week' ? 'solid' : 'ghost'"
+              color="neutral"
+              icon="i-lucide-calendar-days"
+              @click="calendarViewMode = 'week'"
+            />
+            <UButton
+              size="xs"
+              :variant="calendarViewMode === 'month' ? 'solid' : 'ghost'"
+              color="neutral"
+              icon="i-lucide-calendar"
+              @click="calendarViewMode = 'month'"
+            />
+            <UButton
+              variant="ghost"
+              color="neutral"
+              size="xs"
+              icon="i-lucide-refresh-cw"
+              @click="() => refresh()"
+            />
           </div>
         </div>
 
-      </div>
+        <!-- Week Calendar with Swipeable Weeks -->
+        <div v-if="calendarViewMode === 'week'" class="bg-elevated/50 rounded-lg p-2">
+          <CroutonWeekCalendar
+            ref="weekCarousel"
+            v-model="selectedDate"
+            :initial-weeks="52"
+            size="sm"
+            @week-change="onWeekChange"
+            @day-hover="onDayHover"
+          >
+            <template #day="{ date }">
+              <div v-if="hasBookingOnDate(asDateValue(date))" class="flex flex-col gap-0.5">
+                <BookingsLocationsSlotIndicator
+                  v-for="lb in getLocationBookingsForDate(asDateValue(date))"
+                  :key="lb.locationId"
+                  :slots="lb.slots"
+                  :booked-slot-ids="lb.bookedSlotIds"
+                  :size="weekIndicatorSize"
+                />
+              </div>
+            </template>
+          </CroutonWeekCalendar>
+        </div>
 
-      <!-- Week Calendar with Swipeable Weeks -->
-      <UCard v-if="calendarViewMode === 'week'">
-        <WeekCarousel
-          ref="weekCarousel"
-          v-model="selectedDate"
-          :number-of-weeks="52"
-          @week-change="onWeekChange"
-          @day-hover="onDayHover"
-        >
-          <template #day="{ day }">
-            <div v-if="hasBookingOnDate(day)" class="flex flex-col gap-1">
-              <BookingsLocationsSlotIndicator
-                v-for="lb in getLocationBookingsForDate(day)"
-                :key="lb.locationId"
-                :slots="lb.slots"
-                :booked-slot-ids="lb.bookedSlotIds"
-                size="md"
-              />
-            </div>
-          </template>
-        </WeekCarousel>
-      </UCard>
-
-      <!-- 3-Month Calendar View -->
-      <UCard v-else>
-        <UCalendar
-          ref="monthCalendar"
-          v-model="selectedCalendarDate"
-          :number-of-months="3"
-          size="sm"
-          class="w-full"
-          :ui="{ root: 'w-full', header: 'justify-between', gridRow: 'grid grid-cols-7 mb-1' }"
-        >
+        <!-- Month Calendar View (1 month on mobile, 3 on desktop) -->
+        <div v-else class="bg-elevated/50 rounded-lg p-2">
+          <UCalendar
+            ref="monthCalendar"
+            v-model="selectedCalendarDate"
+            :number-of-months="numberOfMonths"
+            size="sm"
+            class="w-full"
+            :ui="{ root: 'w-full', header: 'justify-between', gridRow: 'grid grid-cols-7 mb-1' }"
+          >
           <template #day="{ day }">
             <div
               class="flex flex-col items-center"
@@ -823,9 +955,10 @@ useEventListener(scrollContainer, 'scroll', onBookingsScroll, { passive: true })
               </div>
             </div>
           </template>
-        </UCalendar>
-      </UCard>
+          </UCalendar>
+        </div>
       </div>
+
       <!-- Bookings List (scrollable container) -->
       <div
         ref="scrollAreaRef"
@@ -853,6 +986,9 @@ useEventListener(scrollContainer, 'scroll', onBookingsScroll, { passive: true })
             :created-at="booking.createdAt"
             :email-stats="booking.emailStats"
             :highlighted="isBookingHighlighted(booking.date)"
+            :email-actions="getEmailActionsForBooking(booking)"
+            :sending-email-type="sendingEmailState?.bookingId === booking.id ? sendingEmailState.triggerType : null"
+            @resend-email="(triggerType) => handleResendEmail(booking.id, triggerType)"
           />
         </div>
 

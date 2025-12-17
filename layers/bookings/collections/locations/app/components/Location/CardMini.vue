@@ -22,13 +22,14 @@ const displaySlots = computed(() =>
 </script>
 
 <template>
-  <div class="flex flex-col items-center">
-    <span class="text-xs font-medium mb-1 truncate max-w-[120px]">{{ title }}</span>
+  <div class="@container flex flex-col items-center">
+    <span class="text-xs font-medium truncate max-w-[80px] @[80px]:max-w-[120px]">{{ title }}</span>
     <BookingsLocationsSlotIndicator
       v-if="displaySlots.length > 0"
       :slots="displaySlots"
       :booked-slot-ids="displaySlots.map(s => s.id)"
-      size="sm"
+      size="xs"
+      class="hidden @[60px]:flex mt-0.5"
     />
   </div>
 </template>
