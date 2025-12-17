@@ -650,8 +650,8 @@ const handleSubmit = async () => {
 
 ### Task 7.1: Unit Tests
 - [x] ✅ Test `useAuth` composable (46 tests passing)
-- [ ] Test `useTeam` composable
-- [ ] Test `useBilling` composable
+- [x] ✅ Test `useTeam` composable (39 tests passing)
+- [x] ✅ Test `useBilling` composable (28 tests passing)
 - [ ] Test server utilities
 - [ ] Test mode-specific behavior
 
