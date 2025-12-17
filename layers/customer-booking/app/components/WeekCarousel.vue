@@ -5,13 +5,13 @@ import { CalendarDate, today, getLocalTimeZone } from '@internationalized/date'
 interface Props {
   modelValue?: Date | null
   weekStartsOn?: 0 | 1 // 0 = Sunday, 1 = Monday
-  numberOfWeeks?: number // How many weeks to show in carousel
+  initialWeeks?: number // Initial weeks to load (will expand dynamically)
 }
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: null,
   weekStartsOn: 1,
-  numberOfWeeks: 5, // Show 5 weeks: 2 past, current, 2 future
+  initialWeeks: 12, // Start with 12 weeks, expand as needed
 })
 
 const emit = defineEmits<{
@@ -22,25 +22,16 @@ const emit = defineEmits<{
 
 const carousel = useTemplateRef('carousel')
 
-// Generate weeks array centered on current week
-const weeks = computed(() => {
-  const todayDate = today(getLocalTimeZone())
-  const result = []
+// Track the range of week offsets we've generated (relative to today)
+const earliestWeekOffset = ref(-Math.floor(props.initialWeeks / 2))
+const latestWeekOffset = ref(Math.ceil(props.initialWeeks / 2) - 1)
 
-  // Calculate weeks before and after
-  const weeksBefore = Math.floor(props.numberOfWeeks / 2)
-
-  for (let i = -weeksBefore; i < props.numberOfWeeks - weeksBefore; i++) {
-    const weekStart = getWeekStart(todayDate.add({ weeks: i }))
-    result.push({
-      id: i,
-      weekStart,
-      days: generateWeekDays(weekStart),
-    })
-  }
-
-  return result
-})
+// Generate weeks dynamically
+const weeks = ref<Array<{
+  id: number
+  weekStart: DateValue
+  days: ReturnType<typeof generateWeekDays>
+}>>([])
 
 // Get the start of the week for a given date
 function getWeekStart(date: DateValue): DateValue {
@@ -65,6 +56,70 @@ function generateWeekDays(weekStart: DateValue) {
     })
   }
   return days
+}
+
+// Generate a week object for a given offset from today
+function generateWeek(offset: number) {
+  const todayDate = today(getLocalTimeZone())
+  const weekStart = getWeekStart(todayDate.add({ weeks: offset }))
+  return {
+    id: offset,
+    weekStart,
+    days: generateWeekDays(weekStart),
+  }
+}
+
+// Initialize weeks array
+function initializeWeeks() {
+  const result = []
+  for (let i = earliestWeekOffset.value; i <= latestWeekOffset.value; i++) {
+    result.push(generateWeek(i))
+  }
+  weeks.value = result
+}
+
+// Add weeks to the past (beginning of array)
+function addWeeksToPast(count: number = 4) {
+  const newWeeks = []
+  for (let i = 0; i < count; i++) {
+    earliestWeekOffset.value--
+    newWeeks.unshift(generateWeek(earliestWeekOffset.value))
+  }
+  weeks.value = [...newWeeks, ...weeks.value]
+
+  // Adjust carousel position to maintain current view
+  nextTick(() => {
+    const api = carousel.value?.emblaApi
+    if (api) {
+      const currentIndex = api.selectedScrollSnap()
+      api.scrollTo(currentIndex + count, false) // false = no animation
+    }
+  })
+}
+
+// Add weeks to the future (end of array)
+function addWeeksToFuture(count: number = 4) {
+  const newWeeks = []
+  for (let i = 0; i < count; i++) {
+    latestWeekOffset.value++
+    newWeeks.push(generateWeek(latestWeekOffset.value))
+  }
+  weeks.value = [...weeks.value, ...newWeeks]
+}
+
+// Check if we need to expand and do so
+function checkAndExpand(index: number) {
+  const threshold = 3 // Start loading when within 3 weeks of edge
+
+  // Near the beginning - add past weeks
+  if (index < threshold) {
+    addWeeksToPast(4)
+  }
+
+  // Near the end - add future weeks
+  if (index > weeks.value.length - threshold - 1) {
+    addWeeksToFuture(4)
+  }
 }
 
 // Format month label
@@ -106,12 +161,18 @@ function selectDay(day: { date: DateValue, jsDate: Date }) {
 
 // Go to today's week
 function goToToday() {
-  const centerIndex = Math.floor(props.numberOfWeeks / 2)
-  carousel.value?.emblaApi?.scrollTo(centerIndex)
+  // Find index of week containing today (offset 0)
+  const todayIndex = weeks.value.findIndex(w => w.id === 0)
+  if (todayIndex !== -1) {
+    carousel.value?.emblaApi?.scrollTo(todayIndex)
+  }
 }
 
-// Start at center (current week)
-const startIndex = Math.floor(props.numberOfWeeks / 2)
+// Calculate start index (week containing today)
+const startIndex = computed(() => {
+  const idx = weeks.value.findIndex(w => w.id === 0)
+  return idx !== -1 ? idx : Math.floor(weeks.value.length / 2)
+})
 
 // Handle carousel slide change
 function onWeekSelect(index: number) {
@@ -120,12 +181,18 @@ function onWeekSelect(index: number) {
     const weekStart = week.weekStart.toDate(getLocalTimeZone())
     const weekEnd = week.weekStart.add({ days: 6 }).toDate(getLocalTimeZone())
     emit('weekChange', weekStart, weekEnd)
+
+    // Check if we need to expand
+    checkAndExpand(index)
   }
 }
 
-// Emit initial week on mount
+// Initialize on mount
 onMounted(() => {
-  onWeekSelect(startIndex)
+  initializeWeeks()
+  nextTick(() => {
+    onWeekSelect(startIndex.value)
+  })
 })
 
 // Scroll to a specific date's week
@@ -134,9 +201,34 @@ function scrollToDate(date: Date) {
   const targetWeekStart = getWeekStart(targetDate)
 
   // Find the week index that contains this date
-  const weekIndex = weeks.value.findIndex((week) => {
+  let weekIndex = weeks.value.findIndex((week) => {
     return week.weekStart.compare(targetWeekStart) === 0
   })
+
+  // If not found, we may need to expand
+  if (weekIndex === -1) {
+    // Calculate how many weeks away from our range
+    const todayDate = today(getLocalTimeZone())
+    const todayWeekStart = getWeekStart(todayDate)
+
+    // Calculate week difference
+    const diffMs = targetWeekStart.toDate(getLocalTimeZone()).getTime() - todayWeekStart.toDate(getLocalTimeZone()).getTime()
+    const weeksDiff = Math.round(diffMs / (7 * 24 * 60 * 60 * 1000))
+
+    // Expand in the appropriate direction
+    if (weeksDiff < earliestWeekOffset.value) {
+      const weeksToAdd = earliestWeekOffset.value - weeksDiff + 4
+      addWeeksToPast(weeksToAdd)
+    } else if (weeksDiff > latestWeekOffset.value) {
+      const weeksToAdd = weeksDiff - latestWeekOffset.value + 4
+      addWeeksToFuture(weeksToAdd)
+    }
+
+    // Try finding again
+    weekIndex = weeks.value.findIndex((week) => {
+      return week.weekStart.compare(targetWeekStart) === 0
+    })
+  }
 
   if (weekIndex !== -1) {
     carousel.value?.emblaApi?.scrollTo(weekIndex)
